@@ -1,0 +1,252 @@
+<html>
+<body>
+
+<script src = "leap.js"             ></script>
+<script src = "three.js"            ></script>
+<script src = "stats.min.js"        ></script>
+<script src = "TrackballControls.js"   ></script>
+<script src = "Fish.js"   ></script>
+
+<script>  
+
+  // Global Variables for THREE.JS
+  var container , camera, scene, renderer , stats;
+
+  // Global variable for leap
+  var frame, controller;
+
+  // Setting up how big we want the scene to be
+  var sceneSize = 10;
+
+  var fish;
+
+  var fishes = [];
+
+  var tmpMat;
+
+  var counter = 0;
+
+  var paused = false;
+
+    // Get everything set up
+  init();
+
+  // Start the frames rolling
+  animate();
+
+  function init(){
+
+    controller = new Leap.Controller();
+
+    tmpMat = new THREE.Matrix4();
+    
+    scene = new THREE.Scene();
+    
+    camera = new THREE.PerspectiveCamera( 
+      50 ,
+      window.innerWidth / window.innerHeight,
+      sceneSize / 100 ,
+      sceneSize * 40
+    );
+
+    // placing our camera position so it can see everything
+    camera.position.z = sceneSize ;
+
+
+    controls = new THREE.TrackballControls( camera );
+
+    // Getting the container in the right location
+    container = document.createElement( 'div' );
+
+    container.style.width      = '100%';
+    container.style.height     = '100%';
+    container.style.position   = 'absolute';
+    container.style.top        = '0px';
+    container.style.left       = '0px';
+    container.style.background = '#000';
+
+    document.body.appendChild( container );
+
+
+    // Getting the stats in the right position
+    stats = new Stats();
+
+    stats.domElement.style.position  = 'absolute';
+    stats.domElement.style.bottom    = '0px';
+    stats.domElement.style.right     = '0px';
+    stats.domElement.style.zIndex    = '999';
+
+    document.body.appendChild( stats.domElement );
+
+    // Setting up our Renderer
+    renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    container.appendChild( renderer.domElement );
+
+    // Making sure our renderer is always the right size
+    window.addEventListener( 'resize', onWindowResize , false );
+
+    fishBody = initFishBody();
+
+    bait = new THREE.Object3D();
+    leader = new Fish(bait,2);
+
+    var column = [];
+
+    var dir = [
+      [1 , 0],
+      [-1 , 0],
+      [0,1],
+      [0,-1]
+    ]
+    for( var i = 0; i < 30; i++ ){
+
+      var fish;
+
+      if( i === 0 ){
+        
+        fish = new Fish( leader , 1);
+
+      }else{
+
+        fish = new Fish( column[i-1] , 1);
+
+      }
+
+
+      for( var j = 0; j < 3; j++ ){
+
+        var subFish = new Fish( fish ,  .5 );
+        subFish.position.x = dir[j][0]
+        subFish.position.y = dir[j][1]
+
+
+        for( var k = 0; k < 3; k++ ){
+
+          var subSubFish = new Fish( subFish , .25 );
+          subSubFish.position.x = dir[k][0]
+          subSubFish.position.y = dir[k][1]
+
+           for( var l = 0; l < 3; l++ ){
+
+            var subSubSubFish = new Fish( subSubFish , .125 );
+            subSubSubFish.position.x = dir[l][0]
+            subSubSubFish.position.y = dir[l][1]
+        }
+        }
+
+
+
+      }
+
+
+      column.push( fish );
+
+    }
+   
+
+   
+    var mesh = new THREE.Mesh(
+      new THREE.IcosahedronGeometry( .2 , 1 ),
+      new THREE.MeshBasicMaterial()
+    );
+
+    bait.add( mesh );
+    //scene.add( bait );
+
+    document.addEventListener( 'keydown' , function(e){
+
+        if( e.which == 32 ){
+
+          paused = !paused;
+
+        }
+
+    });
+
+
+    controller.connect();
+
+  }
+
+   function animate(){
+
+    counter += 1;
+    controls.update();
+    stats.update();
+
+
+    if( !paused ){
+
+      var frame = controller.frame();
+
+      if( frame.hands[0] ){
+
+        leapToScene( frame, frame.hands[0].palmPosition , bait.position , 4 );
+
+      }
+    
+
+      /*bait.position.x = 4* Math.sin( counter / 200 );
+      bait.position.y = 3*Math.cos( counter / 70 );
+      bait.position.z = 4*Math.cos( counter / 30 );*/
+
+      leader.update();
+
+    }
+
+
+    /*for( var i = 0; i < fishes.length ; i++ ){
+
+
+      fishes[i].update();
+
+    }*/
+
+
+     renderer.render( scene , camera );
+     requestAnimationFrame( animate );
+
+  }
+
+
+  // Resets the renderer to be the proper size
+  function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+  }
+
+  function leapToScene( frame , leapPos , ourPos , size ){
+
+    var p = frame.interactionBox.normalizePoint( leapPos );
+
+    p[0] -= .5;
+    p[1] -= .5;
+    p[2] -= .5;
+
+    p[0] *= size;
+    p[1] *= size;
+    p[2] *= size;
+
+    p[2] -= size; //move away a bit TODO: neccesary?
+
+    var pos = new THREE.Vector3().fromArray( p );
+    pos.applyMatrix4( camera.matrix );
+
+    ourPos.copy( pos );
+
+
+  }
+
+</script>
+
+
+</body>
+</html>
+
+
