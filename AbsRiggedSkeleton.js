@@ -287,8 +287,7 @@
      this.hand.rotation.setFromRotationMatrix( this.getHandBasis( frameHand ) );
 
 
-     // for( var i = 0; i < this.fingers.length; i++ ){
-      for( var i = 1; i < 2; i++ ){
+      for( var i = 0; i < this.fingers.length; i++ ){
 
         var frameFinger = frameFingers[i];
         var finger      = this.fingers[i];
@@ -308,7 +307,6 @@
 
       //rotationMatrix.multiply( this.baseMatrix );
     rotationMatrix.multiply( this.baseMatrix.clone().transpose() );
-
 
     return rotationMatrix;
 

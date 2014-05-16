@@ -95,6 +95,13 @@
     p1R.add( p2R );
     p2R.add( p3R );
 
+    p1R.matrixAutoUpdate = false;
+    p1R.updateMatrix();
+    p2R.matrixAutoUpdate = false;
+    p2R.updateMatrix();
+    p3R.matrixAutoUpdate = false;
+    p3R.updateMatrix();
+
     p1G = new THREE.Mesh( geo , mat );
     p2G = new THREE.Mesh( geo , mat );
     p3G = new THREE.Mesh( geo , mat );
@@ -102,20 +109,13 @@
     p2G.position.x = 200;
     p3G.position.x = 100;
 
+
     p1G.matrixAutoUpdate = false;
     p1G.updateMatrix();
     p2G.matrixAutoUpdate = false;
     p2G.updateMatrix();
     p3G.matrixAutoUpdate = false;
     p3G.updateMatrix();
-
-
-    p1R.matrixAutoUpdate = false;
-    p1R.updateMatrix();
-    p2R.matrixAutoUpdate = false;
-    p2R.updateMatrix();
-    p3R.matrixAutoUpdate = false;
-    p3R.updateMatrix();
 
 
     scene.add( p1G );
@@ -148,58 +148,21 @@
   }
 
 
-  function updateP1G(){
-    //p1G.matrix.extractRotation(p1R.matrix);
-   // p1G.matrixWorldNeedsUpdate = true;
-    console.log( p1G.matrixWorld.elements );
-    p1G.matrix.extractRotation(p1R.matrix);
-    console.log( p1G.matrixWorld.elements );
-    p1G.updateMatrixWorld( false );
-    console.log( p1G.matrixWorld.elements );
+  function updateP1G(matrix){ 
+    p1G.rotation.setFromRotationMatrix(matrix);
+    p1G.updateMatrix();
 
   }
-  function updateP2G(matrix1, matrix2){
+function updateP2G(matrix){ 
+    p2G.rotation.setFromRotationMatrix(matrix);
+    p2G.updateMatrix();
 
-    var newMat = new THREE.Matrix4().multiplyMatrices( p1R.matrix , p2R.matrix );
-
-    p2G.matrixWorld.extractRotation( newMat );
-    p2G.updateMatrixWorld();
-    // var tmp = p2G.matrixWorld.clone();
-    //p2G.matrix.multiply( p1G.matrixWorld );
-   // p2G.updateMatrix();
-    //p2G.updateMatrixWorld();
-    /*var mat = p2G.matrixWorld.clone().multiply(matrix2.clone().transpose());
-
-    
-    //p2G.updateMatrixWorld();
-
-    //var mat = matrix.clone().transpose().multiply(p2G.matrixWorld.clone());
-    p2G.matrixWorld.extractRotation(mat);
-
-    //p2G.matrixWorld.makeRotationFromQuaternion( q1 );
-    //p2G.updateMatrixWorld();
-    //p2G.matrixWorld = matrix;
-    p2G.updateMatrixWorld();
-
-    //p2G.updateMatrix();
-    */
-
-
-    
   }
-  function updateP3G(matrix){
+function updateP3G(matrix){ 
+    p3G.rotation.setFromRotationMatrix(matrix);
+    p3G.updateMatrix();
 
-    var newMat = new THREE.Matrix4().multiplyMatrices( p1R.matrix , p2R.matrix );
-    newMat.multiply( p3R.matrix );
-    
-    p3G.matrixWorld.extractRotation( newMat );
-    p3G.updateMatrixWorld();
-    /*
-    var mat = matrix.clone().transpose().multiply(p3G.matrixWorld.clone());
-    p3G.matrixWorld.extractRotation(mat);
-    p3G.updateMatrixWorld();
-    */
-  } 
+  }
 
   function animate(){
 
@@ -231,9 +194,9 @@
     updateP2R( p2Mat );
     updateP3R( p3Mat );
 
-    updateP1G();
-    updateP2G( p1Mat , p2Mat );
-    updateP3G( p3Mat );
+    updateP1G(p1R.matrixWorld);
+    updateP2G(new THREE.Matrix4().multiplyMatrices(p1R.matrixWorld.clone().transpose(), p2R.matrixWorld));
+    updateP3G(new THREE.Matrix4().multiplyMatrices(p2R.matrixWorld.clone().transpose(), p3R.matrixWorld));
 
     
    // p1.rotation.x += .01;

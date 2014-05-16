@@ -21,9 +21,10 @@
     /*THREE.Matrix4 applyRelativeRotation(Matrix4 myBasis, Matrix4 leapRelativeRotation) {
 
     }*/
-
+    
     this.baseMatrix = new THREE.Matrix4(
-        0  , 0  , 1 , 0,
+
+        0  , 0  , -1 , 0,
         0  , -1 , 0 , 0,
         -1  , 0  , 0 , 0, 
         0  , 0  , 0 , 1
@@ -145,7 +146,6 @@
 
     ourFinger.m.position = this.threeDif( frameHand.palmPosition , m.prevJoint );
 
-    var tmp = ourFinger.m.position.length();
     var quat = new THREE.Quaternion();
     quat.setFromRotationMatrix( this.hand.matrix.clone().transpose() );
     ourFinger.m.position.applyQuaternion( quat ); 
@@ -155,27 +155,29 @@
     ourFinger.d.position.z = -i.length;
     ourFinger.t.position.z = -d.length;
 
+    var mMatrix = this.matrixFromBasis( m.basis );
 
-    //ourFinger.m.rotation.setFromQuaternion( quat );
-/*
-    ourFinger.m.absoluteMatrix = this.matrixFromBasis( m.basis );
-
-    ourFinger.p.absoluteMatrix = this.matrixFromBasis( p.basis );
-    ourFinger.p.relativeMatrix = this.relativeRotationMatrix( ourFinger.p.absoluteMatrix , ourFinger.m.absoluteMatrix );
+    //derive relative rotation
+    var mRelRot = new THREE.Matrix4().multiplyMatrices( this.handBasis.clone().transpose(), mMatrix);
+    ourFinger.m.rotation.setFromRotationMatrix(mRelRot);
 
 
-    ourFinger.p.rotation.setFromRotationMatrix( ourFinger.p.relativeMatrix );
-    
-
-    ourFinger.i.absoluteMatrix = this.matrixFromBasis( i.basis );
-    ourFinger.i.relativeMatrix = this.relativeRotationMatrix( ourFinger.i.absoluteMatrix , ourFinger.p.absoluteMatrix);
-
-    ourFinger.i.rotation.setFromRotationMatrix( ourFinger.i.relativeMatrix );
+    var pMatrix = this.matrixFromBasis( p.basis );
+    var pRelRot = new THREE.Matrix4().multiplyMatrices( mMatrix.clone().transpose() , pMatrix );
+    ourFinger.p.rotation.setFromRotationMatrix(pRelRot);
 
 
-    ourFinger.d.absoluteMatrix = this.matrixFromBasis( d.basis );
-    ourFinger.d.relativeMatrix = this.relativeRotationMatrix( ourFinger.d.absoluteMatrix , ourFinger.i.absoluteMatrix );
-    ourFinger.d.rotation.setFromRotationMatrix( ourFinger.i.relativeMatrix );*/
+    var iMatrix = this.matrixFromBasis( i.basis );
+    var iRelRot = new THREE.Matrix4().multiplyMatrices( pMatrix.clone().transpose() , iMatrix );
+    ourFinger.i.rotation.setFromRotationMatrix(iRelRot);
+
+    var dMatrix = this.matrixFromBasis( d.basis );
+    var dRelRot = new THREE.Matrix4().multiplyMatrices( iMatrix.clone().transpose() , dMatrix );
+    ourFinger.d.rotation.setFromRotationMatrix(dRelRot);
+
+    //mMatrix.multiply( this.hand.matrixWorld.clone().transpose() );
+   // ourFinger.m.rotation.setFromRotationMatrix( mMatrix );
+
 
   }
 
@@ -199,20 +201,8 @@
 
       var frameFingers = this.orderFingers( frameHand );
 
-      var r = frameHand._rotation;
-    
-      var handBasis = [
-        [ r[0] , r[3] , r[6] ],
-        [ r[1] , r[4] , r[7] ],
-        [ r[2] , r[5] , r[8] ]
-      ];
-
-      var rotationMatrix  = this.rotationMatrixFromVectors( frameHand.direction, frameHand.palmNormal );
-      var rotationMatrix  = this.matrixFromBasis( handBasis );
-
-      rotationMatrix.multiply( this.baseMatrix.clone().transpose() );
-      this.hand.rotation.setFromRotationMatrix( rotationMatrix );
-
+      this.handBasis =  this.getHandBasis( frameHand );
+      this.hand.rotation.setFromRotationMatrix( this.handBasis );
 
       for( var i = 0; i < this.fingers.length; i++ ){
       //for( var i = 1; i < 2; i++ ){
@@ -229,6 +219,18 @@
 
   }
 
+  RiggedSkeleton.prototype.getHandBasis = function( hand  ){
+
+    var rotationMatrix  = this.rotationMatrixFromVectors( hand.direction, hand.palmNormal , hand.type );
+
+    var det = rotationMatrix.determinant();
+
+    rotationMatrix.multiply( this.baseMatrix.clone().transpose() );
+
+    return rotationMatrix;
+
+
+  }
 
   RiggedSkeleton.prototype.rotFromBasis = function( rotation , b , oB ){
 
@@ -309,11 +311,18 @@
 
   }
 
-  RiggedSkeleton.prototype.rotationMatrixFromVectors = function( vec1 , vec2 ){
+  RiggedSkeleton.prototype.rotationMatrixFromVectors = function( vec1 , vec2 , type ){
 
     var a1 = new THREE.Vector3().fromArray( vec1 );
     var a2 = new THREE.Vector3().fromArray( vec2 );
-    var a3 = a1.clone().cross( a2 );
+    var a3;
+    
+    if( type == 'left' ){
+      a3 = a2.clone().cross( a1 );
+    }else{
+      a3 = a1.clone().cross( a2 );
+
+    }
 
     var matrix = new THREE.Matrix4( 
       a1.x , a2.x , a3.x, 0,

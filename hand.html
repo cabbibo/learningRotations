@@ -1,0 +1,279 @@
+<html>
+<body>
+
+<script src = "leap.js"             ></script>
+<script src = "three.js"            ></script>
+<script src = "stats.min.js"        ></script>
+<script src = "RiggedSkeleton.js"   ></script>
+<script src = "AbsRiggedSkeleton.js"   ></script>
+<script src = "TrackballControls.js"   ></script>
+
+<script>
+
+  // Global Variables for THREE.JS
+  var container , camera, scene, renderer , stats;
+
+  // Global variable for leap
+  var frame, controller;
+
+  // Setting up how big we want the scene to be
+  var sceneSize = 1000;
+
+  var riggedSkeleton;
+
+
+  // Get everything set up
+  init();
+
+  // Start the frames rolling
+  animate();
+
+
+  function init(){
+
+    controller = new Leap.Controller();
+
+    scene = new THREE.Scene();
+    
+    camera = new THREE.PerspectiveCamera( 
+      50 ,
+      window.innerWidth / window.innerHeight,
+      sceneSize / 100 ,
+      sceneSize * 4
+    );
+
+    // placing our camera position so it can see everything
+    camera.position.z = sceneSize ;
+
+
+    controls = new THREE.TrackballControls( camera );
+
+    // Getting the container in the right location
+    container = document.createElement( 'div' );
+
+    container.style.width      = '100%';
+    container.style.height     = '100%';
+    container.style.position   = 'absolute';
+    container.style.top        = '0px';
+    container.style.left       = '0px';
+    container.style.background = '#000';
+
+    document.body.appendChild( container );
+
+
+    // Getting the stats in the right position
+    stats = new Stats();
+
+    stats.domElement.style.position  = 'absolute';
+    stats.domElement.style.bottom    = '0px';
+    stats.domElement.style.right     = '0px';
+    stats.domElement.style.zIndex    = '999';
+
+    document.body.appendChild( stats.domElement );
+
+
+    // Setting up our Renderer
+    renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    container.appendChild( renderer.domElement );
+
+
+    // Making sure our renderer is always the right size
+    window.addEventListener( 'resize', onWindowResize , false );
+
+
+    var light = new THREE.DirectionalLight( 0xaaaaff , 1);
+    light.position.set( 0 , 0 , 1 );
+    scene.add( light );
+
+     var light = new THREE.DirectionalLight( 0xffaaaa , 1);
+    light.position.set( 0 , 1 , 0 );
+    scene.add( light );
+
+
+     var light = new THREE.DirectionalLight( 0xaaffaa , 1);
+    light.position.set( 1 , 0 , 0 );
+    scene.add( light );
+
+
+
+   
+    var basis = new THREE.Object3D();
+
+    var geo = new THREE.Geometry();
+    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
+    geo.vertices.push( new THREE.Vector3( 25 , 0 , 0 ) );
+
+    var mat = new THREE.LineBasicMaterial({ color:0xff0000 , linewidth:3 });
+
+    var right = new THREE.Line(
+      geo,
+      mat
+    );
+
+    basis.add( right );
+
+    var geo = new THREE.Geometry();
+    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
+    geo.vertices.push( new THREE.Vector3( 0 , 25 , 0 ) );
+
+    var mat = new THREE.LineBasicMaterial({ color:0x00ff00  , linewidth:3});
+
+    var right = new THREE.Line(
+      geo,
+      mat
+    );
+
+    basis.add( right );
+
+    var geo = new THREE.Geometry();
+    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
+    geo.vertices.push( new THREE.Vector3( 0 , 0 , 25 ) );
+
+    var mat = new THREE.LineBasicMaterial({ color:0x0000ff , linewidth:3});
+
+    var right = new THREE.Line(
+      geo,
+      mat
+    );
+
+    basis.add( right );
+
+    var mesh = new THREE.Mesh(
+      new THREE.BoxGeometry( 10 , 3  , 3 ),
+      new THREE.MeshLambertMaterial({color:0xcc9999})
+    );
+
+
+    basis.add( mesh );
+
+    
+    
+    riggedSkeleton = new RiggedSkeleton( controller );
+ 
+    riggedSkeleton.addToScene( scene );
+    riggedSkeleton.addJointMesh( basis );
+    riggedSkeleton.addHandMesh( basis );
+
+    //riggedSkeleton.hand.position.x = -300;
+
+
+    basis.remove( mesh );
+
+    var mesh = new THREE.Mesh(
+      new THREE.BoxGeometry( 10 , 3  , 3 ),
+      new THREE.MeshLambertMaterial({color:0x9999cc})
+    );
+
+
+    basis.add( mesh );
+
+
+
+        
+    absRiggedSkeleton = new AbsRiggedSkeleton( controller );
+ 
+    absRiggedSkeleton.addToScene( scene );
+    absRiggedSkeleton.addJointMesh( basis );
+    absRiggedSkeleton.addHandMesh( basis );
+
+    absRiggedSkeleton.hand.position.x = 300;
+  
+    skeletonSet = [];
+
+
+   /* for( var i = 0; i < 5; i++ ){
+
+
+      var rS = new RiggedSkeleton( controller );
+      rS.addToScene( riggedSkeleton.fingers[i].t );
+
+      var mesh = new THREE.Mesh(
+        new THREE.IcosahedronGeometry( 8 , 1 ),
+        new THREE.MeshNormalMaterial()
+      );
+
+      rS.addJointMesh( basis );
+
+      rS.subSkeletons = [];
+      
+      for( var j = 0; j < 10; j ++ ){
+
+
+        var sS = new RiggedSkeleton( controller );
+
+        var mesh = new THREE.Mesh(
+          new THREE.IcosahedronGeometry( 10 - j , 1 ),
+          new THREE.MeshNormalMaterial()
+        );
+
+        sS.addJointMesh( basis );
+
+
+        if( j == 0 ){
+  
+          sS.addToScene( rS.fingers[i].t );
+
+
+        }else{
+          sS.addToScene( rS.subSkeletons[j-1].fingers[i].t );
+        }
+
+        rS.subSkeletons.push( sS );
+
+      }
+
+      skeletonSet.push( rS );
+
+    }*/
+   
+    controller.connect();
+
+
+  }
+
+
+  function animate(){
+
+    var frame = controller.frame();
+
+    controls.update();
+    riggedSkeleton.update();
+    absRiggedSkeleton.update();
+
+   /* for( var i = 0; i < skeletonSet.length; i++ ){
+
+      var skeleton = skeletonSet[i];
+      skeleton.update();
+      for( var j = 0; j < skeleton.subSkeletons.length; j++ ){
+
+        skeleton.subSkeletons[j].update();
+
+      }
+
+    }*/
+    stats.update();
+
+    renderer.render( scene , camera );
+
+    requestAnimationFrame( animate );
+
+  }
+
+  // Resets the renderer to be the proper size
+  function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+  }
+
+
+</script>
+
+
+</body>
+</html>
