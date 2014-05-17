@@ -9,36 +9,22 @@
     this.hand         = new THREE.Object3D();
     this.fingers      = this.createFingers();
 
-    /*
-     * IMPORTANT: Basis vectors are columns
-     */
-    this.leapBasis = new THREE.Matrix4(
-        1  , 0  , 0 , 0,
-        0  , 1  , 0 , 0,
-        0  , 0  , 1 , 0, 
+     
+    this.baseMatrixLeft = new THREE.Matrix4(
+
+        0  , 0  , 1 , 0,
+        0  , -1 , 0 , 0,
+        -1  , 0  , 0 , 0, 
         0  , 0  , 0 , 1
     );
-    /*THREE.Matrix4 applyRelativeRotation(Matrix4 myBasis, Matrix4 leapRelativeRotation) {
 
-    }*/
-    
-    this.baseMatrix = new THREE.Matrix4(
+    this.baseMatrixRight = new THREE.Matrix4(
 
         0  , 0  , -1 , 0,
         0  , -1 , 0 , 0,
         -1  , 0  , 0 , 0, 
         0  , 0  , 0 , 1
     );
-
-
-
-    
-    /*this.baseMatrix = new THREE.Matrix4(
-        1  , 0  , 0 , 0,
-        0  , 1  , 0 , 0,
-        0  , 0  , 1 , 0, 
-        0  , 0  , 0 , 1
-    );*/
 
     this.tmpMatrix    = new THREE.Matrix4();
     this.tmpQuat      = new THREE.Quaternion();
@@ -48,13 +34,11 @@
   }
 
 
-  //1. draw each piece of a right hand using global terms
-  //2. do the same thing but use relative terms.
+  /*
+  
+     API
 
-  RiggedSkeleton.prototype.applyRelativeRotation = function( myBasis , leapRelativeRotation ){
-
-
-  }
+  */
 
   RiggedSkeleton.prototype.addToScene = function( scene ){
 
@@ -62,11 +46,20 @@
 
   }
 
- RiggedSkeleton.prototype.removeFromScene = function( scene ){
+  RiggedSkeleton.prototype.removeFromScene = function( scene ){
 
     scene.remove( this.hand );
 
   }
+
+
+
+
+  /*
+  
+     Initialization Functions
+
+  */
 
   RiggedSkeleton.prototype.createFingers = function(){
 
@@ -155,28 +148,25 @@
     ourFinger.d.position.z = -i.length;
     ourFinger.t.position.z = -d.length;
 
-    var mMatrix = this.matrixFromBasis( m.basis );
+    var mMatrix = this.matrixFromBasis( m.basis ,frameHand.type );
 
     //derive relative rotation
-    var mRelRot = new THREE.Matrix4().multiplyMatrices( this.handBasis.clone().transpose(), mMatrix);
+    var mRelRot = new THREE.Matrix4().multiplyMatrices( this.hand.matrix.clone().transpose(), mMatrix);
     ourFinger.m.rotation.setFromRotationMatrix(mRelRot);
 
 
-    var pMatrix = this.matrixFromBasis( p.basis );
+    var pMatrix = this.matrixFromBasis( p.basis  ,frameHand.type );
     var pRelRot = new THREE.Matrix4().multiplyMatrices( mMatrix.clone().transpose() , pMatrix );
     ourFinger.p.rotation.setFromRotationMatrix(pRelRot);
 
 
-    var iMatrix = this.matrixFromBasis( i.basis );
+    var iMatrix = this.matrixFromBasis( i.basis  ,frameHand.type );
     var iRelRot = new THREE.Matrix4().multiplyMatrices( pMatrix.clone().transpose() , iMatrix );
     ourFinger.i.rotation.setFromRotationMatrix(iRelRot);
 
-    var dMatrix = this.matrixFromBasis( d.basis );
+    var dMatrix = this.matrixFromBasis( d.basis  ,frameHand.type );
     var dRelRot = new THREE.Matrix4().multiplyMatrices( iMatrix.clone().transpose() , dMatrix );
     ourFinger.d.rotation.setFromRotationMatrix(dRelRot);
-
-    //mMatrix.multiply( this.hand.matrixWorld.clone().transpose() );
-   // ourFinger.m.rotation.setFromRotationMatrix( mMatrix );
 
 
   }
@@ -223,9 +213,15 @@
 
     var rotationMatrix  = this.rotationMatrixFromVectors( hand.direction, hand.palmNormal , hand.type );
 
-    var det = rotationMatrix.determinant();
+    var corrector;
 
-    rotationMatrix.multiply( this.baseMatrix.clone().transpose() );
+    if( hand.type === 'left' ){
+      corrector = this.baseMatrixLeft;
+    }else{
+      corrector = this.baseMatrixRight;
+    }
+
+    rotationMatrix.multiply( corrector.clone().transpose() );
 
     return rotationMatrix;
 
@@ -244,16 +240,34 @@
 
   }
 
-  RiggedSkeleton.prototype.matrixFromBasis = function( b ){
+
+  RiggedSkeleton.prototype.matrixFromBasis = function( b , type ){
    
-    var m = new THREE.Matrix4(
+    var m = new THREE.Matrix4()
+      
+    if( type == 'left'){
+      
+      m.set(
 
-      b[0][0] , b[1][0] , b[2][0] , 0 ,
-      b[0][1] , b[1][1] , b[2][1] , 0 ,
-      b[0][2] , b[1][2] , b[2][2] , 0 ,
-           0  ,      0  ,      0  , 1
+        -b[0][0] , b[1][0] , b[2][0] , 0 ,
+        -b[0][1] , b[1][1] , b[2][1] , 0 ,
+        -b[0][2] , b[1][2] , b[2][2] , 0 ,
+              0  ,      0  ,      0  , 1
 
-    );
+      );
+
+    }else{
+      
+      m.set(
+
+        b[0][0] , b[1][0] , b[2][0] , 0 ,
+        b[0][1] , b[1][1] , b[2][1] , 0 ,
+        b[0][2] , b[1][2] , b[2][2] , 0 ,
+             0  ,      0  ,      0  , 1
+
+      );
+
+    }
 
     return m;
 
@@ -321,7 +335,6 @@
       a3 = a2.clone().cross( a1 );
     }else{
       a3 = a1.clone().cross( a2 );
-
     }
 
     var matrix = new THREE.Matrix4( 
