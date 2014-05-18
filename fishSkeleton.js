@@ -116,7 +116,7 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
     */
 
     var obj = new THREE.Object3D();
-    var geo = new THREE.CylinderGeometry( .3, .3 , 1 );
+    var geo = new THREE.CylinderGeometry( .1, .1 , 1 );
     var mat = new THREE.MeshNormalMaterial();
     var mesh = new THREE.Mesh( geo , shinyBlue );
     mesh.rotation.x = -Math.PI / 2;
@@ -134,7 +134,7 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
     mesh.add( eye2 );
 
     beak = new THREE.Mesh( 
-      new THREE.CylinderGeometry( .2 , 0 , .9, 50 ),
+      new THREE.CylinderGeometry( .2 , 0 , .9, 5 ),
       shinyWhite
     );
 
@@ -143,7 +143,7 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
 
     obj.add( beak );
 
-    //obj.add( mesh );
+    obj.add( mesh );
 
 
     var lineGeo = new THREE.Geometry();
