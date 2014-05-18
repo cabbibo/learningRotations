@@ -2,6 +2,7 @@
   var fishBody;
 
 
+ 
   function initFishBody(){
 
     /*
@@ -9,66 +10,114 @@
        Body
 
     */
-    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
+    var geo = new THREE.TetrahedronGeometry( .2 , 0);
     var mat = new THREE.MeshNormalMaterial()
 
     var mesh = new THREE.Mesh( geo , mat );
 
-    /*
-
-       Basis
-
-    */
-    var geo = new THREE.Geometry()
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
-    geo.vertices.push( new THREE.Vector3( .3 , 0 , 0 ) );
-    var mat = new THREE.LineBasicMaterial({color:0xff0000});
-    var x = new THREE.Line( geo , mat );
-
-    var geo = new THREE.Geometry()
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
-    geo.vertices.push( new THREE.Vector3( 0 , .3 , 0 ) );
-    var mat = new THREE.LineBasicMaterial({color:0x00ff00});
-    var y = new THREE.Line( geo , mat );
-
-    var geo = new THREE.Geometry()
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , .3 ) );
-
-    var mat = new THREE.LineBasicMaterial({color:0x0000ff});
-    var z = new THREE.Line( geo , mat );
-
-  
-    /*
-
-       Head ( for direction )
-
-    */
-    var geo = new THREE.CylinderGeometry( .12 , 0 , .3  );
+       
+    var geometry = geo;
     var mat = new THREE.MeshNormalMaterial();
+    var newHead = new THREE.Mesh( geometry, mat );
+
+    var geometry = new THREE.Geometry();
+    mat = new THREE.MeshPhongMaterial({
+
+      specular:0xffaaaa,
+      emissive:0x001111,
+      color:0x004499,
+      shading: THREE.FlatShading
+        
+
+    });
+
+    for( var i = 0; i < 14; i++ ){
+
+      //var mesh = new THREE.Mesh( geo , mat );
+         //mesh.position.x = i/1;
+
+      var m = newHead.clone();
+      m.rotation.y = Math.random() * Math.PI * 2;
+
+      m.position.z = .4 - ( i / 14 );
+      m.position.x =( Math.random()  - .5 ) * .3 * ( (i / 14));
+      m.position.y =( Math.random()  - .5 ) * .3 *(  (i / 14));
+      m.scale.multiplyScalar( 1 - (i / 14) );
+      m.updateMatrix();
+
+      geometry.merge( m.geometry , m.matrix );
+
+    }
     
-    var head = new THREE.Mesh( geo , mat );
+    
+       mat = new THREE.MeshPhongMaterial({
 
-    head.rotation.x = -Math.PI / 2;
-    head.position.z = .4;
+      specular:0xffaaaa,
+      emissive:0x001111,
+      color:0x004499,
+      shading: THREE.FlatShading
+        
+
+    });
+
+ 
+    var newHead = new THREE.Mesh( geometry, mat );
+
+    var mat = new THREE.MeshNormalMaterial();
+    var mat = new THREE.MeshPhongMaterial({
+
+      specular:0xffffaa,
+      emissive:0x441111,
+      color:0xaa9933,
+      shading: THREE.FlatShading
+        
+
+    });
+    var newHead1 = new THREE.Mesh( geometry, mat );
+
+    var mat = new THREE.MeshPhongMaterial({
+
+      specular:0xaaaaff,
+      emissive:0x441111,
+      color:0xaa4499,
+      shading: THREE.FlatShading
+        
+
+    });
+    var newHead2 = new THREE.Mesh( geometry, mat );
+
+    
+    var mat = new THREE.MeshPhongMaterial({
+
+      specular:0xffffff,
+      emissive:0x000000,
+      color:0xcccccc,
+      shading: THREE.FlatShading
+        
+
+    });
+
+    //var mat = new THREE.MeshBasicMaterial({color:0x000000})
+
+
+    var column = new THREE.Mesh( 
+        new THREE.IcosahedronGeometry(.1 , 1),
+        mat
+    );
 
 
 
-
-    var fish = new THREE.Object3D();
-
-    fish.add( mesh );
-    //fish.add( x );
-    //fish.add( y );
-    //fish.add( z );
-    fish.add( head );
-
-    return fish;
+    return {
+      shinyTri1:newHead,
+      shinyTri2:newHead1,
+      shinyTri3:newHead2,
+      column: column
+    };
 
   }
 
 
-  function Fish( dom , level ){
+  function Fish( dom , level, meshNum ){
 
     
     this.dom  = dom;
@@ -76,13 +125,19 @@
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
 
+    this.springDistance = 2;
+    this.timeToChange = 1000;
+    this.springForce = .1;
+    this.subAttractPow = 2;
+    this.subAttractDiv = 1;
+
     this.connected = true;
 
     this.sub = [];
   
     if( !fishBody ){ fishBody = initFishBody(); }
 
-    this.body = fishBody.clone();
+    this.body = fishBody[meshNum].clone();
     this.body.position = this.position;
 
     scene.add( this.body );
@@ -93,6 +148,7 @@
 
     }
 
+    this.counter = 0;
 
     this.body.scale.multiplyScalar( level );
   }
@@ -104,6 +160,10 @@
 
    // this.velocity.set( 0 , 0 , 0 );
    //
+   //
+
+    this.counter ++;
+    //this.timeToChange = Math.abs( 1000  * Math.sin( this.counter/10 ) );
     if( !this.dom.sub ){
 
 
@@ -118,7 +178,7 @@
 
       this.position.add( this.velocity );
 
-      this.velocity.multiplyScalar( .96 );
+      //this.velocity.multiplyScalar( .96 );
     
       this.body.lookAt( this.position.clone().add( this.velocity ));
 
@@ -138,7 +198,8 @@
 
           var l = dif.length();
 
-          var x = (l-.6)/10
+          var c = (l-this.springDistance);
+          var x = c * c * c/this.timeToChange;
 
           c1.velocity.sub( dif.normalize().multiplyScalar( x ) );
 
@@ -149,7 +210,14 @@
       }
 
       var dif = this.position.clone().sub( c1.position );
-      c1.velocity.add( dif.multiplyScalar( .1 ) ); 
+
+      var dL = dif.length();
+      var dN = dif.normalize();
+
+      var sign = dL >= 0 ? 1 : -1;
+
+      var pow = Math.pow( dL , this.subAttractPow );
+      c1.velocity.add( dif.multiplyScalar( pow * sign / this.subAttractDiv ) ); 
 
       c1.position.add( c1.velocity );
 

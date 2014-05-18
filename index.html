@@ -87,10 +87,37 @@
     // Making sure our renderer is always the right size
     window.addEventListener( 'resize', onWindowResize , false );
 
+
+    createLightCluster( 5 , 0xffaa00 , new THREE.Vector3( 0 , 0 , 1 ) );
+    createLightCluster( 5 , 0xaa00ff , new THREE.Vector3( 0 , 1 , 0 ) );
+
+
     fishBody = initFishBody();
 
     bait = new THREE.Object3D();
-    leader = new Fish(bait,2);
+    leader = new Fish(bait,1, 'shinyTri3');
+
+
+    for( var i = 0; i < 10; i++ ){
+
+      var f = new Fish( leader , 1 , 'shinyTri1' );
+
+      var subFish = [];
+      for( var j = 0; j < 3; j++ ){
+
+        var f1 = new Fish( f ,  .8 , 'shinyTri2' );
+
+
+
+        for( var k = 0; k <3; k++ ){
+          var f2 = new Fish( f1 , .6 ,'shinyTri3' );
+        }
+
+      }
+
+
+    }
+
 
     var column = [];
 
@@ -106,31 +133,31 @@
 
       if( i === 0 ){
         
-        fish = new Fish( leader , 1);
+        fish = new Fish( leader , 1 , 'column' );
 
       }else{
 
-        fish = new Fish( column[i-1] , 1);
+        fish = new Fish( column[i-1] , 1,'column');
 
       }
 
 
       for( var j = 0; j < 3; j++ ){
 
-        var subFish = new Fish( fish ,  .5 );
+        var subFish = new Fish( fish ,  .5,'shinyTri3' );
         subFish.position.x = dir[j][0]
         subFish.position.y = dir[j][1]
 
 
         for( var k = 0; k < 3; k++ ){
 
-          var subSubFish = new Fish( subFish , .25 );
+          var subSubFish = new Fish( subFish , .25 ,'shinyTri1');
           subSubFish.position.x = dir[k][0]
           subSubFish.position.y = dir[k][1]
 
            for( var l = 0; l < 3; l++ ){
 
-            var subSubSubFish = new Fish( subSubFish , .125 );
+            var subSubSubFish = new Fish( subSubFish , .125,'shinyTri2' );
             subSubSubFish.position.x = dir[l][0]
             subSubSubFish.position.y = dir[l][1]
         }
@@ -183,17 +210,23 @@
 
       if( frame.hands[0] ){
 
-        leapToScene( frame, frame.hands[0].palmPosition , bait.position , 4 );
+        leapToScene( frame, frame.hands[0].palmPosition , bait.position , sceneSize  );
+
+      }else{
+
+        bait.position.x = 2* Math.sin( counter / 60 );
+        bait.position.y = 2*Math.cos( counter / 200 );
+        bait.position.z = 4*Math.cos( counter / 30 );
 
       }
-    
-
-      /*bait.position.x = 4* Math.sin( counter / 200 );
-      bait.position.y = 3*Math.cos( counter / 70 );
-      bait.position.z = 4*Math.cos( counter / 30 );*/
 
       leader.update();
 
+      //camera.position.copy( leader.position );
+
+      //camera.position.y = 5;
+
+      //camera.lookAt( leader.position );
     }
 
 
@@ -233,12 +266,54 @@
     p[1] *= size;
     p[2] *= size;
 
-    p[2] -= size; //move away a bit TODO: neccesary?
+    p[2] -= 2*size; //move away a bit TODO: neccesary?
 
     var pos = new THREE.Vector3().fromArray( p );
     pos.applyMatrix4( camera.matrix );
 
     ourPos.copy( pos );
+
+
+  }
+
+
+  function createLightCluster( numOfLights , baseColor , baseDir ){
+
+
+    var mainColor = new THREE.Color( baseColor );
+    var mainDir = baseDir.clone();
+
+    console.log( mainColor );
+
+    for( var i = 0; i < numOfLights; i++ ){
+
+
+      console.log( 'ss');
+      var c = mainColor.clone();
+      c.r = c.r + ( (Math.random() -.5) );
+      c.g = c.g + ( (Math.random() -.5));
+      c.b = c.b + ( (Math.random() -.5) );
+      console.log( c );
+
+      var d = mainDir.clone();
+      d.x = d.x + ( (Math.random()-.5) * .5 );
+      d.y = d.y + ( (Math.random()-.5) * .5 );
+      d.z = d.z + ( (Math.random()-.5) * .5 );
+
+      console.log( d );
+
+      d.normalize();
+      //c.normalize();
+
+     // c.r = d.x;
+      var light = new THREE.DirectionalLight(c.getHex() , .1 );
+      
+      light.position.copy( d );
+
+
+      scene.add( light );
+
+    }
 
 
   }
