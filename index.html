@@ -5,10 +5,10 @@
 <script src = "three.js"              ></script>
 <script src = "stats.min.js"          ></script>
 <script src = "TrackballControls.js"  ></script>
-<script src = "FlyControls.js"  ></script>
+<script src = "FlyControls.js"        ></script>
 <script src = "Fish.js"               ></script>
 <script src = "fishSkeleton.js"       ></script>
-<script src = "place.js"       ></script>
+<script src = "place.js"              ></script>
 
 <script>  
 
@@ -109,6 +109,13 @@
     place(0,0,10,4);
     place(0,0,-10,5);
 
+
+     place(10,10,0,0);
+    place(-10,10,0,1);
+    place(-10,10,0,2);
+    place(-10,-10,0,3);
+    place(10,0,10,4);
+    place(10,0,-10,5);
     var geo = new THREE.BoxGeometry(20 ,20,20);
 
     for( var i=0; i < placingMatrix.length; i++ ){
@@ -205,7 +212,7 @@
     
         
 
-        for( var j = 0; j < 10; j++ ){
+        for( var j = 0; j < 0; j++ ){
 
           var f = new Fish( leader , .5 , fishSkeleton.plume.spine );
 
@@ -285,7 +292,7 @@
       }
 
 
-      for( var j = 0; j < 3; j++ ){
+      for( var j = 0; j < 2; j++ ){
 
         var subFish = new Fish( fish ,  .5, fishSkeleton.flagella.child1 );
         subFish.position.x = dir[j][0]
@@ -295,7 +302,7 @@
         //subFish.position.y = Math.random()-.5 * 2;
         //subFish.position.z = Math.random()-.5 * 2;
 
-        for( var k = 0; k < 3; k++ ){
+        for( var k = 0; k < 2; k++ ){
 
           var subSubFish = new Fish( subFish , .25 ,fishSkeleton.flagella.child2);
           subSubFish.position.x = dir[k][0]
