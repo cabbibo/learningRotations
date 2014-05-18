@@ -1,17 +1,20 @@
 <html>
 <body>
 
-<script src = "leap.js"             ></script>
-<script src = "three.js"            ></script>
-<script src = "stats.min.js"        ></script>
-<script src = "TrackballControls.js"   ></script>
-<script src = "Fish.js"   ></script>
+<script src = "leap.js"               ></script>
+<script src = "three.js"              ></script>
+<script src = "stats.min.js"          ></script>
+<script src = "TrackballControls.js"  ></script>
+<script src = "FlyControls.js"  ></script>
+<script src = "Fish.js"               ></script>
+<script src = "fishSkeleton.js"       ></script>
 
 <script>  
 
   // Global Variables for THREE.JS
   var container , camera, scene, renderer , stats;
 
+  var clock;
   // Global variable for leap
   var frame, controller;
 
@@ -24,9 +27,14 @@
 
   var tmpMat;
 
+  var mouse;
   var counter = 0;
 
+  var intersectPlane;
+  var projector , raycaster;
   var paused = false;
+
+  var distanceToIntersectPlane = 5;
 
     // Get everything set up
   init();
@@ -47,14 +55,41 @@
       window.innerWidth / window.innerHeight,
       sceneSize / 100 ,
       sceneSize * 40
-    );
+      );
 
     // placing our camera position so it can see everything
     camera.position.z = sceneSize ;
 
+    clock = new THREE.Clock();
 
-    controls = new THREE.TrackballControls( camera );
+    //controls = new THREE.TrackballControls( camera );
 
+    controls = new THREE.FlyControls( camera );
+
+    controls.movementSpeed = 4;
+    controls.rollSpeed = Math.PI / 5 ;
+    controls.autoForward = false;
+
+    controls.dragToLook = false;
+
+
+    var geo = new THREE.IcosahedronGeometry( 10 , 2 )
+    var mat = new THREE.MeshLambertMaterial({
+     shading: THREE.FlatShading 
+    });
+
+    for( var i = 0; i < 1000; i ++ ){
+
+      var mesh = new THREE.Mesh( geo , mat );
+
+      mesh.position.x = (Math.random() -.5 ) * 300;
+      mesh.position.y = (Math.random() -.5 ) * 300;
+      mesh.position.z = (Math.random() -.5 ) * 300;
+
+      scene.add( mesh );
+    }
+
+    mouse = new THREE.Vector2();
     // Getting the container in the right location
     container = document.createElement( 'div' );
 
@@ -87,38 +122,33 @@
     // Making sure our renderer is always the right size
     window.addEventListener( 'resize', onWindowResize , false );
 
-
-    createLightCluster( 5 , 0xffaa00 , new THREE.Vector3( 0 , 0 , 1 ) );
-    createLightCluster( 5 , 0xaa00ff , new THREE.Vector3( 0 , 1 , 0 ) );
+    window.addEventListener( 'mousemove' , onMouseMove , false );
 
 
-    fishBody = initFishBody();
+    projector = new THREE.Projector();
+				raycaster = new THREE.Raycaster();
+    
+    createLightCluster( 1 , 0xffaa00 , new THREE.Vector3( 0 , 0 , 1 ) );
+    createLightCluster( 1 , 0xaa00ff , new THREE.Vector3( 0 , 1 , 0 ) );
+    createLightCluster( 1 , 0x00ffaa , new THREE.Vector3( 1 , 0 , 0 ) );
+
+    createLightCluster( 1 , 0xffaa00 , new THREE.Vector3( 0 , 0 , -1 ) );
+    createLightCluster( 1 , 0xaa00ff , new THREE.Vector3( 0 , -1 , 0 ) );
+    createLightCluster( 1 , 0x00ffaa , new THREE.Vector3( -1 , 0 , 0 ) );
+    
 
     bait = new THREE.Object3D();
-    leader = new Fish(bait,1, 'shinyTri3');
+    leader = new Fish(bait,1, fishSkeleton.head.spine );
 
 
-    for( var i = 0; i < 10; i++ ){
+    intersectPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry( 30 , 30 ),
+    new THREE.MeshNormalMaterial()
+    );
 
-      var f = new Fish( leader , 1 , 'shinyTri1' );
-
-      var subFish = [];
-      for( var j = 0; j < 3; j++ ){
-
-        var f1 = new Fish( f ,  .8 , 'shinyTri2' );
-
-
-
-        for( var k = 0; k <3; k++ ){
-          var f2 = new Fish( f1 , .6 ,'shinyTri3' );
-        }
-
-      }
-
-
-    }
-
-
+    intersectPlane.visible = false;
+    scene.add( intersectPlane );
+ 
     var column = [];
 
     var dir = [
@@ -133,34 +163,39 @@
 
       if( i === 0 ){
         
-        fish = new Fish( leader , 1 , 'column' );
+        fish = new Fish( leader , 1 , fishSkeleton.flagella.spine );
 
       }else{
 
-        fish = new Fish( column[i-1] , 1,'column');
+        fish = new Fish( column[i-1] , 1, fishSkeleton.flagella.spine );
 
       }
 
 
       for( var j = 0; j < 3; j++ ){
 
-        var subFish = new Fish( fish ,  .5,'shinyTri3' );
+        var subFish = new Fish( fish ,  .5, fishSkeleton.flagella.child1 );
         subFish.position.x = dir[j][0]
         subFish.position.y = dir[j][1]
 
+        //subFish.position.x = Math.random()-.5 * 2;
+        //subFish.position.y = Math.random()-.5 * 2;
+        //subFish.position.z = Math.random()-.5 * 2;
 
         for( var k = 0; k < 3; k++ ){
 
-          var subSubFish = new Fish( subFish , .25 ,'shinyTri1');
+          var subSubFish = new Fish( subFish , .25 ,fishSkeleton.flagella.child2);
           subSubFish.position.x = dir[k][0]
           subSubFish.position.y = dir[k][1]
 
-           for( var l = 0; l < 3; l++ ){
 
-            var subSubSubFish = new Fish( subSubFish , .125,'shinyTri2' );
+          for( var l = 0; l < 3; l++ ){
+
+            var subSubSubFish = new Fish( subSubFish , .125,fishSkeleton.flagella.child3 );
             subSubSubFish.position.x = dir[l][0]
             subSubSubFish.position.y = dir[l][1]
-        }
+
+          }
         }
 
 
@@ -169,6 +204,71 @@
 
 
       column.push( fish );
+
+      var fishey = fish
+      if( i == -1){
+
+        console.log('ss');
+
+        
+
+        for( var j = 0; j < 10; j++ ){
+
+          var f = new Fish( fishey , 1 , fishSkeleton.plume.spine );
+
+          var column1 = [];
+
+          f.timeToChange = 1;
+
+          //f.subAttractPow = 10;
+         // f.subAttractDiv = 20;
+         // f.subAttractDist = .3;
+
+         
+            f.subAttractPow = 10;
+            f.subAttractDiv = 20;
+            f.subAttractDist = 0;
+          for( var k = 0; k < 2; k++ ){
+
+
+
+            var f1;
+
+            if( k === 0 ){
+              
+              f1 = new Fish( f ,  .8 , fishSkeleton.plume.child1 );
+
+            }else{
+
+              f1 = new Fish( column1[k-1] , .8, fishSkeleton.plume.child1 );
+
+            }
+
+
+            f1.subAttractPow = 10;
+            f1.subAttractDiv = 20;
+            f1.subAttractDist = 0;
+
+
+
+            for( var l = 0; l <4; l++ ){
+              var f2 = new Fish( f1 , .8 , fishSkeleton.plume.child2);
+              //f2.springDistance = 3;
+
+              f2.timeToChange = 10000;
+              for( var m = 0; m < 1; m++ ){
+                var f3 = new Fish( f2 , .3 , fishSkeleton.plume.child3 );
+              }
+
+            }
+
+            column1.push( f1 );
+
+          }
+
+        }
+
+      }
 
     }
    
@@ -199,11 +299,13 @@
 
    function animate(){
 
-    counter += 1;
-    controls.update();
+     counter += 1;
+
+     var delta = clock.getDelta();
+    controls.update(delta);
     stats.update();
 
-
+ 
     if( !paused ){
 
       var frame = controller.frame();
@@ -214,9 +316,33 @@
 
       }else{
 
-        bait.position.x = 2* Math.sin( counter / 60 );
-        bait.position.y = 2*Math.cos( counter / 200 );
-        bait.position.z = 4*Math.cos( counter / 30 );
+
+      intersectPlane.position.copy( camera.position );
+      //console.log( controls.speed );
+
+      var dT = distanceToIntersectPlane;
+      var d = dT + ( controls.speed / controls.maxSpeed ) * dT
+      var vector = new THREE.Vector3( 0, 0, -d );
+      vector.applyQuaternion( camera.quaternion );
+      intersectPlane.position.add( vector );
+
+      intersectPlane.lookAt( camera.position );
+       var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+	  projector.unprojectVector( vector, camera );
+
+	  raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+	  var intersects = raycaster.intersectObject( intersectPlane );
+
+      if( intersects.length > 0 ){
+
+       // console.log(intersects[0].point);
+
+       bait.position.copy( intersects[0].point );
+      }
+
+
+
 
       }
 
@@ -251,6 +377,15 @@
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
+
+  }
+
+  function onMouseMove( event ) {
+
+      event.preventDefault();
+
+      mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
   }
 
@@ -306,7 +441,7 @@
       //c.normalize();
 
      // c.r = d.x;
-      var light = new THREE.DirectionalLight(c.getHex() , .1 );
+      var light = new THREE.DirectionalLight(c.getHex() , .6 );
       
       light.position.copy( d );
 
