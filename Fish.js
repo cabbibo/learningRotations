@@ -1,74 +1,6 @@
 
-  var fishBody;
 
-
-  function initFishBody(){
-
-    /*
-
-       Body
-
-    */
-    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
-    var mat = new THREE.MeshNormalMaterial()
-
-    var mesh = new THREE.Mesh( geo , mat );
-
-    /*
-
-       Basis
-
-    */
-    var geo = new THREE.Geometry()
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
-    geo.vertices.push( new THREE.Vector3( .3 , 0 , 0 ) );
-    var mat = new THREE.LineBasicMaterial({color:0xff0000});
-    var x = new THREE.Line( geo , mat );
-
-    var geo = new THREE.Geometry()
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
-    geo.vertices.push( new THREE.Vector3( 0 , .3 , 0 ) );
-    var mat = new THREE.LineBasicMaterial({color:0x00ff00});
-    var y = new THREE.Line( geo , mat );
-
-    var geo = new THREE.Geometry()
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , 0 ) );
-    geo.vertices.push( new THREE.Vector3( 0 , 0 , .3 ) );
-
-    var mat = new THREE.LineBasicMaterial({color:0x0000ff});
-    var z = new THREE.Line( geo , mat );
-
-  
-    /*
-
-       Head ( for direction )
-
-    */
-    var geo = new THREE.CylinderGeometry( .12 , 0 , .3  );
-    var mat = new THREE.MeshNormalMaterial();
-    
-    var head = new THREE.Mesh( geo , mat );
-
-    head.rotation.x = -Math.PI / 2;
-    head.position.z = .4;
-
-
-
-
-    var fish = new THREE.Object3D();
-
-    fish.add( mesh );
-    //fish.add( x );
-    //fish.add( y );
-    //fish.add( z );
-    fish.add( head );
-
-    return fish;
-
-  }
-
-
-  function Fish( dom , level ){
+  function Fish( dom , level, mesh ){
 
     
     this.dom  = dom;
@@ -76,13 +8,20 @@
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
 
+
+    // API
+    this.springDistance = 2;
+    this.timeToChange = 1000;
+    this.springForce = .1;
+    this.subAttractPow = 1;
+    this.subAttractDiv = 2;
+    this.subAttractDist = .1;
+
     this.connected = true;
 
     this.sub = [];
   
-    if( !fishBody ){ fishBody = initFishBody(); }
-
-    this.body = fishBody.clone();
+    this.body = mesh.clone();
     this.body.position = this.position;
 
     scene.add( this.body );
@@ -93,6 +32,7 @@
 
     }
 
+    this.counter = 0;
 
     this.body.scale.multiplyScalar( level );
   }
@@ -104,6 +44,10 @@
 
    // this.velocity.set( 0 , 0 , 0 );
    //
+   //
+
+    this.counter ++;
+    //this.timeToChange = Math.abs( 1000  * Math.sin( this.counter/10 ) );
     if( !this.dom.sub ){
 
 
@@ -118,7 +62,7 @@
 
       this.position.add( this.velocity );
 
-      this.velocity.multiplyScalar( .96 );
+      //this.velocity.multiplyScalar( .96 );
     
       this.body.lookAt( this.position.clone().add( this.velocity ));
 
@@ -138,7 +82,10 @@
 
           var l = dif.length();
 
-          var x = (l-.6)/10
+          var c = (l-this.springDistance);
+
+          var sign = c >= 0 ? 1 : -1;
+          var x = sign * Math.abs(Math.pow( c , 3 ))/this.timeToChange;
 
           c1.velocity.sub( dif.normalize().multiplyScalar( x ) );
 
@@ -149,7 +96,15 @@
       }
 
       var dif = this.position.clone().sub( c1.position );
-      c1.velocity.add( dif.multiplyScalar( .1 ) ); 
+
+      var dL = dif.length();
+      var dN = dif.normalize();
+
+      var dist = dL - this.subAttractDist;
+      var sign = dist >= 0 ? 1 : -1;
+
+      var pow = Math.pow( dist , this.subAttractPow );
+      c1.velocity.add( dif.multiplyScalar( pow * sign / this.subAttractDiv ) ); 
 
       c1.position.add( c1.velocity );
 
