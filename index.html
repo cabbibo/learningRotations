@@ -8,6 +8,7 @@
 <script src = "FlyControls.js"  ></script>
 <script src = "Fish.js"               ></script>
 <script src = "fishSkeleton.js"       ></script>
+<script src = "place.js"       ></script>
 
 <script>  
 
@@ -75,11 +76,11 @@
 
     var geo = new THREE.IcosahedronGeometry( 10 , 0 )
     var geo = new THREE.CubeGeometry( 10 , 1 , 1 )
-    var mat = new THREE.MeshLambertMaterial({
-     shading: THREE.FlatShading 
-    });
+    var mat = new THREE.MeshBasicMaterial();
 
-    for( var i = 0; i < 1000; i ++ ){
+    var geometry = new THREE.Geometry();
+
+   /* for( var i = 0; i < 10000; i ++ ){
 
       var mesh = new THREE.Mesh( geo , mat );
 
@@ -91,8 +92,55 @@
       mesh.rotation.y = Math.random() * 2 * Math.PI;
       mesh.rotation.z = Math.random() * 2 * Math.PI;
       scene.add( mesh );
+    }*/
+
+    var geometry = new THREE.Geometry();
+    place(0,0,0,0);
+    place(0,0,0,1);
+    place(0,0,0,2);
+    place(0,0,0,3);
+    place(0,0,0,4);
+    place(0,0,0,5);
+
+    place(10,0,0,0);
+    place(-10,0,0,1);
+    place(0,10,0,2);
+    place(0,-10,0,3);
+    place(0,0,10,4);
+    place(0,0,-10,5);
+
+    var geo = new THREE.BoxGeometry(20 ,20,20);
+
+    for( var i=0; i < placingMatrix.length; i++ ){
+
+      var mesh = new THREE.Mesh( geo , mat );
+
+      var p = placingMatrix[i][0];
+      var s = placingMatrix[i][1];
+      var r = placingMatrix[i][2];
+
+      mesh.position.set( p[0] , p[1] , p[2] );
+      mesh.scale.set( s[0] , s[1] , s[2] );
+      mesh.rotation.x = r[0]//,r[1],r[2] );
+      mesh.rotation.y = r[1]//,r[1],r[2] );
+      mesh.rotation.z = r[2]//,r[1],r[2] );
+
+      mesh.updateMatrix();
+      geometry.merge( geo , mesh.matrix );
+
     }
 
+    var mat = new THREE.MeshLambertMaterial({
+     shading: THREE.FlatShading 
+   });
+
+    var stones = new THREE.Mesh( geometry , mat );
+    scene.add( stones );
+
+
+
+    console.log( placingMatrix );
+        
     mouse = new THREE.Vector2();
     // Getting the container in the right location
     container = document.createElement( 'div' );
@@ -172,8 +220,8 @@
          
            // f.subAttractPow = 10;
            // f.subAttractDiv = 20;
-           // f.subAttractDist = 0;
-          for( var k = 0; k < 6; k++ ){
+            f.subAttractDist = .4;
+          for( var k = 0; k < 3; k++ ){
 
 
 
@@ -196,12 +244,12 @@
 
 
 
-            for( var l = 0; l <5; l++ ){
+            for( var l = 0; l <1; l++ ){
               var f2 = new Fish( f1 , .8 , fishSkeleton.plume.child2);
               //f2.springDistance = 3;
 
               //f2.timeToChange = 100000;
-              for( var m = 0; m < 3; m++ ){
+              for( var m = 0; m < 1; m++ ){
                 var f3 = new Fish( f2 , .4 , fishSkeleton.plume.child3 );
               }
 
@@ -417,24 +465,18 @@
     var mainColor = new THREE.Color( baseColor );
     var mainDir = baseDir.clone();
 
-    console.log( mainColor );
-
     for( var i = 0; i < numOfLights; i++ ){
 
 
-      console.log( 'ss');
       var c = mainColor.clone();
       c.r = c.r + ( (Math.random() -.5) );
       c.g = c.g + ( (Math.random() -.5));
       c.b = c.b + ( (Math.random() -.5) );
-      console.log( c );
 
       var d = mainDir.clone();
       d.x = d.x + ( (Math.random()-.5) * .5 );
       d.y = d.y + ( (Math.random()-.5) * .5 );
       d.z = d.z + ( (Math.random()-.5) * .5 );
-
-      console.log( d );
 
       d.normalize();
       //c.normalize();
