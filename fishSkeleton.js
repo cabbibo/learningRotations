@@ -6,6 +6,16 @@
     };
 
 
+    var headMat = new THREE.MeshPhongMaterial({
+
+      specular:0xffaaaa,
+      emissive:0x001111,
+      color:0x004499,
+      shading: THREE.FlatShading
+
+    });
+
+
     var shinyRed = new THREE.MeshPhongMaterial({
 
       specular:0xffaaaa,
@@ -107,7 +117,9 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
 
     }
 
+
     var tetraCluster = geometry;
+    var safeTetra = tetraCluster.clone();
 
     /*
 
@@ -134,41 +146,18 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
     mesh.add( eye2 );
 
     beak = new THREE.Mesh( 
-      new THREE.CylinderGeometry( .2 , 0 , .9, 5 ),
-      shinyWhite
+      new THREE.CylinderGeometry( .8 , 0 , 2.3, 50 ),
+      headMat 
     );
 
     beak.rotation.x = -Math.PI / 2;
-    beak.position.z = .3;
+    beak.position.z = 1.3;
 
-    obj.add( beak );
+
+    //obj.add( beak );
 
     obj.add( mesh );
 
-
-    var lineGeo = new THREE.Geometry();
-
-    var r = .4 ;
-    for( var i =0; i< 100; i++ ){
-
-     
-      var angle =( i / 10 ) * Math.PI * 2;
-
-      var x = Math.cos(angle) * r;
-      var y = Math.sin(angle) * r;
-
-      var vert = new THREE.Vector3();
-      vert.x = x;
-      vert.y = y;
-      vert.z = - i/100;
-
-      lineGeo.vertices.push( vert );
-    }
-
-    var lineMat = new THREE.LineBasicMaterial({color:0x000000,linewidth:3});
-
-    var line = new THREE.Line( lineGeo , lineMat );
-    //obj.add( line );
 
     fishSkeleton.head.spine = obj;
 
@@ -213,10 +202,15 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
 
   
     // spine
-    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
+    var geo = new THREE.BoxGeometry( .3 , .3 , .9 );
+    var geo = new THREE.CylinderGeometry( .2 , 0 , .4 , 10 );
     var mesh = new THREE.Mesh( geo , shinyYellow );
+    mesh.rotation.x = - Math.PI / 2;
+    mesh.matrix.needsUpdate = true;
 
-    fishSkeleton.flagella.spine = mesh;
+    var obj = new THREE.Object3D();
+    obj.add( mesh );
+    fishSkeleton.flagella.spine = obj;
 
 
     // child 1

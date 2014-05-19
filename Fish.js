@@ -10,9 +10,13 @@
 
 
     // API
-    this.springDistance = 2;
-    this.timeToChange = 1000;
-    this.springForce = .1;
+    //this.timeToChange = 1000;
+    //this.springForce = .1;
+
+    this.sibRepelPow = 4;
+    this.sibRepelDiv = 10;
+    this.sibRepelDist = 1;
+
     this.subAttractPow = 1;
     this.subAttractDiv = 2;
     this.subAttractDist = .1;
@@ -20,8 +24,9 @@
     this.connected = true;
 
     this.sub = [];
-  
-    this.body = mesh.clone();
+
+    var newMesh = mesh.clone();
+    this.body = newMesh;
     this.body.position = this.position;
 
     scene.add( this.body );
@@ -46,10 +51,17 @@
    //
    //
 
+    this.speed = this.velocity.length();
+    //this.sibRepelDiv = Math.abs( 4  * Math.sin( (this.speed*6)/1 ) )+.3;
+    
     this.counter ++;
-    //this.timeToChange = Math.abs( 1000  * Math.sin( this.counter/10 ) );
-    if( !this.dom.sub ){
+   
+    /*
+    
+       If attached to bait
 
+    */
+    if( !this.dom.sub ){
 
       this.velocity.set( 0 , 0 , 0 );
 
@@ -82,10 +94,10 @@
 
           var l = dif.length();
 
-          var c = (l-this.springDistance);
+          var c = (l-this.sibRepelDist);
 
           var sign = c >= 0 ? 1 : -1;
-          var x = sign * Math.abs(Math.pow( c , 3 ))/this.timeToChange;
+          var x = sign * Math.abs(Math.pow( c , this.sibRepelPow ))/ this.sibRepelDiv;
 
           c1.velocity.sub( dif.normalize().multiplyScalar( x ) );
 
