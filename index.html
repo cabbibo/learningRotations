@@ -1,7 +1,21 @@
 <html>
 <body>
+  <head>
+    <style>
+      #container{
 
-<script src = "jquery.min.js"               ></script>
+        
+   width      : 100%;
+   height     : 100%;
+   position   : absolute;
+   top        : 0px;
+   left       : 0px;
+   background : #000;
+
+      }
+    </style>
+  </head>
+<script src = "jquery.min.js"         ></script>
 <script src = "leap.js"               ></script>
 <script src = "three.js"              ></script>
 <script src = "stats.min.js"          ></script>
@@ -10,23 +24,21 @@
 <script src = "Fish.js"               ></script>
 <script src = "fishSkeleton.js"       ></script>
 <script src = "place.js"              ></script>
-<script src = "DragonFish.js"              ></script>
-<script src="AudioController.js"></script>
-<script src="AudioTexture.js"></script>
-<script src="UserAudio.js"></script>
-<script src="Stream.js"></script>
-<script src="underscore.js"></script>
-<script src="ShaderLoader.js"></script>
+<script src = "DragonFish.js"         ></script>
+<script src = "AudioController.js"    ></script>
+<script src = "AudioTexture.js"       ></script>
+<script src = "UserAudio.js"          ></script>
+<script src = "Stream.js"             ></script>
+<script src = "underscore.js"         ></script>
+<script src = "ShaderLoader.js"       ></script>
+<script src = "Hook.js"       ></script>
+
 <script>  
 
-  // Global Variables for THREE.JS
   var container , camera, scene, renderer , stats;
 
   var clock;
-  // Global variable for leap
-  var frame, controller;
-
-  // Setting up how big we want the scene to be
+  
   var sceneSize = 10;
 
   var fish;
@@ -35,6 +47,9 @@
 
   var tmpMat;
 
+  var jellyMat;
+
+  var lights = [];
   var mouse;
   var counter = 0;
 
@@ -47,7 +62,7 @@
   var distanceToIntersectPlane = 10;
 
   var audioController = new AudioController();
- // audioController.mute.gain.value = 0.0;
+  audioController.mute.gain.value = 0.0;
 
 
   var shaders = new ShaderLoader('shaders');
@@ -60,38 +75,35 @@
   shaders.shaderSetLoaded = function(){
     //init();
     //animate();
-    stream.play();
-
-    onStart();
+    //stream.play();
+    //onStart();
   }
-  //var userAudio = new UserAudio( audioController );
+
+  var userAudio = new UserAudio( audioController );
 
 
   var stream = new Stream( 'magicStick.mp3' , audioController );
 
+  userAudio.onStreamCreated = function(){
+    console.log( 'asss');
+    onStart();
 
+  }
+  
   function onStart(){
     console.log('hello');
+    
     init();
 
-    stream.play();
-    console.log( dragonFish );
-    //fishSkeleton.flagella.spine.material.map = audioController.texture;
-    //fishSkeleton.flagella.spine.material.transparent = true;
-    //fishSkeleton.flagella.spine.material.blending = THREE.AdditiveBlending;
-    //fishSkeleton.flagella.spine.material.needsUpdate = true;
-
-
-     var u = {
-      
+    var u = {
       uPos: { type:"v3" , value : dragonFish.leader.position },
       uVel: { type:"v3" , value : dragonFish.leader.velocity },
       t_audio:{ type:"t" , value: audioController.texture },
       audioLookup:{ type:"f", value: .2},
       time:time
-
     }
-    var mat = new THREE.ShaderMaterial({
+
+    jellyMat = new THREE.ShaderMaterial({
 
       uniforms: u,
       vertexShader:shaders.vertexShaders.sphere,
@@ -102,43 +114,49 @@
       depthWrite:false,
     });
 
-     var beak1 = new THREE.Mesh( 
+    var beak1 = new THREE.Mesh( 
       new THREE.CylinderGeometry( 1.3 , 1.3 , 2.3, 500 ,50,50 ),
-      
-      //new THREE.BoxGeometry( 1.3 , 1.3 , 1.3 , 50,50,50),
-      mat
-      //new THREE.MeshNormalMaterial()
+      jellyMat
     );
 
     beak1.rotation.x = -Math.PI / 2;
     beak1.position.z = 1.3;
 
-
     dragonFish.leader.body.add( beak1 );
+
+    var geo =  new THREE.CylinderGeometry( 1.45 , 0 , 1.6, 100 ,50,1 );
 
     for( var i = 0; i < dragonFish.spine.length; i++ ){
 
 
-    var b = new THREE.Mesh( 
-      new THREE.CylinderGeometry( .45 , 0 , .6, 100 ,50,1 ),
-      mat
+      var b = new THREE.Mesh( 
+      geo,
+      jellyMat
       );
 
-    b.rotation.x = -Math.PI / 2;
-    b.position.z = .2;
-    
-    dragonFish.spine[i].body.add( b );
-
+      b.rotation.x = -Math.PI / 2;
+      b.position.z = .2;
+      
+      dragonFish.spine[i].body.add( b );
 
     }
 
-    //fishSkeleton.head.spine.add( beak );
-   // headMat.bumpMap = audioController.texture;
-   // headMat.needsUpdate = true;
 
+    for( var i = 0; i < 40; i++ ){
 
+      var mesh = new THREE.Mesh( geo , jellyMat );
+      mesh.rotation.x = - Math.PI / 2;
+      var obj = new THREE.Object3D();
+      obj.add( mesh );
+      hook = new Hook( obj );
+
+      scene.add( obj );
+
+    }
+    
   
-     animate();
+    animate();
+
   }
 
 
@@ -156,7 +174,7 @@
       50 ,
       window.innerWidth / window.innerHeight,
       sceneSize / 100 ,
-      sceneSize * 40
+      sceneSize * 400
       );
 
     // placing our camera position so it can see everything
@@ -181,43 +199,27 @@
 
     var geometry = new THREE.Geometry();
 
-   /* for( var i = 0; i < 10000; i ++ ){
-
-      var mesh = new THREE.Mesh( geo , mat );
-
-      mesh.position.x = (Math.random() -.5 ) * 300;
-      mesh.position.y = (Math.random() -.5 ) * 300;
-      mesh.position.z = (Math.random() -.5 ) * 300;
-
-      mesh.rotation.x = Math.random() * 2 * Math.PI;
-      mesh.rotation.y = Math.random() * 2 * Math.PI;
-      mesh.rotation.z = Math.random() * 2 * Math.PI;
-      scene.add( mesh );
-    }*/
-
-    var geometry = new THREE.Geometry();
     place(0,0,0,0);
     place(0,0,0,1);
     place(0,0,0,2);
     place(0,0,0,3);
     place(0,0,0,4);
     place(0,0,0,5);
-
     place(10,0,0,0);
     place(-10,0,0,1);
     place(0,10,0,2);
     place(0,-10,0,3);
     place(0,0,10,4);
     place(0,0,-10,5);
-
-
-     place(10,10,0,0);
+    place(10,10,0,0);
     place(-10,10,0,1);
     place(-10,10,0,2);
     place(-10,-10,0,3);
     place(10,0,10,4);
     place(10,0,-10,5);
-    var geo = new THREE.BoxGeometry(20 ,20,20);
+
+
+    var geo = new THREE.IcosahedronGeometry(10 ,0 );
 
     for( var i=0; i < placingMatrix.length; i++ ){
 
@@ -240,12 +242,26 @@
 
     var mat = new THREE.MeshLambertMaterial({
       shading: THREE.FlatShading,
-      map:audioController.texture
-   });
+      color:0xffffff,
+      map:audioController.texture,
+      wireframe:true
+    });
 
-    var stones = new THREE.Mesh( geometry , mat );
+    stones = new THREE.Mesh( geometry , mat );
     scene.add( stones );
 
+
+
+    var geo = new THREE.IcosahedronGeometry( 300 , 3 );
+    var mat = new THREE.MeshLambertMaterial({ 
+      wireframe:true,
+      map:audioController.texture,
+
+    
+    });
+
+    skyBox = new THREE.Mesh( geo , mat );
+    scene.add( skyBox );
 
 
     console.log( placingMatrix );
@@ -253,14 +269,8 @@
     mouse = new THREE.Vector2();
     // Getting the container in the right location
     container = document.createElement( 'div' );
-
-    container.style.width      = '100%';
-    container.style.height     = '100%';
-    container.style.position   = 'absolute';
-    container.style.top        = '0px';
-    container.style.left       = '0px';
-    container.style.background = '#000';
-
+    container.id = "container";
+    
     document.body.appendChild( container );
 
 
@@ -287,29 +297,54 @@
 
 
     projector = new THREE.Projector();
-				raycaster = new THREE.Raycaster();
+    raycaster = new THREE.Raycaster();
     
-    createLightCluster( 1 , 0xffaa00 , new THREE.Vector3( 0 , 0 , 1 ) );
-    createLightCluster( 1 , 0xaa00ff , new THREE.Vector3( 0 , 1 , 0 ) );
-    createLightCluster( 1 , 0x00ffaa , new THREE.Vector3( 1 , 0 , 0 ) );
-
-    createLightCluster( 1 , 0xffaa00 , new THREE.Vector3( 0 , 0 , -1 ) );
-    createLightCluster( 1 , 0xaa00ff , new THREE.Vector3( 0 , -1 , 0 ) );
-    createLightCluster( 1 , 0x00ffaa , new THREE.Vector3( -1 , 0 , 0 ) );
+    createLightCluster(  0xffaa00 , new THREE.Vector3( 0 , 0 , 1 ) );
+    createLightCluster(  0xaa00ff , new THREE.Vector3( 0 , 1 , 0 ) );
+    createLightCluster(  0x00ffaa , new THREE.Vector3( 1 , 0 , 0 ) );
+    createLightCluster(  0xffaa00 , new THREE.Vector3( 0 , 0 , -1 ) );
+    createLightCluster(  0xaa00ff , new THREE.Vector3( 0 , -1 , 0 ) );
+    createLightCluster(  0x00ffaa , new THREE.Vector3( -1 , 0 , 0 ) );
     
 
+    // Object our dragon fish follows
     bait = new THREE.Object3D();
 
     dragonFish = new DragonFish( bait );
 
+    //dragonFish1 = new DragonFish( dragonFish.leader);
+    //dragonFish2 = new DragonFish( dragonFish1.leader);
 
-    //dragonFish1 = new DragonFish( dragonFish.tail );
-    //dragonFish2 = new DragonFish( dragonFish1.tail );
+    // Hooks
+
+    var geo = new THREE.CylinderGeometry( .5 , 0, .9 );
+    var mat = new THREE.MeshBasicMaterial({
+     // shading: THREE.FlatShading,
+      color:0xffaaaa,
+      map:audioController.texture,
+    });
+
+   // var mesh = new THREE.Mesh
+
+
+
+    /*for( var i = 0; i < 20; i++ ){
+
+      var mesh = new THREE.Mesh( geo , mat );
+      mesh.rotation.x = - Math.PI / 2;
+      var obj = new THREE.Object3D();
+      obj.add( mesh );
+      hook = new Hook( obj );
+
+      scene.add( obj );
+
+    }*/
     
-    
+
+    // Plane for mouse
     intersectPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry( 30 , 30 ),
-    new THREE.MeshNormalMaterial()
+      new THREE.PlaneGeometry( 30 , 30 ),
+      new THREE.MeshNormalMaterial()
     );
 
     intersectPlane.visible = false;
@@ -322,7 +357,6 @@
     );
 
     bait.add( mesh );
-    //scene.add( bait );
 
     document.addEventListener( 'keydown' , function(e){
 
@@ -332,10 +366,25 @@
 
         }
 
+         if( e.which == 65 ){
+
+           dragonFish.addVertabrae();
+
+         }
+
+          if( e.which == 81 ){
+
+           console.log( dragonFish.spine[5] );
+
+         }
+
+      
+
+
     });
 
 
-    controller.connect();
+   // controller.connect();
 
   }
 
@@ -352,7 +401,41 @@
     stats.update();
 
 
-  
+    for( var i = 0; i < hooks.length; i++ ){
+
+      //hooks[i].mesh.position.x = Math.cos( time.value * ( i +5) / 13) * (i+20) / 20;
+      //hooks[i].mesh.position.y = Math.sin( time.value * (i+6) / 10) * (i+20) / 20;
+      //hooks[i].mesh.position.z = Math.cos( time.value * (i+7) / 12 ) * (i+20)/ 20;
+     
+
+      var a = audioController.analyzer.array[i*5] /2;
+      var sub =  hooks[i].vertabrae.sub;
+      for( var j=0; j < sub.length; j++ ){
+
+        sub.sibRepelDist =1+ a*a;
+        sub.sibRepelDiv = 30- a*a*2;
+
+      }
+      
+      hooks[i].update();
+
+
+      var dif = hooks[i].mesh.position.clone().sub( dragonFish.leader.position );
+
+      if( dif.length() <= 2 ){
+
+        dragonFish.addPrecreatedVertabrae( hooks[i].vertabrae );
+
+       hooks.splice( i , 1 );
+        i--;
+        console.log( dif.length() );
+
+      }
+    }
+
+    for( var i = 0; i < hooks.length; i++ ){
+      hooks[i].update2();
+    }
 
     for( var i = 0; i < dragonFish.spine.length; i++ ){
 
@@ -360,9 +443,6 @@
       var spine = dragonFish.spine[i];
       var a = audioController.analyzer.array[i*5] /256;
       var vel = spine.velocity;
-     // spine.position.x += vel.x * a*a*3;
-     // spine.position.y += vel.y * a*a*3;
-      //spine.position.z += vel.z * a*a*3;
 
       for( var j=0; j < spine.sub.length; j++ ){
 
@@ -370,16 +450,14 @@
         sp.sibRepelDist =1+ a*a;
         sp.sibRepelDiv =30- a*a*2;
 
-        /*for( var k =0; k < sp.sub.length; k++ ){
-  
-          sp.sub[k] = a*a*5;
-
-        }*/
-
       }
+
+
     }
 
     tetraCluster.needsUpdate = true;
+    
+    
     if( !paused ){
 
       var frame = controller.frame();
@@ -391,29 +469,26 @@
       }else{
 
 
-      intersectPlane.position.copy( camera.position );
-      //console.log( controls.speed );
+        intersectPlane.position.copy( camera.position );
+        //console.log( controls.speed );
 
-      var dT = distanceToIntersectPlane;
-      var d = dT //+ ( controls.speed / controls.maxSpeed ) * dT
-      var vector = new THREE.Vector3( 0, 0, -d );
-      vector.applyQuaternion( camera.quaternion );
-      intersectPlane.position.add( vector );
+        var dT = distanceToIntersectPlane;
+        var d = dT + ( controls.speed / controls.maxSpeed ) * dT
+        var vector = new THREE.Vector3( 0, 0, -d );
+        vector.applyQuaternion( camera.quaternion );
+        intersectPlane.position.add( vector );
 
-      intersectPlane.lookAt( camera.position );
-       var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-	  projector.unprojectVector( vector, camera );
+        intersectPlane.lookAt( camera.position );
+         var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+        projector.unprojectVector( vector, camera );
 
-	  raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+        raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
 
-	  var intersects = raycaster.intersectObject( intersectPlane );
+        var intersects = raycaster.intersectObject( intersectPlane );
 
-      if( intersects.length > 0 ){
-
-       // console.log(intersects[0].point);
-
-       bait.position.copy( intersects[0].point );
-      }
+        if( intersects.length > 0 ){
+         bait.position.copy( intersects[0].point );
+        }
 
 
 
@@ -421,6 +496,10 @@
       }
 
       dragonFish.update();
+
+
+
+
       //dragonFish1.update();
       //dragonFish2.update();
 
@@ -489,40 +568,37 @@
   }
 
 
-  function createLightCluster( numOfLights , baseColor , baseDir ){
+  function createLightCluster(  baseColor , baseDir ){
 
 
     var mainColor = new THREE.Color( baseColor );
     var mainDir = baseDir.clone();
 
-    for( var i = 0; i < numOfLights; i++ ){
+    var c = mainColor.clone();
+    c.r = c.r + ( (Math.random() -.5) );
+    c.g = c.g + ( (Math.random() -.5));
+    c.b = c.b + ( (Math.random() -.5) );
+
+    var d = mainDir.clone();
+    d.x = d.x + ( (Math.random()-.5) * .5 );
+    d.y = d.y + ( (Math.random()-.5) * .5 );
+    d.z = d.z + ( (Math.random()-.5) * .5 );
+
+    d.normalize();
+    //c.normalize();
+
+   // c.r = d.x;
+    var light = new THREE.DirectionalLight(c.getHex() , .6 );
+    
+    light.position.copy( d );
 
 
-      var c = mainColor.clone();
-     /* c.r = c.r + ( (Math.random() -.5) );
-      c.g = c.g + ( (Math.random() -.5));
-      c.b = c.b + ( (Math.random() -.5) );*/
-
-      var d = mainDir.clone();
-      /*d.x = d.x + ( (Math.random()-.5) * .5 );
-      d.y = d.y + ( (Math.random()-.5) * .5 );
-      d.z = d.z + ( (Math.random()-.5) * .5 );*/
-
-      d.normalize();
-      //c.normalize();
-
-     // c.r = d.x;
-      var light = new THREE.DirectionalLight(c.getHex() , .6 );
-      
-      light.position.copy( d );
-
-
-      scene.add( light );
-
-    }
+    lights.push( light );
+    scene.add( light );
 
 
   }
+
 
 </script>
 

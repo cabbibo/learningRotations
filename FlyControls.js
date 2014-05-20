@@ -15,7 +15,7 @@ THREE.FlyControls = function ( object, domElement ) {
 	this.rollSpeed = 0.005;
 
     this.speed = 0;
-    this.maxSpeed = 4;
+    this.maxSpeed = 10;
 
 	this.dragToLook = false;
 	this.autoForward = false;

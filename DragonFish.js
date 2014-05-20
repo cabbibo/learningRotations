@@ -33,7 +33,27 @@ function DragonFish( bait , head , plume , flagella  ){
 
 DragonFish.prototype.update = function(){
 
-  this.leader.update();
+
+  for( var i= 0; i< this.spine.length; i++ ){
+
+    var c1 = this.spine[i];
+
+    var dToCam = c1.position.clone().sub( camera.position );
+    var lToCam = dToCam.length();
+
+
+    //if( lToCam < 3 ){
+
+
+      c1.velocity.set( 0 , 0,0 );
+      c1.velocity.add( dToCam.multiplyScalar( 2 / (lToCam *lToCam*lToCam*lToCam ) ) );
+      c1.position.add( c1.velocity );
+
+    //}
+  }
+
+    this.leader.update();
+
 
 }
 
@@ -50,8 +70,8 @@ DragonFish.prototype.initPlume = function(){
    // f.sibRepelDist = 2;
    // f.subAttractDiv = 1000000;
    // f.subAttractPow = 10;
-    f.subAttractDist = .001;
-    for( var k = 0; k < 4; k++ ){
+    f.subAttractDist = .1;
+    for( var k = 0; k < 1; k++ ){
 
 
       var f1;
@@ -61,12 +81,12 @@ DragonFish.prototype.initPlume = function(){
         f1 = new Fish( column1[k-1] , .3, fishSkeleton.plume.child1 );
       }
 
-      f1.sibRepelDiv = 100;
-      f1.sibRepelDist = 1;
-      f1.sibRepelPow = 3;
+      f1.sibRepelDiv = 40;
+      f1.sibRepelDist = 2;
+      f1.sibRepelPow = 1;
       //f1.sibRepelDist = 2;
 
-      for( var l = 0; l <1; l++ ){
+      for( var l = 0; l <10; l++ ){
         var f2 = new Fish( f1 , .8 , fishSkeleton.plume.child2);
         //f2.springDistance = 3;
         //
@@ -91,6 +111,73 @@ DragonFish.prototype.initPlume = function(){
 }
 
 
+DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
+
+  vertabrae.dom = this.spine[ this.spine.length - 1 ];
+  vertabrae.dom.sub.push( vertabrae );
+  this.spine.push( vertabrae );
+
+}
+
+DragonFish.prototype.createVertabrae = function( dom , s1 , s2 , s3 ){
+
+  var s1 = s1 || 3;
+  var s2 = s2 || 2;
+  var s3 = s3 || 3;
+
+  var vertabrae = new Fish( dom , .8 , fishSkeleton.flagella.spine );
+
+  vertabrae.position.copy( dom.position );
+
+  for( var i = 0; i < s1; i++ ){
+    
+    var child1 = new Fish( vertabrae , .6 , fishSkeleton.flagella.child1 );
+    child1.position.copy( vertabrae.position );
+
+    for( var j = 0;  j < s2; j++ ){
+
+      var child2 = new Fish( child1 , .4 ,fishSkeleton.flagella.child2);
+      child2.position.copy( vertabrae.position );
+
+      for( var k = 0; k < s3; k++ ){
+
+        var fF = fishSkeleton.flagella.child3;
+        var child3 = new Fish( child2 , .5, fF );
+        child3.position.copy( vertabrae.position );
+
+      }
+
+    }
+
+  }
+
+
+  return vertabrae
+
+
+}
+DragonFish.prototype.addVertabrae = function( subNum1 , subNum2 , subNum3 ){
+
+  var s1 = subNum1 || 3;
+  var s2 = subNum2 || 2;
+  var s3 = subNum3 || 3;
+
+  var id = this.spine.length;
+  console.log( id );
+
+  var dom = this.spine[ id - 1 ];
+
+  var v = this.createVertabrae( dom , s1 , s2 , s3 );
+ 
+  this.spine.push( v );
+
+  //this.tail = this;
+
+
+
+}
+
+
 DragonFish.prototype.initBody = function(){
 
   
@@ -101,61 +188,17 @@ DragonFish.prototype.initBody = function(){
       [-1 , 0],
       [0,1],
       [0,-1]
-    ]
-    for( var i = 0; i < 30; i++ ){
+    ];
 
-      var fish;
+    this.spine.push( this.leader );
 
-      if( i === 0 ){
+    for( var i = 0; i < 3; i++ ){
+
+      this.addVertabrae();
+    
+    }
         
-        fish = new Fish( this.leader , .8 , fishSkeleton.flagella.spine );
-
-      }else{
-
-        fish = new Fish( column[i-1] , .8 , fishSkeleton.flagella.spine );
-
-      }
-
-
-      for( var j = 0; j < 3; j++ ){
-
-        var subFish = new Fish( fish ,  .6, fishSkeleton.flagella.child1 );
-        subFish.position.x = dir[j][0]
-        subFish.position.y = dir[j][1]
-
-        //subFish.position.x = Math.random()-.5 * 2;
-        //subFish.position.y = Math.random()-.5 * 2;
-        //subFish.position.z = Math.random()-.5 * 2;
-
-        for( var k = 0; k < 2; k++ ){
-
-          var subSubFish = new Fish( subFish , .4 ,fishSkeleton.flagella.child2);
-          subSubFish.position.x = dir[k][0]
-          subSubFish.position.y = dir[k][1]
-
-
-          for( var l = 0; l < 2; l++ ){
-
-
-            var subSubSubFish = new Fish( subSubFish , .5,fishSkeleton.flagella.child3 );
-            subSubSubFish.position.x = dir[l][0]
-            subSubSubFish.position.y = dir[l][1]
-
-            subSubSubFish.sibRepelDiv = 100;
-            subSubSubFish.sibRepelPow = 10;
-            subSubSubFish.sibRepelDist = 100000;
-
-          }
-        }
-
-      }
-      column.push( fish );
-
-
-   }
-
-   this.spine = column;
-   this.tail = column[ column.length - 1];
+   this.tail = this.spine[ this.spine.length - 1 ];
 
 }
 /*
