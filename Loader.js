@@ -100,6 +100,8 @@ function Loader(  params ){
 
     loadBarAdd: function(){
 
+      console.log( this.numberLoaded );
+      console.log( this.numberToLoad );
      
       var oldWidth = parseInt( this.loadBar.style.width );
       var newWidth = oldWidth + this.loadBarAddAmount;
@@ -283,8 +285,9 @@ function Loader(  params ){
 
     onStart: function(){
 
+      console.log( this );
       if( !this.hasStarted ){
-        init();
+       onStart(); 
       }else{
         console.log( 'ALREADY STARTED!!!!' );
       }

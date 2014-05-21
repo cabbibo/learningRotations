@@ -2,7 +2,7 @@ var maxLength=3;
 var maxWidth=.3;
 var bLength
 var bWidth
-var bMax=100;
+var bMax=30;
 var bCount=0;
 
 var directions=[[[1,0,0],[-1,0,0]],[[0,1,0],[0,-1,0]],[[0,0,1],[0,0,-1]]]
@@ -32,6 +32,10 @@ function place(oX,oY,oZ,oDir){
 	var sX=((bLength-bWidth)*dirArray[0][0])+bWidth;
 	var sY=((bLength-bWidth)*dirArray[0][1])+bWidth;
 	var sZ=((bLength-bWidth)*dirArray[0][2])+bWidth;
+
+   // var sX = bWidth*300; 
+   // var sY = bWidth*300; 
+   // var sZ = bWidth*300; 
 
     var rX = Math.random() * Math.PI * 2;
     var rY = Math.random() * Math.PI * 2;

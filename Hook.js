@@ -31,10 +31,24 @@
   // Getting Hooked
   Hook.prototype.onHooked = function(){
 
+    console.log( this );
+
+    this.explode();
     //debugger;
 
   }
 
+  Hook.prototype.explode = function(){
+
+    console.log( 'HEAD' );
+    console.log( this.head );
+
+    this.head.visible = false;
+    scene.remove( this.head );
+
+    
+
+  }
   // Calling hook 1
   Hook.prototype.hook = function( fish ){
 
@@ -75,6 +89,7 @@
     this.position.add( this.velocity );
 
 
+    this.head.lookAt( this.position.clone().add( this.velocity ) );
     //this.velocity.multiplyScalar( .999 );
 
 

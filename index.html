@@ -34,6 +34,7 @@
 <script src = "Loader.js"       ></script>
 <script src = "OBJLoader.js"       ></script>
 <script src = "Hook.js"       ></script>
+<script src = "createStones.js"       ></script>
 
 
 <script>  
@@ -64,9 +65,14 @@
 
   var distanceToIntersectPlane = 10;
 
+
+  var loader = new Loader();
+
+
   var audioController = new AudioController();
   audioController.mute.gain.value = 0.0;
 
+  
 
   var shaders = new ShaderLoader('shaders');
 
@@ -75,36 +81,74 @@
   shaders.load( 'fs-sphere'    , 'sphere'   , 'fragment'    );
   shaders.load( 'vs-sphere'    , 'sphere'   , 'vertex'      );
 
+  loader.addToLoadBar();
   shaders.shaderSetLoaded = function(){
-    //init();
-    //animate();
-    //stream.play();
-    //onStart();
+    loader.loadBarAdd();
   }
 
   var userAudio = new UserAudio( audioController );
-
-
   var stream = new Stream( 'magicStick.mp3' , audioController );
 
-    init();
-
+  loader.addToLoadBar();
   userAudio.onStreamCreated = function(){
-    onStart();
-
+    loader.loadBarAdd();
   }
 
   var loader = new Loader();
 
-
-  console.log( loader );
-  loader.OBJLoader.load( 'lib/logo.obj' , function( object ){
+  loader.addToLoadBar();
+  loader.OBJLoader.load( 'lib/jelly_883.obj' , function( object ){
     console.log('ss');
     object.traverse( function ( child ) {
         if ( child instanceof THREE.Mesh ) {
           var geo = new THREE.Geometry();
-          var mesh = new THREE.Mesh( child.geometry , mainMaterial );
-          mesh.scale.multiplyScalar( 30 );
+          var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
+          mesh.scale.multiplyScalar( .3 );
+          scene.add( mesh );
+
+          geo.merge( mesh.geometry  , mesh.matrix );
+          geo.computeVertexNormals();
+          jellyGeo = geo;       
+        }
+    });
+    loader.loadBarAdd();
+  });
+
+  loader.addToLoadBar();
+
+  loader.OBJLoader.load( 'lib/totem_6.obj' , function( object ){
+    console.log('hello');
+    object.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+          var geo = new THREE.Geometry();
+          var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
+          mesh.scale.multiplyScalar( .4 );
+          scene.add( mesh );
+
+          console.log( 'cg');
+          console.log( child.geometry );
+          THREE.GeometryUtils.merge( geo , mesh );
+          geo.computeVertexNormals();
+          totemGeo = child.geometry;       
+        }
+    });
+    loader.loadBarAdd();
+  });
+
+
+  loader.addToLoadBar();
+
+   loader.OBJLoader.load( 'lib/cabbibo_1824.obj' , function( object ){
+    console.log('ss');
+    object.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+          var geo = new THREE.Geometry();
+          var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
+          mesh.scale.multiplyScalar( .08 );
+
+         // console.log( child.geometry );
+          scene.add( mesh );
+          mesh.ortation
           THREE.GeometryUtils.merge( geo , mesh );
           geo.computeVertexNormals();
           logoGeo = geo;       
@@ -118,6 +162,39 @@
 
   function onStart(){
     
+
+    console.log('hello1');
+    
+    var geo = new THREE.IcosahedronGeometry( 300 , 3 );
+    var mat = new THREE.MeshLambertMaterial({ 
+      //wireframe:true,
+      map:audioController.texture,
+      side: THREE.DoubleSide
+    });
+
+    assignUVs( totemGeo );
+    totemGeo.computeFaceNormals();
+    totemGeo.computeVertexNormals();
+
+    mat = new THREE.MeshNormalMaterial({
+      side: THREE.DoubleSide,
+      wireframe:true
+    });
+
+    skyBox = new THREE.Mesh( totemGeo , mat );
+    skyBox.scale.multiplyScalar( 100 );
+
+    skyBox1 = new THREE.Mesh( totemGeo , new THREE.MeshNormalMaterial() );
+    skyBox.add( skyBox1 );
+    scene.add( skyBox );
+
+    createStones();
+
+    var sun = new THREE.Mesh( 
+      jellyGeo ,
+      new THREE.MeshNormalMaterial()
+    );
+
 
     var u = {
       uPos: { type:"v3" , value : dragonFish.leader.position },
@@ -166,17 +243,22 @@
 
     }
 
-    var m = new THREE.MeshNormalMaterial({side:THREE.DoubleSided});
+    var m = new THREE.MeshPhongMaterial({color:0xfe4b03 , shading: THREE.FlatShading});
+
+    //var m = new THREE.MeshNormalMaterial();
     var g = new THREE.IcosahedronGeometry( .3,2 );
 
     var geo = new THREE.CubeGeometry( 1 , 1 , 1 );
     for( var i = 0; i < 40; i++ ){
 
-      var mesh = new THREE.Mesh( geo , shinyRed );
-      mesh.rotation.x = - Math.PI / 4;
-      mesh.rotation.y = - Math.PI / 4;
+      var mesh = new THREE.Mesh( logoGeo , m );
+    
+    // mesh.rotation.x = Math.PI / 2;
+     // mesh.rotation.y = Math.PI / 4;
       var obj = new THREE.Object3D();
       obj.add( mesh );
+
+      obj.scale.multiplyScalar( .8 );
 
       var m1 = mesh.clone();
       m1.scale.multiplyScalar( .1 );
@@ -196,9 +278,17 @@
       m4.rotation.x = - Math.PI / 2;
 
 
-      var head = new THREE.Mesh( g , m ); 
+      var head = new THREE.Mesh( jellyGeo , m );
 
-      hook = new Hook( head , undefined , undefined , undefined , m3 );
+      head.rotation.x = Math.PI/2;
+      head.scale.multiplyScalar( .9 );
+      var headObj = new THREE.Object3D();
+      headObj.add( head );
+    //  head.rotation.x = Math.PI/2;
+      
+    //  head.rotation.y = Math.PI/4;
+
+      hook = new Hook( headObj , obj , undefined , undefined , undefined );
 
       scene.add( head );
 
@@ -209,6 +299,8 @@
 
   }
 
+
+  init();
 
 
   function init(){
@@ -247,69 +339,8 @@
     var geo = new THREE.CubeGeometry( 10 , 1 , 1 )
     var mat = new THREE.MeshBasicMaterial();
 
-    var geometry = new THREE.Geometry();
-
-    place(0,0,0,0);
-    place(0,0,0,1);
-    place(0,0,0,2);
-    place(0,0,0,3);
-    place(0,0,0,4);
-    place(0,0,0,5);
-    place(10,0,0,0);
-    place(-10,0,0,1);
-    place(0,10,0,2);
-    place(0,-10,0,3);
-    place(0,0,10,4);
-    place(0,0,-10,5);
-    place(10,10,0,0);
-    place(-10,10,0,1);
-    place(-10,10,0,2);
-    place(-10,-10,0,3);
-    place(10,0,10,4);
-    place(10,0,-10,5);
 
 
-    var geo = new THREE.IcosahedronGeometry(10 ,0 );
-
-    for( var i=0; i < placingMatrix.length; i++ ){
-
-      var mesh = new THREE.Mesh( geo , mat );
-
-      var p = placingMatrix[i][0];
-      var s = placingMatrix[i][1];
-      var r = placingMatrix[i][2];
-
-      mesh.position.set( p[0] , p[1] , p[2] );
-      mesh.scale.set( s[0] , s[1] , s[2] );
-      mesh.rotation.x = r[0]//,r[1],r[2] );
-      mesh.rotation.y = r[1]//,r[1],r[2] );
-      mesh.rotation.z = r[2]//,r[1],r[2] );
-
-      mesh.updateMatrix();
-      geometry.merge( geo , mesh.matrix );
-
-    }
-
-    var mat = new THREE.MeshLambertMaterial({
-      shading: THREE.FlatShading,
-      color:0xffffff,
-      map:audioController.texture,
-      wireframe:true
-    });
-
-    stones = new THREE.Mesh( geometry , mat );
-    scene.add( stones );
-
-
-
-    var geo = new THREE.IcosahedronGeometry( 300 , 3 );
-    var mat = new THREE.MeshLambertMaterial({ 
-      wireframe:true,
-      map:audioController.texture,
-    });
-
-    skyBox = new THREE.Mesh( geo , mat );
-    scene.add( skyBox );
 
 
     mouse = new THREE.Vector2();
@@ -345,12 +376,6 @@
     projector = new THREE.Projector();
     raycaster = new THREE.Raycaster();
     
-    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , 0 , 1 ) );
-    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , 1 , 0 ) );
-    createLightCluster(  0x00ffee , new THREE.Vector3( 1 , 0 , 0 ) );
-    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , 0 , -1 ) );
-    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , -1 , 0 ) );
-    createLightCluster(  0x00ffee , new THREE.Vector3( -1 , 0 , 0 ) );
     
 
     // Object our dragon fish follows
@@ -372,6 +397,7 @@
 
    // var mesh = new THREE.Mesh
 
+   recreateLights( 0xffffff );
 
 
     /*for( var i = 0; i < 20; i++ ){
@@ -449,19 +475,15 @@
 
     for( var i = 0; i < hooks.length; i++ ){
 
-      //hooks[i].mesh.position.x = Math.cos( time.value * ( i +5) / 13) * (i+20) / 20;
-      //hooks[i].mesh.position.y = Math.sin( time.value * (i+6) / 10) * (i+20) / 20;
-      //hooks[i].mesh.position.z = Math.cos( time.value * (i+7) / 12 ) * (i+20)/ 20;
-     
-
-      var a = audioController.analyzer.array[i*5] /2;
+      var a = audioController.analyzer.array[i*5] /256;
       var sub =  hooks[i].vertabrae.sub;
-      for( var j=0; j < sub.length; j++ ){
+      var vertabrae = hooks[i].vertabrae;
+      //for( var j=0; j < vertabrae\.length; j++ ){
 
-        sub.sibRepelDist =1+ a*a;
-        sub.sibRepelDiv = 30- a*a*2;
+        vertabrae.sibRepelDist =1+ a*a;
+        vertabrae.sibRepelDiv = 30- a*a*2;
 
-      }
+      //}
       
       hooks[i].update();
 
@@ -485,18 +507,45 @@
       hooks[i].update2();
     }
 
-    for( var i = 0; i < dragonFish.spine.length; i++ ){
+    for( var i = 3; i < dragonFish.spine.length; i++ ){
 
 
       var spine = dragonFish.spine[i];
-      var a = audioController.analyzer.array[i*5] /256;
+      var a = audioController.analyzer.array[i*5] /150;
       var vel = spine.velocity;
 
+      var velLength = vel.length();
+
+
+      spine.sibRepelDist =1+ a*a;
+      
       for( var j=0; j < spine.sub.length; j++ ){
 
         var sp = spine.sub[j];
         sp.sibRepelDist =1+ a*a;
         sp.sibRepelDiv =30- a*a*2;
+       // sp.sibRepelDist = 0;
+        //sp.sibRepelDiv = 100;
+
+        for( var k = 0; k < sp.sub.length; k++ ){
+
+          var sp1 = sp.sub[k];
+          sp1.sibRepelDist =1+ a*a;
+          sp1.sibRepelDiv =30- a*a*2;
+
+          for( var l = 0; l < sp1.sub.length; l++ ){
+  
+            sp2 = sp1.sub[l];
+
+            sp2.sibRepelDist =1+ a*a*4;
+            sp2.sibRepelDiv =30- a*a*4;
+
+
+
+
+          }
+
+        }
 
       }
 
@@ -616,6 +665,33 @@
   }
 
 
+  function recreateLights( color ){
+
+
+    console.log( color );
+
+    for( var i = 0; i< lights.length; i++ ){
+
+      scene.remove( lights[i] );
+
+    }
+
+    lights = [];
+
+    lights[0] = createLightCluster( color , new THREE.Vector3( 0 , 0 , 1 ) );
+    lights[1] = createLightCluster( color , new THREE.Vector3( 0 , 1 , 0 ) );
+    lights[2] = createLightCluster( color , new THREE.Vector3( 1 , 0 , 0 ) );
+    lights[3] = createLightCluster( color , new THREE.Vector3( 0 , 0 , -1 ) );
+    lights[4] = createLightCluster( color , new THREE.Vector3( 0 , -1 , 0 ) );
+    lights[5] = createLightCluster( color , new THREE.Vector3( -1 , 0 , 0 ) );
+    
+
+
+    console.log( lights );
+
+  }
+
+
   function createLightCluster(  baseColor , baseDir ){
 
 
@@ -623,9 +699,9 @@
     var mainDir = baseDir.clone();
 
     var c = mainColor.clone();
-   // c.r = c.r + ( (Math.random() -.5) );
-    //c.g = c.g + ( (Math.random() -.5));
-    //`c.b = c.b + ( (Math.random() -.5) );
+    c.r = c.r + ( (Math.random() -.5) )*.01;
+    c.g = c.g + ( (Math.random() -.5))*.1;
+    c.b = c.b + ( (Math.random() -.5) )*.1;
 
     var d = mainDir.clone();
     d.x = d.x + ( (Math.random()-.5) * .5 );
@@ -636,13 +712,16 @@
     //c.normalize();
 
    // c.r = d.x;
-    var light = new THREE.DirectionalLight(c.getHex() , .6 );
+    var light = new THREE.DirectionalLight(c.getHex() , 1.6 );
     
     light.position.copy( d );
 
 
+    console.log( light.position );
     lights.push( light );
     scene.add( light );
+
+    return light;
 
 
   }
