@@ -31,7 +31,10 @@
 <script src = "Stream.js"             ></script>
 <script src = "underscore.js"         ></script>
 <script src = "ShaderLoader.js"       ></script>
+<script src = "Loader.js"       ></script>
+<script src = "OBJLoader.js"       ></script>
 <script src = "Hook.js"       ></script>
+
 
 <script>  
 
@@ -84,16 +87,37 @@
 
   var stream = new Stream( 'magicStick.mp3' , audioController );
 
+    init();
+
   userAudio.onStreamCreated = function(){
-    console.log( 'asss');
     onStart();
 
   }
-  
+
+  var loader = new Loader();
+
+
+  console.log( loader );
+  loader.OBJLoader.load( 'lib/logo.obj' , function( object ){
+    console.log('ss');
+    object.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+          var geo = new THREE.Geometry();
+          var mesh = new THREE.Mesh( child.geometry , mainMaterial );
+          mesh.scale.multiplyScalar( 30 );
+          THREE.GeometryUtils.merge( geo , mesh );
+          geo.computeVertexNormals();
+          logoGeo = geo;       
+        }
+    });
+    loader.loadBarAdd();
+  });
+
+
+
+
   function onStart(){
-    console.log('hello');
     
-    init();
 
     var u = {
       uPos: { type:"v3" , value : dragonFish.leader.position },
@@ -148,13 +172,12 @@
     var geo = new THREE.CubeGeometry( 1 , 1 , 1 );
     for( var i = 0; i < 40; i++ ){
 
-      var mesh = new THREE.Mesh( geo , m );
+      var mesh = new THREE.Mesh( geo , shinyRed );
       mesh.rotation.x = - Math.PI / 4;
       mesh.rotation.y = - Math.PI / 4;
       var obj = new THREE.Object3D();
       obj.add( mesh );
 
-      console.log('ssss');
       var m1 = mesh.clone();
       m1.scale.multiplyScalar( .1 );
      
@@ -289,8 +312,6 @@
     scene.add( skyBox );
 
 
-    console.log( placingMatrix );
-        
     mouse = new THREE.Vector2();
     // Getting the container in the right location
     container = document.createElement( 'div' );
@@ -324,12 +345,12 @@
     projector = new THREE.Projector();
     raycaster = new THREE.Raycaster();
     
-    createLightCluster(  0xffaa00 , new THREE.Vector3( 0 , 0 , 1 ) );
-    createLightCluster(  0xaa00ff , new THREE.Vector3( 0 , 1 , 0 ) );
-    createLightCluster(  0x00ffaa , new THREE.Vector3( 1 , 0 , 0 ) );
-    createLightCluster(  0xffaa00 , new THREE.Vector3( 0 , 0 , -1 ) );
-    createLightCluster(  0xaa00ff , new THREE.Vector3( 0 , -1 , 0 ) );
-    createLightCluster(  0x00ffaa , new THREE.Vector3( -1 , 0 , 0 ) );
+    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , 0 , 1 ) );
+    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , 1 , 0 ) );
+    createLightCluster(  0x00ffee , new THREE.Vector3( 1 , 0 , 0 ) );
+    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , 0 , -1 ) );
+    createLightCluster(  0x00ffee , new THREE.Vector3( 0 , -1 , 0 ) );
+    createLightCluster(  0x00ffee , new THREE.Vector3( -1 , 0 , 0 ) );
     
 
     // Object our dragon fish follows
@@ -602,9 +623,9 @@
     var mainDir = baseDir.clone();
 
     var c = mainColor.clone();
-    c.r = c.r + ( (Math.random() -.5) );
-    c.g = c.g + ( (Math.random() -.5));
-    c.b = c.b + ( (Math.random() -.5) );
+   // c.r = c.r + ( (Math.random() -.5) );
+    //c.g = c.g + ( (Math.random() -.5));
+    //`c.b = c.b + ( (Math.random() -.5) );
 
     var d = mainDir.clone();
     d.x = d.x + ( (Math.random()-.5) * .5 );
