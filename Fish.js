@@ -26,7 +26,8 @@
     this.sub = [];
 
     var newMesh = mesh.clone();
-    this.body = newMesh;
+   
+    this.body = mesh.clone();
     this.body.position = this.position;
 
     scene.add( this.body );

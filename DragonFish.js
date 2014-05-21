@@ -119,30 +119,29 @@ DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
 }
 
-DragonFish.prototype.createVertabrae = function( dom , s1 , s2 , s3 ){
+DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
 
-  var s1 = s1 || 3;
-  var s2 = s2 || 2;
-  var s3 = s3 || 3;
+  var m1 = m1 || fishSkeleton.flagella.spine;
+  var m2 = m2 || fishSkeleton.flagella.child1;
+  var m3 = m3 || fishSkeleton.flagella.child2;
+  var m4 = m4 || fishSkeleton.flagella.child3;
 
-  var vertabrae = new Fish( dom , .8 , fishSkeleton.flagella.spine );
-
+  var vertabrae = new Fish( dom , .8 , m1 );
   vertabrae.position.copy( dom.position );
 
-  for( var i = 0; i < s1; i++ ){
+  for( var i = 0; i < 3; i++ ){
     
-    var child1 = new Fish( vertabrae , .6 , fishSkeleton.flagella.child1 );
+    var child1 = new Fish( vertabrae , .6 , m2 );
     child1.position.copy( vertabrae.position );
 
-    for( var j = 0;  j < s2; j++ ){
+    for( var j = 0;  j < 2; j++ ){
 
-      var child2 = new Fish( child1 , .4 ,fishSkeleton.flagella.child2);
+      var child2 = new Fish( child1 , .4 , m3 );
       child2.position.copy( vertabrae.position );
 
-      for( var k = 0; k < s3; k++ ){
+      for( var k = 0; k < 3; k++ ){
 
-        var fF = fishSkeleton.flagella.child3;
-        var child3 = new Fish( child2 , .5, fF );
+        var child3 = new Fish( child2 , .2 , m4 );
         child3.position.copy( vertabrae.position );
 
       }
@@ -152,22 +151,19 @@ DragonFish.prototype.createVertabrae = function( dom , s1 , s2 , s3 ){
   }
 
 
-  return vertabrae
-
+  return vertabrae;
 
 }
-DragonFish.prototype.addVertabrae = function( subNum1 , subNum2 , subNum3 ){
 
-  var s1 = subNum1 || 3;
-  var s2 = subNum2 || 2;
-  var s3 = subNum3 || 3;
+
+DragonFish.prototype.addVertabrae = function( m1 , m2 , m3 , m4 ){
 
   var id = this.spine.length;
   console.log( id );
 
   var dom = this.spine[ id - 1 ];
 
-  var v = this.createVertabrae( dom , s1 , s2 , s3 );
+  var v = this.createVertabrae( dom , m1 , m2 , m3 , m4 );
  
   this.spine.push( v );
 

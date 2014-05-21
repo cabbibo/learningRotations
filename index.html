@@ -126,14 +126,15 @@
 
     var geo =  new THREE.CylinderGeometry( 1.45 , 0 , 1.6, 100 ,50,1 );
 
+     var body = new THREE.Mesh( 
+      geo,
+      jellyMat
+    );
+
     for( var i = 0; i < dragonFish.spine.length; i++ ){
 
 
-      var b = new THREE.Mesh( 
-      geo,
-      jellyMat
-      );
-
+      var b = body.clone();
       b.rotation.x = -Math.PI / 2;
       b.position.z = .2;
       
@@ -141,19 +142,45 @@
 
     }
 
+    var m = new THREE.MeshNormalMaterial({side:THREE.DoubleSided});
+    var g = new THREE.IcosahedronGeometry( .3,2 );
 
+    var geo = new THREE.CubeGeometry( 1 , 1 , 1 );
     for( var i = 0; i < 40; i++ ){
 
-      var mesh = new THREE.Mesh( geo , jellyMat );
-      mesh.rotation.x = - Math.PI / 2;
+      var mesh = new THREE.Mesh( geo , m );
+      mesh.rotation.x = - Math.PI / 4;
+      mesh.rotation.y = - Math.PI / 4;
       var obj = new THREE.Object3D();
       obj.add( mesh );
-      hook = new Hook( obj );
 
-      scene.add( obj );
+      console.log('ssss');
+      var m1 = mesh.clone();
+      m1.scale.multiplyScalar( .1 );
+     
+
+      var m2 = obj.clone();
+      m2.scale.multiplyScalar( .1 );
+       m2.matrixNeedsUpdate = true;
+
+      var m3 = obj.clone();
+      m3.scale.multiplyScalar( .5 );
+      //m3.rotation.x = - Math.PI / 2;
+      m3.matrixNeedsUpdate = true;
+
+      var m4 = mesh.clone();
+      m4.scale.multiplyScalar( .1 );
+      m4.rotation.x = - Math.PI / 2;
+
+
+      var head = new THREE.Mesh( g , m ); 
+
+      hook = new Hook( head , undefined , undefined , undefined , m3 );
+
+      scene.add( head );
 
     }
-    
+
   
     animate();
 
@@ -256,8 +283,6 @@
     var mat = new THREE.MeshLambertMaterial({ 
       wireframe:true,
       map:audioController.texture,
-
-    
     });
 
     skyBox = new THREE.Mesh( geo , mat );
@@ -420,12 +445,14 @@
       hooks[i].update();
 
 
-      var dif = hooks[i].mesh.position.clone().sub( dragonFish.leader.position );
+      //Check for collisions with hooks
+      var dif = hooks[i].position.clone().sub( dragonFish.leader.position );
 
       if( dif.length() <= 2 ){
 
         dragonFish.addPrecreatedVertabrae( hooks[i].vertabrae );
 
+        hook.onHooked();
        hooks.splice( i , 1 );
         i--;
         console.log( dif.length() );
