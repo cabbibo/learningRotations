@@ -1,7 +1,11 @@
 
   var hooks = [];
 
-  function Hook( head , m1 , m2 , m3 , m4 ){
+  var hooksConnected = 0;
+
+  document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
+  
+  function Hook( dragonFish ,  head , m1 , m2 , m3 , m4 ){
 
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
@@ -10,20 +14,25 @@
     this.velocity.z = (Math.random()-.5 ) * .1;
     this.head = head;
 
+    this.maxSpeed = .5;
+
     this.head.position = this.position;
+   
     
+    this.dragonFish = dragonFish;
     
     hooks.push( this );
 
     this.reposition();
 
-    this.vertabrae = dragonFish.createVertabrae( this.head , m1 , m2, m3,m4);
+    this.vertabrae = this.dragonFish.createVertabrae( this.head , m1 , m2, m3,m4);
 
   }
+    document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
 
   Hook.prototype.createVertabrae = function( mesh ){
 
-    this.vertabrae = dragonFish.createVertabrae( this.head , mesh , materials );
+    this.vertabrae = this.dragonFish.createVertabrae( this.head , mesh , materials );
 
   }
 
@@ -31,6 +40,9 @@
   // Getting Hooked
   Hook.prototype.onHooked = function(){
 
+    hooksConnected ++;
+
+    document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
     console.log( this );
 
     this.explode();
@@ -57,7 +69,7 @@
 
   }
 
-  Hook.prototype.update = function(){
+  Hook.prototype.updateForces = function(){
 
 
     this.force = new THREE.Vector3();
@@ -71,22 +83,39 @@
 
       this.force.sub( dist.normalize().multiplyScalar(l*.0000001) ); //dist.normalize().multiplyScalar( .1/ l ));
 
-      
-
     }
 
     var d = this.position.clone();
 
-    this.force.sub( d.normalize().multiplyScalar( d.length() * .00001 ) );
+    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .0001 ) );
+
+
+    var dif = this.position.clone().sub( this.dragonFish.leader.position );
+    var l = dif.length();
+
+    if( l < 30 ){
+
+      var s = this.dragonFish.leader.velocity.length();
+      this.force.add( dif.normalize().multiplyScalar( .008 * s * ( 10/l)) ) ;
+    }
 
     this.vertabrae.update();
 
   }
 
-  Hook.prototype.update2 = function(){
+  Hook.prototype.updatePosition = function(){
 
     this.velocity.add( this.force );
+    
+    if( this.velocity.length() >= this.maxSpeed ){
+
+      console.log( 'maxHit' );
+      this.velocity.normalize().multiplyScalar( this.maxSpeed );
+
+    }
+    
     this.position.add( this.velocity );
+
 
 
     this.head.lookAt( this.position.clone().add( this.velocity ) );
@@ -95,6 +124,22 @@
 
   }
 
+  Hook.prototype.checkForCollision= function( size , index ){
+
+    var dif = this.position.clone().sub( this.dragonFish.leader.position );
+
+    if( dif.length() <= size ){
+
+      this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
+
+      this.onHooked();
+     
+      hooks.splice( index , 1 );
+
+    }
+
+
+  }
   Hook.prototype.reposition = function(){
 
       this.position.x = (Math.random() -.5 )*100;

@@ -34,7 +34,7 @@ function DragonFish( bait , head , plume , flagella  ){
 DragonFish.prototype.update = function(){
 
 
-  for( var i= 0; i< this.spine.length; i++ ){
+  for( var i= 3; i< this.spine.length; i++ ){
 
     var c1 = this.spine[i];
 
@@ -42,17 +42,49 @@ DragonFish.prototype.update = function(){
     var lToCam = dToCam.length();
 
 
-    //if( lToCam < 3 ){
+    c1.velocity.set( 0 , 0,0 );
+    c1.velocity.add( dToCam.multiplyScalar( 2 / (lToCam *lToCam*lToCam*lToCam ) ) );
+    c1.position.add( c1.velocity );
 
 
-      c1.velocity.set( 0 , 0,0 );
-      c1.velocity.add( dToCam.multiplyScalar( 2 / (lToCam *lToCam*lToCam*lToCam ) ) );
-      c1.position.add( c1.velocity );
+    var spine = this.spine[i];
+    var a = audioController.analyzer.array[i*5] /150;
+    var vel = spine.velocity;
 
-    //}
+    var velLength = vel.length();
+
+    spine.sibRepelDist = 1+a*a;
+    
+    for( var j=0; j < spine.sub.length; j++ ){
+
+      var sp = spine.sub[j];
+      sp.sibRepelDist =1+ a*a;
+      sp.sibRepelDiv =30- a*a*2;
+
+      for( var k = 0; k < sp.sub.length; k++ ){
+
+        var sp1 = sp.sub[k];
+        sp1.sibRepelDist =1+ a*a;
+        sp1.sibRepelDiv =30- a*a*2;
+
+        for( var l = 0; l < sp1.sub.length; l++ ){
+
+          sp2 = sp1.sub[l];
+
+          sp2.sibRepelDist =1+ a*a*4;
+          sp2.sibRepelDiv =30- a*a*4;
+
+
+        }
+
+      }
+
+    }
+
+
   }
 
-    this.leader.update();
+  this.leader.update();
 
 
 }

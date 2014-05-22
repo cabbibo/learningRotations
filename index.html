@@ -1,5 +1,4 @@
 <html>
-<body>
   <head>
     <style>
       #container{
@@ -12,9 +11,27 @@
    left       : 0px;
    background : #000;
 
-      }
+ }
+
+ #hookCount{
+
+   position:absolute;
+   display:block;
+   width:100px;
+   height:100px;
+   z-index:999;
+   color:#fff;
+   opacity:.5;
+   font-size:30px;
+
+ }
     </style>
   </head>
+  <body>
+
+    <div id="hookCount"> HELLO </div>
+
+
 <script src = "jquery.min.js"         ></script>
 <script src = "leap.js"               ></script>
 <script src = "three.js"              ></script>
@@ -35,6 +52,7 @@
 <script src = "OBJLoader.js"       ></script>
 <script src = "Hook.js"       ></script>
 <script src = "createStones.js"       ></script>
+<script src = "initHooks.js"       ></script>
 
 
 <script>  
@@ -78,8 +96,15 @@
 
   shaders.load( 'fs-floor'    , 'floor'   , 'fragment'    );
   shaders.load( 'vs-floor'    , 'floor'   , 'vertex'      );
-  shaders.load( 'fs-sphere'    , 'sphere'   , 'fragment'    );
-  shaders.load( 'vs-sphere'    , 'sphere'   , 'vertex'      );
+  shaders.load( 'fs-sphere'   , 'sphere'  , 'fragment'    );
+  shaders.load( 'vs-sphere'   , 'sphere'  , 'vertex'      );
+
+  shaders.load( 'fs-simPos'   , 'posSim'  , 'simulation'  );
+  shaders.load( 'fs-simVel'   , 'velSim'  , 'simulation'  );
+
+
+  particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png' );
+  
 
   loader.addToLoadBar();
   shaders.shaderSetLoaded = function(){
@@ -243,56 +268,8 @@
 
     }
 
-    var m = new THREE.MeshPhongMaterial({color:0xfe4b03 , shading: THREE.FlatShading});
+    initHooks();
 
-    //var m = new THREE.MeshNormalMaterial();
-    var g = new THREE.IcosahedronGeometry( .3,2 );
-
-    var geo = new THREE.CubeGeometry( 1 , 1 , 1 );
-    for( var i = 0; i < 40; i++ ){
-
-      var mesh = new THREE.Mesh( logoGeo , m );
-    
-    // mesh.rotation.x = Math.PI / 2;
-     // mesh.rotation.y = Math.PI / 4;
-      var obj = new THREE.Object3D();
-      obj.add( mesh );
-
-      obj.scale.multiplyScalar( .8 );
-
-      var m1 = mesh.clone();
-      m1.scale.multiplyScalar( .1 );
-     
-
-      var m2 = obj.clone();
-      m2.scale.multiplyScalar( .1 );
-       m2.matrixNeedsUpdate = true;
-
-      var m3 = obj.clone();
-      m3.scale.multiplyScalar( .5 );
-      //m3.rotation.x = - Math.PI / 2;
-      m3.matrixNeedsUpdate = true;
-
-      var m4 = mesh.clone();
-      m4.scale.multiplyScalar( .1 );
-      m4.rotation.x = - Math.PI / 2;
-
-
-      var head = new THREE.Mesh( jellyGeo , m );
-
-      head.rotation.x = Math.PI/2;
-      head.scale.multiplyScalar( .9 );
-      var headObj = new THREE.Object3D();
-      headObj.add( head );
-    //  head.rotation.x = Math.PI/2;
-      
-    //  head.rotation.y = Math.PI/4;
-
-      hook = new Hook( headObj , obj , undefined , undefined , undefined );
-
-      scene.add( head );
-
-    }
 
   
     animate();
@@ -460,97 +437,39 @@
 
   }
 
-   function animate(){
+  function animate(){
 
-     counter += 1;
+    counter += 1;
 
-        audioController.update();
+    audioController.update();
      
-     var delta = clock.getDelta();
-     controls.update(delta);
+    var delta = clock.getDelta();
+    controls.update(delta);
 
     time.value += delta;
     stats.update();
 
-
     for( var i = 0; i < hooks.length; i++ ){
-
+      
       var a = audioController.analyzer.array[i*5] /256;
       var sub =  hooks[i].vertabrae.sub;
       var vertabrae = hooks[i].vertabrae;
-      //for( var j=0; j < vertabrae\.length; j++ ){
+      vertabrae.sibRepelDist =1+ a*a;
+      vertabrae.sibRepelDiv = 30- a*a*2;
 
-        vertabrae.sibRepelDist =1+ a*a;
-        vertabrae.sibRepelDiv = 30- a*a*2;
-
-      //}
-      
-      hooks[i].update();
-
-
-      //Check for collisions with hooks
-      var dif = hooks[i].position.clone().sub( dragonFish.leader.position );
-
-      if( dif.length() <= 2 ){
-
-        dragonFish.addPrecreatedVertabrae( hooks[i].vertabrae );
-
-        hook.onHooked();
-       hooks.splice( i , 1 );
-        i--;
-        console.log( dif.length() );
-
-      }
-    }
-
-    for( var i = 0; i < hooks.length; i++ ){
-      hooks[i].update2();
-    }
-
-    for( var i = 3; i < dragonFish.spine.length; i++ ){
-
-
-      var spine = dragonFish.spine[i];
-      var a = audioController.analyzer.array[i*5] /150;
-      var vel = spine.velocity;
-
-      var velLength = vel.length();
-
-
-      spine.sibRepelDist =1+ a*a;
-      
-      for( var j=0; j < spine.sub.length; j++ ){
-
-        var sp = spine.sub[j];
-        sp.sibRepelDist =1+ a*a;
-        sp.sibRepelDiv =30- a*a*2;
-       // sp.sibRepelDist = 0;
-        //sp.sibRepelDiv = 100;
-
-        for( var k = 0; k < sp.sub.length; k++ ){
-
-          var sp1 = sp.sub[k];
-          sp1.sibRepelDist =1+ a*a;
-          sp1.sibRepelDiv =30- a*a*2;
-
-          for( var l = 0; l < sp1.sub.length; l++ ){
-  
-            sp2 = sp1.sub[l];
-
-            sp2.sibRepelDist =1+ a*a*4;
-            sp2.sibRepelDiv =30- a*a*4;
-
-
-
-
-          }
-
-        }
-
-      }
-
+      hooks[i].updateForces();
 
     }
+
+    for( var i= 0; i < hooks.length; i++ ){
+
+      hooks[i].updatePosition();
+      hooks[i].checkForCollision( 2 , i );
+ 
+    }
+
+
+
 
     tetraCluster.needsUpdate = true;
     
