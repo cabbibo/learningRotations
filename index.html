@@ -55,6 +55,7 @@
 <script src = "Hook.js"       ></script>
 <script src = "createStones.js"       ></script>
 <script src = "initHooks.js"       ></script>
+<script src = "addSocialMedia.js"       ></script>
 
 
 <script>  
@@ -376,6 +377,7 @@
     });
 
 
+    addSocialMedia( SOCIAL_MEDIA );
     loader.loadBarAdd();
    // controller.connect();
 
@@ -570,6 +572,34 @@
     loader.liftCurtain();
     animate();
   });
+
+  
+      $('.social').hover( function( e ){
+
+        //console.log( e );
+
+        if( e.type == 'mouseenter' ){
+
+
+
+          titleEP.innerHTML = e.toElement.INFO_TEXT;
+
+        }else{
+
+          titleEP.innerHTML = 'Rioux - System Preferences';
+          
+
+        }
+
+
+      });
+
+      $("#information").click( function(){
+
+          $("#informationSection").toggle();
+
+      });
+
 
 </script>
 
