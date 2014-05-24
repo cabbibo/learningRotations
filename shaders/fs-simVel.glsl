@@ -49,16 +49,13 @@ void main(){
 
 
 
+  vel.xyz += curlNoise( pos.xyz  * 1. ) * .005; //* .5 * rand( vUv );
+  
   if( pos.w == 10. || pos.w == 0. ){
     vel.xyz= vec3( 0. , 0. , 0. );
     //20. * normalize( vec3( .0 , -1. , 0.) + .9 *uVel  + 1.5 *vec3( uVel.xy , 0.0 ) );
-    
-    vel.xyz = uVel * 5.;
-  
+     
   }
-
-  vel.xyz += curlNoise( pos.xyz  * 1. ) * .5 * rand( vUv );
-  //vel.y += a.x* 1.5 ;
 
   gl_FragColor = vec4( vel.xyz , vel.w );
 

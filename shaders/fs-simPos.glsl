@@ -31,10 +31,11 @@ void main(){
 
   //vec4 start  = texture2D( t_start , vUv );
 
-  if( pos.w == 10. ){
+  if( pos.w == 10. || pos.w == 0. ){
 
     pos.w = 0.;
 
+    vel.xyz =  vec3(0.,0.,0.);
   }
   
   pos.w += delta * ( .9 + (rand( vUv ) * .5 ) );
@@ -42,13 +43,14 @@ void main(){
   if( pos.w * a.w > 1.){
 
     pos.xyz = uPos.xyz;
+    //pos.xyz += .1 * pos.xyz * (rand( vUv ) -.5);
     vel.xyz = vec3(0.,0.,0.);
     pos.w = 10.;
 
   }
 
   
-  vec3 finalPoint = pos.xyz + vel.xyz * delta * ( a.w );
+  vec3 finalPoint = pos.xyz + vel.xyz * delta;// * ( a.w );
   gl_FragColor = vec4( finalPoint , pos.w );
 
 

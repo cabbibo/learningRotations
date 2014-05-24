@@ -70,8 +70,8 @@ function initExplosion( dragonFish ){
 
   physicsRenderer.setPosUniform( 'audioLookup'  , audioLookup );
 
-  var uVel = { type:"v3" , value:dragonFish.leader.velocity };
   var uPos = { type:"v3" , value:dragonFish.leader.position };
+  var uVel = { type:"v3" , value:dragonFish.leader.velocity };
 
   console.log( uVel.value );
   physicsRenderer.setPosUniform( 'uPos' , uPos );
