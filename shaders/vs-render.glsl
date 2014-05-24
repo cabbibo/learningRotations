@@ -14,6 +14,7 @@ void main(){
   vOPos = texture2D( t_oPos , position.xy );
 
   vec3 pos = vPos.xyz;
+  gl_PointSize = 10.;
   vec4 mvPos = modelViewMatrix * vec4( pos , 1.0 );
   gl_Position = projectionMatrix * mvPos;
 

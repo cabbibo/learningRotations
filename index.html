@@ -56,7 +56,9 @@
 <script src = "createStones.js"       ></script>
 <script src = "initHooks.js"       ></script>
 <script src = "addSocialMedia.js"       ></script>
-
+<script src = "PosVelSimulation.js"></script>
+<script src = "ParticleUtils.js"></script>
+<script src = "initExplosion.js"></script>
 
 <script>  
 
@@ -103,6 +105,11 @@
 
   shaders.load( 'fs-simPos'   , 'posSim'  , 'simulation'  );
   shaders.load( 'fs-simVel'   , 'velSim'  , 'simulation'  );
+
+  shaders.load( 'fs-render'   , 'render'  , 'fragment'    );
+  shaders.load( 'vs-render'   , 'render'  , 'vertex'      );
+
+
 
 
   particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png' );
@@ -156,6 +163,7 @@
 
   function onStart(){
 
+    initExplosion( dragonFish );
     console.log( 'onStart' );
 
     //stream.play();
@@ -461,6 +469,7 @@
 
     }
 
+    explosion.renderer.update();
      renderer.render( scene , camera );
      requestAnimationFrame( animate );
 
@@ -510,8 +519,6 @@
 
 
   function recreateLights( color ){
-
-
 
     for( var i = 0; i< lights.length; i++ ){
 
@@ -568,37 +575,37 @@
     
     stream.play();
 
-    console.log('hssls');
     loader.liftCurtain();
     animate();
+  
   });
 
-  
-      $('.social').hover( function( e ){
 
-        //console.log( e );
+  $('.social').hover( function( e ){
 
-        if( e.type == 'mouseenter' ){
+    //console.log( e );
 
-
-
-          titleEP.innerHTML = e.toElement.INFO_TEXT;
-
-        }else{
-
-          titleEP.innerHTML = 'Rioux - System Preferences';
-          
-
-        }
+    if( e.type == 'mouseenter' ){
 
 
-      });
 
-      $("#information").click( function(){
+      titleEP.innerHTML = e.toElement.INFO_TEXT;
 
-          $("#informationSection").toggle();
+    }else{
 
-      });
+      titleEP.innerHTML = 'Rioux - System Preferences';
+      
+
+    }
+
+
+  });
+
+  $("#information").click( function(){
+
+      $("#informationSection").toggle();
+
+  });
 
 
 </script>

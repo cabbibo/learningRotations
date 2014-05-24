@@ -3,7 +3,6 @@ uniform sampler2D t_pos;
 uniform sampler2D t_audio;
 
 uniform sampler2D t_start;
-uniform float cameraAngle;
 uniform float time;
 uniform float delta;
 
@@ -51,11 +50,15 @@ void main(){
 
 
   if( pos.w == 10. || pos.w == 0. ){
-    vel.xyz= 20. * normalize( vec3( .0 , -1. , 0.) + .9 *uVel  + 1.5 *vec3( uVel.xy , 0.0 ) );
+    vel.xyz= vec3( 0. , 0. , 0. );
+    //20. * normalize( vec3( .0 , -1. , 0.) + .9 *uVel  + 1.5 *vec3( uVel.xy , 0.0 ) );
+    
+    vel.xyz = uVel * 5.;
+  
   }
 
-  vel.xyz += curlNoise( pos.xyz  * .1 ) * .1;
-  vel.y += a.x* 1.5 ;
+  vel.xyz += curlNoise( pos.xyz  * 1. ) * .5 * rand( vUv );
+  //vel.y += a.x* 1.5 ;
 
   gl_FragColor = vec4( vel.xyz , vel.w );
 

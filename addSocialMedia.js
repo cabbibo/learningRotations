@@ -54,29 +54,4 @@
 
       }
 
-      $('.social').hover( function( e ){
-
-        //console.log( e );
-
-        if( e.type == 'mouseenter' ){
-
-
-
-          titleEP.innerHTML = e.toElement.INFO_TEXT;
-
-        }else{
-
-          titleEP.innerHTML = 'Rioux - System Preferences';
-          
-
-        }
-
-
-      });
-
-      $("#information").click( function(){
-
-          $("#informationSection").toggle();
-
-      });
 
