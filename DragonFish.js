@@ -53,26 +53,26 @@ DragonFish.prototype.update = function(){
 
     var velLength = vel.length();
 
-    spine.sibRepelDist = 1+a*a;
+    //spine.sibRepelDist = a*a;
     
     for( var j=0; j < spine.sub.length; j++ ){
 
       var sp = spine.sub[j];
-      sp.sibRepelDist =1+ a*a;
-      sp.sibRepelDiv =30- a*a*2;
+      //sp.sibRepelDist =1+ a*a;
+      //sp.sibRepelDiv =30- a*a*2;
 
       for( var k = 0; k < sp.sub.length; k++ ){
 
         var sp1 = sp.sub[k];
-        sp1.sibRepelDist =1+ a*a;
-        sp1.sibRepelDiv =30- a*a*2;
+       // sp1.sibRepelDist =1+ a*a;
+        //sp1.sibRepelDiv =30- a*a*2;
 
         for( var l = 0; l < sp1.sub.length; l++ ){
 
           sp2 = sp1.sub[l];
 
-          sp2.sibRepelDist =1+ a*a*4;
-          sp2.sibRepelDiv =30- a*a*4;
+          //sp2.sibRepelDist =1+ a*a*4;
+          //sp2.sibRepelDiv =30- a*a*4;
 
 
         }
@@ -99,9 +99,6 @@ DragonFish.prototype.initPlume = function(){
 
     f.timeToChange = 1;
     f.subAttractDist = .4;
-   // f.sibRepelDist = 2;
-   // f.subAttractDiv = 1000000;
-   // f.subAttractPow = 10;
     f.subAttractDist = .1;
     for( var k = 0; k < 1; k++ ){
 
@@ -116,16 +113,10 @@ DragonFish.prototype.initPlume = function(){
       f1.sibRepelDiv = 40;
       f1.sibRepelDist = 2;
       f1.sibRepelPow = 1;
-      //f1.sibRepelDist = 2;
 
       for( var l = 0; l <10; l++ ){
         var f2 = new Fish( f1 , .8 , fishSkeleton.plume.child2);
-        //f2.springDistance = 3;
-        //
-        //f1.sibRepelDist = 2;
-
-
-        //f2.timeToChange = 100000;
+        
         for( var m = 0; m < 10; m++ ){
           var f3 = new Fish( f2 , .4 , fishSkeleton.plume.spine );
           f3.sibRepelDist = 2;
@@ -191,7 +182,6 @@ DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
 DragonFish.prototype.addVertabrae = function( m1 , m2 , m3 , m4 ){
 
   var id = this.spine.length;
-  console.log( id );
 
   var dom = this.spine[ id - 1 ];
 

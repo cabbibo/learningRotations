@@ -100,9 +100,6 @@ function Loader(  params ){
 
     loadBarAdd: function(){
 
-      console.log( this.numberLoaded );
-      console.log( this.numberToLoad );
-     
       var oldWidth = parseInt( this.loadBar.style.width );
       var newWidth = oldWidth + this.loadBarAddAmount;
 
@@ -255,7 +252,7 @@ function Loader(  params ){
 
     addStartButton: function(){
 
-      var info = "Drag to Rotate , Scroll to Zoom <br/>Click Heads to change songs </br>Click and Drag Spheres to disrupt particles<br/>"
+      var info = "Move mouse to rotate <br/> Hold mouse to accelerate <br/> Catch critters to grow.<br/>"
 
       var button = document.createElement('a');
       button.id = "startButton";

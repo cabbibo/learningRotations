@@ -39,7 +39,6 @@ function createStones( geo , mat ){
 
     for( var i=0; i < placingMatrix.length; i++ ){
 
-      console.log('hey');
       var mesh = new THREE.Mesh( geo , mat );
 
       var p = placingMatrix[i][0];

@@ -1,5 +1,7 @@
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    
     <style>
       #container{
 
@@ -86,9 +88,8 @@
 
   var loader = new Loader();
 
-
   var audioController = new AudioController();
-  audioController.mute.gain.value = 0.0;
+ // audioController.mute.gain.value = 0.0;
 
   
 
@@ -111,49 +112,21 @@
     loader.loadBarAdd();
   }
 
-  var userAudio = new UserAudio( audioController );
+ // var userAudio = new UserAudio( audioController );
   var stream = new Stream( 'magicStick.mp3' , audioController );
 
-  loader.addToLoadBar();
-  userAudio.onStreamCreated = function(){
-    loader.loadBarAdd();
-  }
+  //loader.addToLoadBar();
+  //userAudio.onStreamCreated = function(){
+  //  loader.loadBarAdd();
+  //}
 
-  var loader = new Loader();
 
-  loader.addToLoadBar();
-  loader.OBJLoader.load( 'lib/jelly_883.obj' , function( object ){
-    console.log('ss');
-    object.traverse( function ( child ) {
-        if ( child instanceof THREE.Mesh ) {
-          var geo = new THREE.Geometry();
-          var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
-          mesh.scale.multiplyScalar( .3 );
-          scene.add( mesh );
-
-          geo.merge( mesh.geometry  , mesh.matrix );
-          geo.computeVertexNormals();
-          jellyGeo = geo;       
-        }
-    });
-    loader.loadBarAdd();
-  });
 
   loader.addToLoadBar();
 
   loader.OBJLoader.load( 'lib/totem_6.obj' , function( object ){
-    console.log('hello');
     object.traverse( function ( child ) {
         if ( child instanceof THREE.Mesh ) {
-          var geo = new THREE.Geometry();
-          var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
-          mesh.scale.multiplyScalar( .4 );
-          scene.add( mesh );
-
-          console.log( 'cg');
-          console.log( child.geometry );
-          THREE.GeometryUtils.merge( geo , mesh );
-          geo.computeVertexNormals();
           totemGeo = child.geometry;       
         }
     });
@@ -164,17 +137,12 @@
   loader.addToLoadBar();
 
    loader.OBJLoader.load( 'lib/cabbibo_1824.obj' , function( object ){
-    console.log('ss');
     object.traverse( function ( child ) {
         if ( child instanceof THREE.Mesh ) {
           var geo = new THREE.Geometry();
           var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
-          mesh.scale.multiplyScalar( .08 );
-
-         // console.log( child.geometry );
-          scene.add( mesh );
-          mesh.ortation
-          THREE.GeometryUtils.merge( geo , mesh );
+          mesh.scale.multiplyScalar( .8 );
+          geo.merge( mesh.geometry , mesh.matrix );
           geo.computeVertexNormals();
           logoGeo = geo;       
         }
@@ -186,10 +154,10 @@
 
 
   function onStart(){
-    
 
-    console.log('hello1');
-    
+    console.log( 'onStart' );
+
+    //stream.play();
     var geo = new THREE.IcosahedronGeometry( 300 , 3 );
     var mat = new THREE.MeshLambertMaterial({ 
       //wireframe:true,
@@ -201,24 +169,27 @@
     totemGeo.computeFaceNormals();
     totemGeo.computeVertexNormals();
 
-    mat = new THREE.MeshNormalMaterial({
+    mat = new THREE.MeshLambertMaterial({
       side: THREE.DoubleSide,
-      wireframe:true
+      color:0x444444,
+      map: audioController.texture,
+      shading: THREE.FlatShading
+      //wireframe:true
     });
 
     skyBox = new THREE.Mesh( totemGeo , mat );
     skyBox.scale.multiplyScalar( 100 );
 
     skyBox1 = new THREE.Mesh( totemGeo , new THREE.MeshNormalMaterial() );
-    skyBox.add( skyBox1 );
+   // skyBox.add( skyBox1 );
     scene.add( skyBox );
 
     createStones();
 
-    var sun = new THREE.Mesh( 
+    /*var sun = new THREE.Mesh( 
       jellyGeo ,
       new THREE.MeshNormalMaterial()
-    );
+    );*/
 
 
     var u = {
@@ -230,7 +201,6 @@
     }
 
     jellyMat = new THREE.ShaderMaterial({
-
       uniforms: u,
       vertexShader:shaders.vertexShaders.sphere,
       fragmentShader:shaders.fragmentShaders.sphere,
@@ -270,10 +240,7 @@
 
     initHooks();
 
-
   
-    animate();
-
   }
 
 
@@ -360,35 +327,11 @@
 
     dragonFish = new DragonFish( bait );
 
-    //dragonFish1 = new DragonFish( dragonFish.leader);
-    //dragonFish2 = new DragonFish( dragonFish1.leader);
-
     // Hooks
 
-    var geo = new THREE.CylinderGeometry( .5 , 0, .9 );
-    var mat = new THREE.MeshBasicMaterial({
-     // shading: THREE.FlatShading,
-      color:0xffaaaa,
-      map:audioController.texture,
-    });
+  
+   recreateLights( 0x777777 );
 
-   // var mesh = new THREE.Mesh
-
-   recreateLights( 0xffffff );
-
-
-    /*for( var i = 0; i < 20; i++ ){
-
-      var mesh = new THREE.Mesh( geo , mat );
-      mesh.rotation.x = - Math.PI / 2;
-      var obj = new THREE.Object3D();
-      obj.add( mesh );
-      hook = new Hook( obj );
-
-      scene.add( obj );
-
-    }*/
-    
 
     // Plane for mouse
     intersectPlane = new THREE.Mesh(
@@ -433,6 +376,7 @@
     });
 
 
+    loader.loadBarAdd();
    // controller.connect();
 
   }
@@ -513,28 +457,7 @@
 
       dragonFish.update();
 
-
-
-
-      //dragonFish1.update();
-      //dragonFish2.update();
-
-
-      //camera.position.copy( leader.position );
-
-      //camera.position.y = 5;
-
-      //camera.lookAt( leader.position );
     }
-
-
-    /*for( var i = 0; i < fishes.length ; i++ ){
-
-
-      fishes[i].update();
-
-    }*/
-
 
      renderer.render( scene , camera );
      requestAnimationFrame( animate );
@@ -587,7 +510,6 @@
   function recreateLights( color ){
 
 
-    console.log( color );
 
     for( var i = 0; i< lights.length; i++ ){
 
@@ -605,9 +527,6 @@
     lights[5] = createLightCluster( color , new THREE.Vector3( -1 , 0 , 0 ) );
     
 
-
-    console.log( lights );
-
   }
 
 
@@ -618,9 +537,9 @@
     var mainDir = baseDir.clone();
 
     var c = mainColor.clone();
-    c.r = c.r + ( (Math.random() -.5) )*.01;
-    c.g = c.g + ( (Math.random() -.5))*.1;
-    c.b = c.b + ( (Math.random() -.5) )*.1;
+    c.r = c.r + ( (Math.random() -.5) )*.5;
+    c.g = c.g + ( (Math.random() -.5))*.5;
+    c.b = c.b + ( (Math.random() -.5) )*.5;
 
     var d = mainDir.clone();
     d.x = d.x + ( (Math.random()-.5) * .5 );
@@ -631,12 +550,9 @@
     //c.normalize();
 
    // c.r = d.x;
-    var light = new THREE.DirectionalLight(c.getHex() , 1.6 );
+    var light = new THREE.DirectionalLight(c.getHex() , 1);
     
     light.position.copy( d );
-
-
-    console.log( light.position );
     lights.push( light );
     scene.add( light );
 
@@ -645,6 +561,15 @@
 
   }
 
+  $("#startInfo").click( function(){
+
+    
+    stream.play();
+
+    console.log('hssls');
+    loader.liftCurtain();
+    animate();
+  });
 
 </script>
 

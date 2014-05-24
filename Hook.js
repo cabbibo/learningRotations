@@ -43,7 +43,7 @@
     hooksConnected ++;
 
     document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
-    console.log( this );
+   // console.log( this );
 
     this.explode();
     //debugger;
@@ -52,20 +52,12 @@
 
   Hook.prototype.explode = function(){
 
-    console.log( 'HEAD' );
-    console.log( this.head );
-
-    this.head.visible = false;
-    scene.remove( this.head );
-
+    var c = new THREE.Color();
+    c.r = Math.random();
+    c.g = Math.random();
+    c.b = Math.random();
     
-
-  }
-  // Calling hook 1
-  Hook.prototype.hook = function( fish ){
-
-    fish.dom = this.head;
-
+    recreateLights( c.getHex() );
 
   }
 
@@ -90,10 +82,12 @@
     this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .0001 ) );
 
 
+
+    // Runs from dragonfish
     var dif = this.position.clone().sub( this.dragonFish.leader.position );
     var l = dif.length();
 
-    if( l < 30 ){
+    if( l < 3 ){
 
       var s = this.dragonFish.leader.velocity.length();
       this.force.add( dif.normalize().multiplyScalar( .008 * s * ( 10/l)) ) ;
