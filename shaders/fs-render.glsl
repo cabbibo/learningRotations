@@ -1,10 +1,10 @@
 uniform sampler2D t_audio;
 uniform sampler2D sprite;
+uniform vec3  color;
 uniform float id;
 uniform vec3 uPos;
 uniform vec3 uVel;
 
-uniform vec3 color;
 varying vec2 vUv;
 
 
@@ -14,7 +14,7 @@ varying vec4 vAudio;
 
 void main(){
 
-  float y = smoothstep( -5.0 , 5. ,  vVel.y );
+  /*float y = smoothstep( -5.0 , 5. ,  vVel.y );
 
   vec4 s = texture2D( sprite , vec2( gl_PointCoord.x , 1.0 - gl_PointCoord.y) );
 
@@ -37,7 +37,19 @@ void main(){
 
   vec3 cTest = smoothstep( vec3( 1. , 1. , 1. ), vec3( id , 1. - id , cos( id)), vec3( .0 , 2. , 1. ) );
   vec3 shimmer = vec3( (.8+ (.2 * a.y)) * 5.3 ,(.8+ (.2 * a.x)) * .6 , .1 );// - a.xyz * 5.;
-  gl_FragColor = vec4( shimmer * (1. / vPos.w ) , (.5 / vPos.w ) * s.w * s.x * .6);
+  gl_FragColor = vec4( shimmer * (1. / vPos.w ) , (.5 / vPos.w ) * s.w * s.x * .6);*/
+
+  vec4 s = texture2D( sprite , vec2( gl_PointCoord.x , 1.0 - gl_PointCoord.y) );
+  
+  vec2 sample = vec2( abs( vPos.y / 20. ) , 0.0 );
+ 
+  if( s.a < .1 ){
+    discard;
+  }
+  
+  vec4 a = texture2D( t_audio , sample );
+  
+  gl_FragColor = vec4( a * s * vec4(color , 1.0 ));
 
 
 }

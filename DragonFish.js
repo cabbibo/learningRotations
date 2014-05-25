@@ -43,7 +43,7 @@ DragonFish.prototype.update = function(){
 
 
     c1.velocity.set( 0 , 0,0 );
-    c1.velocity.add( dToCam.multiplyScalar( 2 / (lToCam *lToCam*lToCam*lToCam ) ) );
+    c1.velocity.add( dToCam.multiplyScalar( 8 / (lToCam*lToCam*lToCam*lToCam) ) );
     c1.position.add( c1.velocity );
 
 
@@ -55,7 +55,7 @@ DragonFish.prototype.update = function(){
 
     //spine.sibRepelDist = a*a;
     
-    for( var j=0; j < spine.sub.length; j++ ){
+  /*  for( var j=0; j < spine.sub.length; j++ ){
 
       var sp = spine.sub[j];
       //sp.sibRepelDist =1+ a*a;
@@ -79,7 +79,7 @@ DragonFish.prototype.update = function(){
 
       }
 
-    }
+    }*/
 
 
   }

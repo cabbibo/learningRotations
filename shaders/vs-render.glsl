@@ -22,9 +22,11 @@ void main(){
   
   vec4 mvPos = modelViewMatrix * vec4( pos , 1.0 );
 
-  gl_PointSize =  min( 100. ,3.+ 10. * abs(vAudio.x* vAudio.x* vAudio.x)) / length( mvPos) ;
+  //gl_PointSize =  min( 100. ,3.+ 10. * abs(vAudio.x* vAudio.x* vAudio.x)) / length( mvPos) ;
 
-  gl_PointSize = gl_PointSize * 50.;
+  //gl_PointSize = gl_PointSize * 50.;
+
+  gl_PointSize = 50. * vAudio.x * vAudio.x * vAudio.y;
   //gl_PointSize = 10.;
   gl_Position = projectionMatrix * mvPos;
 

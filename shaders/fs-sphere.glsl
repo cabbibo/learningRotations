@@ -5,6 +5,7 @@ uniform sampler2D lightMap;
 uniform vec3 uVel;
 uniform vec3 uPos;
 
+uniform vec3 color;
 varying vec3 vNorm;
 varying vec3 vPos;
 varying vec3 vVel;
@@ -39,5 +40,5 @@ void main(){
   gl_FragColor.xyz *= vec3( .1 , .6 , .5 );
  // gl_FragColor = vec4( 1.0 , vLightBack.xy , 1.0 );
 
-  gl_FragColor = normalize(vAudio1+vAudio) * vec4( .6 , .3 , 1.2 , .2 );
+  gl_FragColor = vec4( normalize(vAudio1+vAudio).xyz * color , vAudio.x * vAudio1.x );
 }
