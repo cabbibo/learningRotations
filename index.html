@@ -60,6 +60,8 @@
 <script src = "PhysicsRenderer.js"></script>
 <script src = "ParticleUtils.js"></script>
 <script src = "initExplosion.js"></script>
+<script src = "LoadedAudio.js"></script>
+<script src = "initAudio.js"></script>
 
 <script>  
 
@@ -96,7 +98,7 @@
   var loader = new Loader();
 
   var audioController = new AudioController();
-  audioController.mute.gain.value = 0.0;
+  //audioController.mute.gain.value = 0.0;
 
   
 
@@ -125,13 +127,13 @@
     loader.loadBarAdd();
   }
 
-  var userAudio = new UserAudio( audioController );
+  /*var stream = new UserAudio( audioController );
   //var stream = new Stream( 'magicStick.mp3' , audioController );
 
   loader.addToLoadBar();
-  userAudio.onStreamCreated = function(){
+  stream.onStreamCreated = function(){
     loader.loadBarAdd();
-  }
+  }*/
 
 
 
@@ -170,12 +172,11 @@
 
     initExplosion( dragonFish );
     console.log( 'onStart' );
-
     //stream.play();
     var geo = new THREE.IcosahedronGeometry( 300 , 3 );
     var mat = new THREE.MeshLambertMaterial({ 
       //wireframe:true,
-      map:audioController.texture,
+      map: audioController.texture,
       side: THREE.DoubleSide
     });
 
@@ -186,7 +187,7 @@
     mat = new THREE.MeshLambertMaterial({
       side: THREE.DoubleSide,
       color:0x444444,
-      map: audioController.texture,
+      map: audioController.texture,//stream.texture,
       shading: THREE.FlatShading
       //wireframe:true
     });
@@ -206,6 +207,7 @@
     );*/
 
 
+    //console.log( stream.texture );
     var u = {
       uPos: { type:"v3" , value : dragonFish.leader.position },
       uVel: { type:"v3" , value : dragonFish.leader.velocity },
@@ -335,7 +337,8 @@
     projector = new THREE.Projector();
     raycaster = new THREE.Raycaster();
     
-    
+
+    initAudio();
 
     // Object our dragon fish follows
     bait = new THREE.Object3D();
@@ -606,7 +609,16 @@
     
     //stream.play();
 
+    for( var i = 0; i < audioController.loops.length; i++ ){
+
+      audioController.loops[i].play();
+      audioController.loops[i].gain.gain.value = 0;
+
+    }
+
     loader.liftCurtain();
+
+
     animate();
   
   });

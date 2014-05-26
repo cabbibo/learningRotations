@@ -5,7 +5,7 @@
 
   document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
   
-  function Hook( dragonFish , color , audio ,   head , m1 , m2 , m3 , m4 ){
+  function Hook( dragonFish , color , note , loop ,   head , m1 , m2 , m3 , m4 ){
 
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
@@ -17,8 +17,10 @@
     this.maxSpeed = .5;
 
     this.color = color;
-    this.audio = audio;
+    this.note  = note;
+    this.loop  = loop;
 
+    console.log( note );
     this.head.position = this.position;
    
     
@@ -55,6 +57,9 @@
 
   Hook.prototype.explode = function(){
 
+    console.log( this.note );
+    this.note.play();
+    this.loop.gain.gain.value += .5;
     explosion.renderer.simulationUniforms.justHit.value = 1.;
 
     console.log( explosion.renderer );

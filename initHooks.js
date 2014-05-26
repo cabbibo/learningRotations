@@ -1,5 +1,5 @@
 
-var colors = [ 0xc0ffee, 0xfecc88 , 0xaa77ff ]
+var colors = [ 0xc0ffee, 0xfecc88 , 0xaa77ff ];
 
 function initHooks(){
     for( var i = 0; i < 40; i++ ){
@@ -11,6 +11,7 @@ function initHooks(){
         blending:THREE.AdditiveBlending,
         transparent:true,
         map:audioController.texture,
+
         depthwrite:false
       });
 
@@ -27,8 +28,19 @@ function initHooks(){
     
       var color = new THREE.Color( colorHex );
 
-      var audio = 'a'; // TODO
-      hook = new Hook( dragonFish , color , audio ,  headObj , mesh );
+     
+      console.log( audioController.notes );
+      console.log( audioController.loops );
+      var noteIndex = Math.floor( Math.random() * audioController.notes.length );
+      var note = audioController.notes[ noteIndex ];
+
+      console.log( 'HAAS');
+      console.log( note );
+
+      var loopIndex = Math.floor( Math.random() * audioController.loops.length );
+      var loop = audioController.loops[ loopIndex ];
+      
+      hook = new Hook( dragonFish , color , note , loop ,  headObj , mesh );
 
       //scene.add( head );
 

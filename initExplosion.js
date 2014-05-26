@@ -18,7 +18,7 @@ function initExplosion( dragonFish ){
     t_pos:{ type:"t" , value:null },
     t_oPos:{ type:"t" , value:null },
     t_ooPos:{ type:"t" , value:null },
-    t_audio:{ type:"t" , value:audioController.texture },
+    t_audio:{ type:"t" , value:audioController.texture},
     sprite:{ type:"t" , value:sprite},
     color:{ type:"v3" , value: new THREE.Vector3( 1. ,0., 0.) }
   }

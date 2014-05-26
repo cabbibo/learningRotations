@@ -12,14 +12,15 @@
 
     });
 
-    this.analyser = this.controller.ctx.createAnalyser();
+    this.analyzer = this.controller.ctx.createAnalyser();
     this.filter   = this.controller.ctx.createBiquadFilter();
     this.gain     = this.controller.ctx.createGain();
 
-    this.analyser.frequencyBinCount = this.params.fbc;
-    this.analyser.array = new Uint8Array( this.params.fbc );
+    this.analyzer.frequencyBinCount = this.params.fbc;
+    this.analyzer.array = new Uint8Array( this.params.fbc );
 
 
+    this.texture = AudioTexture( this );
 
     this.controller = controller;
 
@@ -30,6 +31,9 @@
     };
 
   
+    this.gain.gain.value = 0;
+ 
+    this.controller.userAudio = this;
 
     navigator.getUserMedia( constraints , this.successCallback.bind( this ) , this.errorCallback.bind( this ) );
 
@@ -40,13 +44,13 @@
   UserAudio.prototype.successCallback = function( stream ) {
    
    
-    window.stream = stream; // stream available to console
+    //window.stream = stream; // stream available to console
 
     this.source = this.controller.ctx.createMediaStreamSource( stream );
 
     this.filterOn = false;
-    this.source.connect(                   this.analyser );
-    this.analyser.connect(                     this.gain );
+    this.source.connect(                   this.analyzer );
+    this.analyzer.connect(                     this.gain );
     this.gain.connect(        this.controller.gain );
 
     this.onStreamCreated();
@@ -80,14 +84,12 @@
     this.filter.connect( this.gain );
   }
 
-  UserAudio.prototype._update = function(){
-
-   
-    this.update();
-
-  }
-
   UserAudio.prototype.update = function(){
 
+    this.analyzer.getByteFrequencyData( this.analyzer.array );
+
+    this.texture.update();
+   
+    
   }
 
