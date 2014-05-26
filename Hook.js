@@ -59,7 +59,7 @@
 
     console.log( this.note );
     this.note.play();
-    this.loop.gain.gain.value += .5;
+    this.loop.gain.gain.value += .1;
     explosion.renderer.simulationUniforms.justHit.value = 1.;
 
     console.log( explosion.renderer );
