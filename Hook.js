@@ -5,22 +5,39 @@
 
   document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
   
-  function Hook( dragonFish , color , note , loop ,   head , m1 , m2 , m3 , m4 ){
-
+  function Hook( dragonFish , params ){
+    
+    this.params = _.defaults( params || {} , {
+    
+      color: new THREE.Color( 0xffffff ),
+      note: 'clean1.wav',
+      loop: 'clean_heavyBeat.wav',
+      head: fishSkeleton.flagella.spine,
+      m1:   fishSkeleton.flagella.child1,
+      m2:   fishSkeleton.flagella.child2,
+      m3:   fishSkeleton.flagella.child3,
+      m4:   fishSkeleton.flagella.child1,
+      startScore: 0,
+      repelDistance: 3,
+    
+    });
+    
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
-    this.velocity.x = (Math.random()-.5 ) * .1;
+    
+    /*this.velocity.x = (Math.random()-.5 ) * .1;
     this.velocity.y = (Math.random()-.5 ) * .1;
-    this.velocity.z = (Math.random()-.5 ) * .1;
-    this.head = head;
+    this.velocity.z = (Math.random()-.5 ) * .1;*/
+    
+    this.head = this.params.head;
 
     this.maxSpeed = .5;
 
-    this.color = color;
-    this.note  = note;
-    this.loop  = loop;
+    this.color = this.params.color;
+    
+    this.note  = this.params.note;
+    this.loop = this.params.loop;
 
-    console.log( note );
     this.head.position = this.position;
    
     
@@ -30,7 +47,13 @@
 
     this.reposition();
 
-    this.vertabrae = this.dragonFish.createVertabrae( this.head , m1 , m2, m3,m4);
+    this.vertabrae = this.dragonFish.createVertabrae( 
+      this.head , 
+      this.params.m1 , 
+      this.params.m2, 
+      this.params.m3,
+      this.params.m4
+    );
 
   }
     document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
@@ -38,6 +61,14 @@
   Hook.prototype.createVertabrae = function( mesh ){
 
     this.vertabrae = this.dragonFish.createVertabrae( this.head , mesh , materials );
+
+  }
+
+
+  Hook.prototype.activate = function(){
+
+    scene.add( this.head );
+    this.active = true;
 
   }
 
@@ -98,7 +129,7 @@
     var dif = this.position.clone().sub( this.dragonFish.leader.position );
     var l = dif.length();
 
-    if( l < 3 ){
+    if( l < this.params.repelDistance ){
 
       var s = this.dragonFish.leader.velocity.length();
       this.force.add( dif.normalize().multiplyScalar( .008 * s * ( 10/l)) ) ;
@@ -110,7 +141,9 @@
 
   Hook.prototype.updatePosition = function(){
 
-    this.velocity.add( this.force );
+     var aveVol = this.loop.averageVolume / 128;
+
+    this.velocity.add( this.force );//.clone().multiplyScalar( aveVol));
     
     if( this.velocity.length() >= this.maxSpeed ){
 
@@ -119,7 +152,7 @@
 
     }
     
-    this.position.add( this.velocity );
+    this.position.add( this.velocity.clone().multiplyScalar( aveVol) );
 
 
 
@@ -129,7 +162,7 @@
 
   }
 
-  Hook.prototype.checkForCollision= function( size , index ){
+  Hook.prototype.checkForCollision = function( size , index ){
 
     var dif = this.position.clone().sub( this.dragonFish.leader.position );
 

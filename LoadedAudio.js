@@ -1,13 +1,12 @@
   function LoadedAudio( controller , file , params ){
 
-    console.log( 'asssss' );
     this.loader;
     this.params = _.defaults( params || {}, {
         
       looping:      false,
       fbc:            128,
       fadeTime:         1,
-      texture:     false,
+      texture:       true,
 
     });
 
@@ -35,7 +34,7 @@
 
     if( this.params.texture ){
 
-      //this.texture = LoadedAudioTexture( this );
+      this.texture = AudioTexture( this.analyser );
     
     }
 
@@ -80,8 +79,6 @@
     
     request.onload = function(){
 
-      console.log( 'SELF' );
-      console.log( self );
       self.controller.ctx.decodeAudioData(request.response,function(buffer){
 
         if(!buffer){
@@ -204,25 +201,47 @@
   };
 
   LoadedAudio.prototype.onLoad = function(){
+/*
+    if( this.looping == false ){
 
+      this.controller.notes.push( this );
+
+    }else{
+
+      this.controller.loops.push( this );
+
+
+    }*/
 
   }
 
 
-  LoadedAudio.prototype._update = function(){
+  LoadedAudio.prototype.update = function(){
 
-    this.time = this.controller.womb.time.value - this.startTime;
-
+    //this.time = this.controller.womb.time.value - this.startTime;
     this.analyser.getByteFrequencyData( this.analyser.array );
+    this.averageVolume = this.getAverage( this.analyser.array );
 
+    //console.log( this.averageVolume );
     if( this.texture )
       this.texture.update();
 
-    this.update();
-
   }
 
-  LoadedAudio.prototype.update = function(){
+  LoadedAudio.prototype.getAverage = function( array ){
+
+    var ave = 0;
+    var l = array.length;
+
+    for( var i = 0; i< array.length; i++ ){
+
+      ave += array[i];
+
+    }
+
+    ave /= l;
+
+    return ave;
 
   }
 

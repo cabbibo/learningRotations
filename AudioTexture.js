@@ -40,7 +40,6 @@
     texture.width = width;
     texture.height = height;
 
-    texture.averageVolume
    // console.log( audio );
 
     return texture;

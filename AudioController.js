@@ -42,16 +42,11 @@ AudioController.prototype.update = function(){
 
   this.texture.update();
   for( var i = 0; i < this.notes.length; i++ ){
-
     this.notes[i].update();
-
   }
 
   for( var  i = 0; i < this.loops.length; i++ ){
-
-
     this.loops[i].update();
-
   }
 
   if( this.userAudio ){
