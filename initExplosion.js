@@ -7,7 +7,7 @@ function initExplosion( dragonFish ){
   var color = new THREE.Vector3( Math.random() , Math.random() , Math.random());
    
   var id = 1;
-  var size = 128;
+  var size = 256;
 
   var sim = shaders.simulationShaders.curlSim;
   physicsRenderer = new PhysicsRenderer( size , sim , renderer ); 
