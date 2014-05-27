@@ -127,9 +127,9 @@
     this.gain.gain.value = 1;
 
     if( this.looping ){
-      this.analyser.connect( this.controller.gain );
+      this.analyser.connect( this.controller.loopInput );
     }else{
-      this.analyser.connect( this.controller.gain );
+      this.analyser.connect( this.controller.noteInput );
     }
 
   };

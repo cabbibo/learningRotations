@@ -2,14 +2,12 @@ var explosion = {};
 
 function initExplosion( dragonFish ){
 
-  var size = 128;
-
   var sprite = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
   var color = new THREE.Vector3( Math.random() , Math.random() , Math.random());
    
   var id = 1;
-  var size = 512;
+  var size = 128;
 
   var sim = shaders.simulationShaders.curlSim;
   physicsRenderer = new PhysicsRenderer( size , sim , renderer ); 

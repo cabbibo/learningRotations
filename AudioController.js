@@ -16,7 +16,7 @@ function AudioController(){
   this.analyzer.frequencyBinCount = 1024;
   this.analyzer.array = new Uint8Array( this.analyzer.frequencyBinCount );
 
-  this.texture = new AudioTexture( this );
+  this.texture = new AudioTexture( this.analyzer );
   
   this.gain.connect( this.analyzer );
   this.analyzer.connect( this.mute );
@@ -25,6 +25,13 @@ function AudioController(){
 
   this.notes = [];
   this.loops = [];
+
+
+  this.noteInput = this.ctx.createGain();
+  this.loopInput = this.ctx.createGain();
+
+  this.noteInput.connect( this.gain );
+  this.loopInput.connect( this.gain );
 
 }
 

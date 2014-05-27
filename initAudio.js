@@ -5,29 +5,27 @@ var audioLoops = [];
 
 var notes = [
 
-  "audio/notes/1.mp3",
-  "audio/notes/2.mp3",
-  "audio/notes/3.mp3",
-   "audio/notes/4.mp3",
-  "audio/notes/5.mp3",
-  "audio/notes/6.mp3",
-   "audio/notes/7.mp3",
+  "audio/notes/clean1.wav",
+  "audio/notes/clean2.wav",
+  "audio/notes/clean3.wav",
+  "audio/notes/clean4.wav",
+  "audio/notes/clean5.wav",
+  "audio/notes/clean6.wav",
+  //"audio/notes/clean7.mp3",
 
 ]
 
 
 var loops = [
 
-  "audio/loops/1.wav",
-  "audio/loops/2.wav",
-  "audio/loops/3.wav",
-    "audio/loops/4.wav",
-  "audio/loops/5.wav",
-  "audio/loops/6.wav",
- // "audio/loops/4.mp3",
- // "audio/loops/5.mp3",
- // "audio/loops/6.mp3",
- // "audio/loops/7.mp3",
+  "audio/loops/clean_heavyBeat.wav",
+  "audio/loops/clean_shuffleClick.wav",
+  "audio/loops/clean_darkFast.wav",
+  "audio/loops/clean_sniperSnare.wav",
+  "audio/loops/clean_sniperShivers.wav",
+  "audio/loops/clean_sniperDetail1.wav",
+  "audio/loops/clean_sniperDetail2.wav",
+  "audio/loops/clean_sniperGlory1.wav",
 
 
 ]
@@ -37,7 +35,7 @@ function initAudio(){
   for( var i = 0; i < notes.length; i++ ){
 
     var note = new LoadedAudio( audioController , notes[i], {
-      
+      looping:false 
     });
 
     audioController.notes.push( note );

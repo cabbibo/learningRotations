@@ -26,7 +26,7 @@ void main(){
 
   //gl_PointSize = gl_PointSize * 50.;
 
-  gl_PointSize = 50. * vAudio.x * vAudio.x * vAudio.y;
+  gl_PointSize = min( 100. , 500. * vAudio.x * vAudio.x * vAudio.y / length( mvPos ));
   //gl_PointSize = 10.;
   gl_Position = projectionMatrix * mvPos;
 

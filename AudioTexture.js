@@ -1,6 +1,6 @@
-  function AudioTexture( audio ){
+  function AudioTexture( analyzer ){
 
-    var analyzer = audio.analyzer;
+    var analyzer = analyzer;
 
     var fbc = analyzer.frequencyBinCount;
 
@@ -40,9 +40,10 @@
     texture.width = width;
     texture.height = height;
 
+    texture.averageVolume
    // console.log( audio );
 
-    return texture ;
+    return texture;
 
   }
 
