@@ -11,9 +11,6 @@ function initExplosion( dragonFish ){
 
   var sim = shaders.simulationShaders.curlSim;
 
-  console.log( 'SIM' );
-  console.log( sim );
-  console.log( shaders );
   physicsRenderer = new PhysicsRenderer( size , sim , renderer ); 
 
   uniforms = {
@@ -73,6 +70,8 @@ function initExplosion( dragonFish ){
   explosion.renderer = physicsRenderer;
   explosion.particles = physicsParticles;
   explosion.justHit = justHit;
+
+  return explosion
 
 
 }

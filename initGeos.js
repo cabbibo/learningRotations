@@ -4,7 +4,7 @@ var GEOS = {};
 function initGeos(){
 
 
-  loader.addToLoadBar();
+ /* loader.addToLoadBar();
   loader.OBJLoader.load( 'lib/totem_6.obj' , function( object ){
     object.traverse( function ( child ) {
         if ( child instanceof THREE.Mesh ) {
@@ -23,7 +23,7 @@ function initGeos(){
     });
     loader.loadBarAdd();
   });
-
+*/
 
 
 

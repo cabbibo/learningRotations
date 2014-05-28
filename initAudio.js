@@ -27,7 +27,7 @@ var loops = [
 
 function initAudio(){
 
-  for( var i = 0; i < notes.length; i++ ){
+  /*for( var i = 0; i < notes.length; i++ ){
 
     var newName = 'audio/notes/' + notes[i] + '.wav';
     var note = new LoadedAudio( audioController , newName , {
@@ -50,7 +50,7 @@ function initAudio(){
     LOOPS[loops[i]] = loop;
     audioController.loops.push( loop );
 
-  }
+  }*/
 
 
 }

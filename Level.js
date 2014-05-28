@@ -1,102 +1,175 @@
 
 // TODO
+// LOOP LOADING 3 TIMES
+//
+//
+function Level( dragonFish, params ){
 
-function Level( dragonFish, newCrystal , newTypes , oldTypes , skybox , finishScore , pathway, note ){
 
+  this.newTypes = params.newTypes || [];
+  this.oldTypes = params.oldTypes || [];
+  
+  this.totalNeededToLoad = 0;
+  this.totalLoaded = 0;
   this.fullyLoaded = false;
-
-  this.dragonFish = dragonFish;
-
-
-  this.scene = new THREE.Object3D();
-
-  var g = new THREE.IcosahedronGeometry( 1 );
-  var m = new THREE.MeshNormalMaterial();
-  this.crystal = new THREE.Mesh( g , m );
-
+  this.prepared     = false;
   this.crystalAdded = false;
   this.active = false;
 
+  this.dragonFish = dragonFish;
+  this.scene = new THREE.Object3D();
 
-  this.hooks = [];
+  // TODO: move to initCrystal
+  var g = new THREE.IcosahedronGeometry( 1 );
+  var m = new THREE.MeshNormalMaterial();
+  this.crystal = new THREE.Mesh( g , m );
+  this.crystalSize = 1;
+
+  this.hooks = {};
 
 }
 
 
+
+// Does the heavy lifting of Loading all the audio
 Level.prototype.beginLoading = function(){
 
-  for( var i = 0; i < newTypes.length; i++ ){
+  for( var i = 0; i < this.newTypes.length; i++ ){
 
-    var loopName = newTypes[i].loop;
-    var noteName = newTypes[i].note;
+    // Loading Loops
+    var loopName = this.newTypes[i].loop;
+    
+    if( !LOOPS[loopName] ){
+     
+      console.log( 'LOADING LOOP' );
+      var newName = 'audio/loops/' + loopName + '.wav';
 
-    var newName = 'audio/loops/' + loopName + '.wav';
+      this.totalNeededToLoad ++;
+      var loop = new LoadedAudio( audioController , newName ,{
+        looping: true
+      });
+      var nn1 = loopName;
 
-    var loop = new LoadedAudio( audioController , newName ,{
-      looping: true
-    });
+      loop.onLoad = function(){
+        console.log( 'THIS' );
+        console.log( this );
+        this.onLoad();
+        console.log( nn1 );
+      }.bind( this );
 
-    loop.onLoad = function(){
+      LOOPS[ loopName ] = loop;
 
-      this.onAudioLoad();
+    }
 
-    }.bind( this );
 
-    LOOPS[ loopName ] = loop;
+    // Loading Notes
+    var noteName = this.newTypes[i].note;
 
-    var noteName = newTypes[i].note;
-    var newName = 'audio/notes/' + noteName + '.wav';
+    if( !NOTES[noteName] ){
+      
+      var newName = 'audio/notes/' + noteName + '.wav';
 
-    var note = new LoadedAudio( audioController , newName ,{
-      looping: false
-    });
+      this.totalNeededToLoad ++;
+      var note = new LoadedAudio( audioController , newName ,{
+        looping: false
+      });
 
-    note.onLoad = function(){
-      this.onAudioLoad();
-    }.bind( this );
+      var nn2 = noteName;
+      note.onLoad = function(){
+        this.onLoad();
+        console.log( nn2 );
+      }.bind( this );
 
-    NOTES[ noteName ] = note;
+      NOTES[ noteName ] = note;
+
+    }
+
+
+    // LoadingGeometry
+    var geoName = this.newTypes[i].geo;
+
+    
+    if( geoName && !GEOS[geoName] ){
+
+      console.log( 'sasssd');
+      var newName = 'models/' + geoName + '.obj'; 
+      this.totalNeededToLoad ++;
+
+      loader.OBJLoader.load( newName , function( object ){
+        object.traverse( function ( child ) {
+            if ( child instanceof THREE.Mesh ) {
+              GEOS[geoName] = child.geometry;       
+            }
+        });
+
+        console.log('LEVEL');
+        console.log( this );
+        this.onLoad();
+
+      }.bind( this ));
+
+    }
+
 
   }
 
+
+
 }
 
-Level.prototype.onAudioLoaded = function(){
+Level.prototype.onLoad = function(){
 
   console.log( 'ON AUDIO LOAD' );
   
-  this.audioLoaded ++;
-  
-  if( this.audioLoaded == this.audioNeededToLoad ){
+  this.totalLoaded ++;
 
+  console.log( this.totalLoaded );
+  if( this.totalLoaded == this.totalNeededToLoad ){
+
+    console.log( this.totalLoaded , this.totalNeededToLoad );
     this.fullyLoaded = true;
-    this.birth();
+    //this.birth();
 
   }
 
 }
 
-Level.prototype.birth = function(){
-
+Level.prototype.instantiate = function(){
 
   for( var  i = 0; i < this.newTypes.length; i++ ){
 
     var loop = LOOPS[ this.newTypes[i].loop ];
     var note = NOTES[ this.newTypes[i].note ];
+    var geo  = GEOS[  this.newTypes[i].geo  ];
 
-    var hookParams = this.newType[i].instantiate( loop , note );
-
+    this.newTypes[i].instantiate( this , this.dragonFish, loop , note , geo );
 
   }
 
+  // TODO
+  /*
+    this.initSkybox();
+    this.initStones();
+    this.initCrystal();
+    this.initPath();
+  */
 
+  this.prepared = true;
 }
 
 Level.prototype.initialize = function(){
 
+  scene.add( this.scene );
 
-  scene.add( this.crystal );
+  if( !this.fullyLoaded || !this.prepared ){
+
+    console.log( 'TOTALLY FUCKED' );
+
+  }
+
+  this.scene.add( this.crystal );
   this.crystalAdded = true;
+
 
   if( this.nextLevel ){
 
@@ -125,6 +198,8 @@ Level.prototype.onStart = function(){
 
   dragonFish.leader.add( this.crystal );
 
+  //TODO:
+  //Play START NOISE
 
   // Remove any unneccesary hooks
   for( var i = 0; i < dragonFish.spine.length; i++ ){
@@ -148,10 +223,15 @@ Level.prototype.onStart = function(){
 
   }
 
+  this.active = true;
+
 }
 
 Level.prototype.onComplete = function(){
 
+  //TODO:
+  //PLAY FINISH NOISE
+  
 
 }
 
@@ -163,20 +243,52 @@ Level.prototype.onEnd = function(){
 Level.prototype.update = function(){
 
 
-  var dif = this.crystal.position.clone().sub( this.dragonFish.position );
+  if( this.crystalAdded === true && this.active === false ){
+    
+    var dif = this.scene.position.clone().sub( this.dragonFish.position );
   
-  if( dif.length() <= this.crystalSize ){
+    if( dif.length() <= this.crystalSize ){
 
-    this.onStart();
+      this.onStart();
+
+    }
+
+  }
+
+  if( this.active ){
+
+
+    this.hooks.update();
 
   }
 
 }
 
+
+Level.prototype.updateHooks = function(){
+
+  for( var i = 0; i < this.hooks.length; i++ ){
+    this.hooks[i].updateForces();
+  }
+
+  for( var i= 0; i < hooks.length; i++ ){
+    this.hooks[i].updatePosition();
+    this.hooks[i].checkForCollision( 2 , i );
+  }
+  
+  if( !paused ){
+    this.dragonFish.update();
+  }
+
+}
+/*
+    
     - New Hooks - instantiate
     - Clear Hooks - clear all of the unneed hooks that are part of the dragonfish
     - Skybox - Object needs to be loaded
     - Pathway - some sort of representation of how to get to the next level
     - level complete Noise
 
+
+*/
 

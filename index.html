@@ -68,6 +68,8 @@
 <script src = "initGeos.js"          ></script>
 <script src = "mechanics.js"          ></script>
 <script src = "utils.js"              ></script>
+<script src = "Level.js"              ></script>
+<script src = "Level1.js"              ></script>
 
 <script>  
 
@@ -96,11 +98,13 @@
   var audioController = new AudioController();
   var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
+
+  var LEVEL_1
   function onStart(){
 
     initExplosion( dragonFish );
     
-    var geo = new THREE.IcosahedronGeometry( 300 , 3 );
+    /*var geo = new THREE.IcosahedronGeometry( 300 , 3 );
     var mat = new THREE.MeshLambertMaterial({ 
       map: audioController.texture,
       side: THREE.DoubleSide
@@ -170,9 +174,10 @@
    
     }
 
-    initHooks();
+    initHooks();*/
 
-  
+
+
   }
 
 
@@ -191,6 +196,10 @@
     // Object our dragon fish follows
     bait = new THREE.Object3D();
     dragonFish = new DragonFish( bait );
+
+    LEVEL_1 = new Level( dragonFish , LEVEL_1_PARAMS );
+
+    LEVEL_1.beginLoading();
 
     // Hooks
     recreateLights( 0x777777 );
@@ -217,14 +226,6 @@
     time.value += delta;
     stats.update();
 
-    for( var i = 0; i < hooks.length; i++ ){
-      hooks[i].updateForces();
-    }
-
-    for( var i= 0; i < hooks.length; i++ ){
-      hooks[i].updatePosition();
-      hooks[i].checkForCollision( 2 , i );
-    }
     
     if( !paused ){
       dragonFish.update();
