@@ -1,4 +1,7 @@
 
+var NOTES = {};
+var LOOPS = {};
+
 
 var notes = [
   "clean1",
@@ -20,6 +23,8 @@ var loops = [
   "clean_sniperDetail2",
   "clean_sniperGlory1",
 ]
+
+
 function initAudio(){
 
   for( var i = 0; i < notes.length; i++ ){
@@ -29,6 +34,7 @@ function initAudio(){
       looping:false 
     });
 
+    NOTES[notes[i]] = note;
     audioController.notes.push( note );
 
   }
@@ -41,6 +47,7 @@ function initAudio(){
       looping: true
     });
 
+    LOOPS[loops[i]] = loop;
     audioController.loops.push( loop );
 
   }

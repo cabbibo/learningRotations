@@ -142,6 +142,7 @@ DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
 }
 
+
 DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
 
   var m1 = m1 || fishSkeleton.flagella.spine;
@@ -190,6 +191,103 @@ DragonFish.prototype.addVertabrae = function( m1 , m2 , m3 , m4 ){
   this.spine.push( v );
 
   //this.tail = this;
+
+
+
+}
+DragonFish.prototype.removeVertabraeById = function( id ){
+
+  this.spine[id].dom = undefined;
+  if( this.spine[id+1] ){
+
+    this.spine[id+1].dom = this.spine[id-1];
+    this.spine[id-1].sub.push( this.spine[id+1] );
+
+  }
+
+  for( var i =0; i < this.spine[id-1].sub.length; i++ ){
+
+    if( this.spine[id-1].sub[i] == this.spine[id] ){
+
+      this.spine[id-1].sub.splice( i , 1 );
+
+      console.log( 'SPLACES' );
+    }
+
+  }
+
+  for( var i = 0; i < this.spine[id].sub.length; i++ ){
+
+    if( this.spine[id].sub[i] === this.spine[id+1] ){
+
+      console.log('YUS');
+      this.spine[id].sub.splice( i , 1 ); 
+
+    }
+
+  }
+
+   
+  var i = { x: 1 };
+  var t = { x:0 };
+
+  var tween = new TWEEN.Tween( i ).to( t , 1 * 1000 );
+
+  tween.spine = this.spine[id];
+  tween.dragonFish = this;
+  tween.onUpdate(function( ){
+
+
+    this.dragonFish.recursiveCall( this.spine , function( body ){
+
+      body.scale.x = i.x;
+      body.scale.y = i.x;
+      body.scale.z = i.x;
+
+    });
+   
+
+    if( i.x < .01 ){
+
+     
+      this.dragonFish.recursiveCall( this.spine , function( body ){
+        scene.remove( body );
+      });
+  
+    }    //console.log( 'hello' );
+
+  }.bind(tween));
+
+
+  tween.start();
+
+
+  this.spine.splice( id , 1 );
+
+}
+
+DragonFish.prototype.recursiveCall = function( object , callback ){
+
+  callback( object.body );
+  for( var i = 0; i < object.sub.length; i++ ){
+
+    this.recursiveCall( object.sub[i] , callback );
+
+  }
+
+}
+
+DragonFish.prototype.removeVertabrae = function( vertabrae ){
+
+  for( var i = 0; i < this.spine.length; i++ ){
+
+    if( this.spine[i] === vertabrae ){
+
+      this.spine.splice( i , 1 );
+
+    }
+
+  }
 
 
 

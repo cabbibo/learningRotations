@@ -1,13 +1,11 @@
 
 
   function Fish( dom , level, mesh ){
-
     
     this.dom  = dom;
     this.level = level;
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
-
 
     // API
     //this.timeToChange = 1000;
@@ -46,14 +44,7 @@
 
   Fish.prototype.update = function(){
 
-   // this.oPos.copy( this.pos );
-
-   // this.velocity.set( 0 , 0 , 0 );
-   //
-   //
-
     this.speed = this.velocity.length();
-    //this.sibRepelDiv = Math.abs( 4  * Math.sin( (this.speed*6)/1 ) )+.3;
     
     this.counter ++;
    
@@ -102,9 +93,7 @@
 
           c1.velocity.sub( dif.normalize().multiplyScalar( x ) );
 
-
         }
-
 
       }
 
@@ -141,28 +130,16 @@
         c1.velocity.normalize().multiplyScalar(2 );
 
       }
-        c1.position.add( c1.velocity );
-        
-        var d1 = c1.velocity.clone().normalize();
-        var d2 = this.position.clone().sub( c1.position.clone() ).normalize();
+      c1.position.add( c1.velocity );
+      
+      var d1 = c1.velocity.clone().normalize();
+      var d2 = this.position.clone().sub( c1.position.clone() ).normalize();
 
-      //d2.sub( d1.multiplyScalar( .01 ) );
-        c1.body.lookAt( c1.position.clone().add(d2) );
-      //c1.body.lookAt( this.position );
-      //c1.body.lookAt( c1.position.clone().add( c1.velocity.clone().multiplyScalar( 10000 ) ) );
+      c1.body.lookAt( c1.position.clone().add(d2) );
 
       c1.update();
 
     }
-
-    //this.position.add( this.velocity );
-
-    //this.velocity.multiplyScalar( .96 );
-    
-   // this.body.lookAt( this.position.clone().sub( this.velocity ));
-
-
-
   }
 
   Fish.prototype.connect = function(){

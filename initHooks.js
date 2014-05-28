@@ -1,9 +1,47 @@
+var HOOKS = {};
+
 
 var colors = [ 0xc0ffee, 0xfecc88 , 0xaa77ff ];
 
 function initHooks(){
-    
-  for( var i = 0; i < 40; i++ ){
+
+  initHeavyBass( 'heavyBass' , 50 );
+
+}
+
+function initHeavyBass( title , numOf ){
+
+  var loop = LOOPS.clean_heavyBeat;
+  var note = NOTES.clean1;
+  color = new THREE.Color( 0xff0000 );
+
+  var geo = new THREE.IcosahedronGeometry( .5 );
+  var mat = new THREE.MeshBasicMaterial({ color:color.getHex() } );
+  var mesh = new THREE.Mesh(geo,mat);
+  
+  HOOKS[ title ] =  [];
+  
+  for( var i = 0; i < numOf; i++ ){
+
+    var hook = new Hook( dragonFish , title , {
+
+      head:new THREE.Object3D(),
+      m1: mesh,
+      note:note,
+      loop:loop,
+      color:color
+
+    });
+
+    HOOKS[ title ].push( hook );
+
+  }
+
+
+}
+
+/*
+ for( var i = 0; i < 40; i++ ){
 
     var colorHex =  colors[ Math.floor( Math.random() * colors.length )];
     var m = new THREE.MeshBasicMaterial({
@@ -82,6 +120,8 @@ function initHooks(){
 
   }
 
-}
 
 
+
+
+*/

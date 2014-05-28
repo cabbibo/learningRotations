@@ -5,8 +5,10 @@
 
   document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
   
-  function Hook( dragonFish , params ){
+  function Hook( dragonFish , type , params ){
     
+
+    this.type = type;
     this.params = _.defaults( params || {} , {
     
       color: new THREE.Color( 0xffffff ),
@@ -58,7 +60,7 @@
   }
     document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
 
-  Hook.prototype.createVertabrae = function( mesh ){
+    Hook.prototype.createVertabrae = function( mesh ){
 
     this.vertabrae = this.dragonFish.createVertabrae( this.head , mesh , materials );
 
@@ -88,17 +90,10 @@
 
   Hook.prototype.explode = function(){
 
-    console.log( this.note );
     this.note.play();
     this.loop.gain.gain.value += .1;
     explosion.renderer.simulationUniforms.justHit.value = 1.;
 
-    console.log( explosion.renderer );
-    var c = new THREE.Color();
-    c.r = Math.random();
-    c.g = Math.random();
-    c.b = Math.random();
-    
     changeColor( this.color );
 
   }
@@ -178,6 +173,39 @@
 
 
   }
+
+  Hook.prototype.destroy = function(){
+
+    var i = { x: 1 };
+    var t = { x:0 };
+
+    var tween = new TWEEN.Tween( i ).to( t , 3 * 1000 );
+
+    tween.hook = this;
+    tween.onUpdate(function( ){
+
+      this.hook.head.scale.x = i.x;
+      this.hook.head.scale.y = i.x;
+      this.hook.head.scale.z = i.x;
+     
+
+      if( i.x < .1 ){
+
+        
+        console.log( this.vertabrae );
+        scene.remove( this.hook.head );
+
+      }
+      //console.log( 'hello' );
+
+    }.bind(tween));
+
+
+    tween.start();
+
+  }
+
+
   Hook.prototype.reposition = function(){
 
       this.position.x = (Math.random() -.5 )*100;
@@ -189,4 +217,4 @@
       this.head.rotation.z = Math.random() * Math.PI * 2;
   
   }
-  
+
