@@ -27,6 +27,16 @@ function initDebug(){
 
     }
 
+    if( e.which == 88 ){
+
+      for( var  i = 0; i < hooks.length; i++ ){
+
+        hooks[i].destroy();
+
+      }
+
+    }
+
     
 
 

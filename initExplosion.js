@@ -10,6 +10,10 @@ function initExplosion( dragonFish ){
   var size = 256;
 
   var sim = shaders.simulationShaders.curlSim;
+
+  console.log( 'SIM' );
+  console.log( sim );
+  console.log( shaders );
   physicsRenderer = new PhysicsRenderer( size , sim , renderer ); 
 
   uniforms = {
@@ -65,35 +69,6 @@ function initExplosion( dragonFish ){
    };
   physicsRenderer.setUniform( 'justHit' , justHit );
 
-
-/*  var audioU = { type:"t" , value: audioController.texture }
-
-  var audioLookup = { type:"f" , value: id }
-
-  physicsRenderer.setPosUniform( 't_audio' , audioU );
-  physicsRenderer.setVelUniform( 't_audio' , audioU );
-  
-  physicsRenderer.setVelUniform( 'time'         , time );
-  //physicsRenderer.setVelUniform( 'cameraAngle'  , cameraAngle);
-
-  physicsRenderer.setPosUniform( 'audioLookup'  , audioLookup );
-
-  var uPos = { type:"v3" , value:dragonFish.leader.position };
-  var uVel = { type:"v3" , value:dragonFish.leader.velocity };
-
-  console.log( uVel.value );
-  physicsRenderer.setPosUniform( 'uPos' , uPos );
-  physicsRenderer.setPosUniform( 'uVel' , uVel );
-  physicsRenderer.setVelUniform( 'uPos' , uPos );
-  physicsRenderer.setVelUniform( 'uVel' , uVel );
-
-*/
-
-  //scene.add( physicsParticles );
-
-//  physicsRenderers.push( physicsRenderer );
-//  physicsParticleSystems.push( physicsParticles );
-          //physicsRenderer.reset( audioController.texture );
 
   explosion.renderer = physicsRenderer;
   explosion.particles = physicsParticles;

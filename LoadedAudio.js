@@ -108,7 +108,7 @@
     //var self = this;
     //if( this.params.onLoad ) this.params.onLoad( self );
 
-    loader.loadBarAdd();
+    this._onLoad();
 
   }
 
@@ -200,6 +200,12 @@
 
   };
 
+  LoadedAudio.prototype._onLoad = function(){
+
+    this.onLoad();
+    loader.loadBarAdd();
+    
+  }
   LoadedAudio.prototype.onLoad = function(){
 /*
     if( this.looping == false ){

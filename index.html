@@ -64,6 +64,8 @@
 <script src = "initAudio.js"          ></script>
 <script src = "initThree.js"          ></script>
 <script src = "initDebug.js"          ></script>
+<script src = "initShaders.js"          ></script>
+<script src = "initGeos.js"          ></script>
 <script src = "mechanics.js"          ></script>
 <script src = "utils.js"              ></script>
 
@@ -88,136 +90,11 @@
   var paused = false;
   var distanceToIntersectPlane = 10;
   
-  var loader = new Loader(); function changeColor( color ){
-
-
-    recreateLights( color.getHex() );
-
-    baseColor = color;
-
-    var vecColor = new THREE.Vector3( 
-      color.r,
-      color.g,
-      color.b
-    );
-
-
-    jellyMat.uniforms.color.value = vecColor;
-    console.log( explosion );
-    explosion.particles.material.uniforms.color.value = vecColor;
-
-
-  }
-
-
-  function recreateLights( color ){
-
-    for( var i = 0; i< lights.length; i++ ){
-
-      scene.remove( lights[i] );
-
-    }
-
-    lights = [];
-
-    lights[0] = createLightCluster( color , new THREE.Vector3( 0 , 0 , 1 ) );
-    lights[1] = createLightCluster( color , new THREE.Vector3( 0 , 1 , 0 ) );
-    lights[2] = createLightCluster( color , new THREE.Vector3( 1 , 0 , 0 ) );
-    lights[3] = createLightCluster( color , new THREE.Vector3( 0 , 0 , -1 ) );
-    lights[4] = createLightCluster( color , new THREE.Vector3( 0 , -1 , 0 ) );
-    lights[5] = createLightCluster( color , new THREE.Vector3( -1 , 0 , 0 ) );
-    
-
-  }
-
-
-  function createLightCluster(  baseColor , baseDir ){
-
-
-    var mainColor = new THREE.Color( baseColor );
-    var mainDir = baseDir.clone();
-
-    var c = mainColor.clone();
-    c.r = c.r + ( (Math.random() -.9) )*.5;
-    c.g = c.g + ( (Math.random() -.9))*.5;
-    c.b = c.b + ( (Math.random() -.9) )*.5;
-
-    var d = mainDir.clone();
-    d.x = d.x + ( (Math.random()-.5) * .5 );
-    d.y = d.y + ( (Math.random()-.5) * .5 );
-    d.z = d.z + ( (Math.random()-.5) * .5 );
-
-    d.normalize();
-    //c.normalize();
-
-   // c.r = d.x;
-    var light = new THREE.DirectionalLight(c.getHex() , 1);
-    
-    light.position.copy( d );
-    lights.push( light );
-    scene.add( light );
-
-    return light;
-
-
-  }
-
-
+  var loader = new Loader();
+  loader.addToLoadBar();
+  
   var audioController = new AudioController();
-
-  var shaders = new ShaderLoader('shaders');
-
-  shaders.load( 'fs-floor'    , 'floor'   , 'fragment'    );
-  shaders.load( 'vs-floor'    , 'floor'   , 'vertex'      );
-  shaders.load( 'fs-sphere'   , 'sphere'  , 'fragment'    );
-  shaders.load( 'vs-sphere'   , 'sphere'  , 'vertex'      );
-
-  shaders.load( 'fs-simPos'   , 'posSim'  , 'simulation'  );
-  shaders.load( 'fs-simVel'   , 'velSim'  , 'simulation'  );
-
-  shaders.load( 'fs-render'   , 'render'  , 'fragment'    );
-  shaders.load( 'vs-render'   , 'render'  , 'vertex'      );
-      
-  
-  shaders.load( 'curlSim'   , 'curlSim' , 'simulation'  );
-
-
-  particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png' );
-  
-
-  loader.addToLoadBar();
-  shaders.shaderSetLoaded = function(){
-    loader.loadBarAdd();
-  }
-
-  loader.addToLoadBar();
-
-  loader.OBJLoader.load( 'lib/totem_6.obj' , function( object ){
-    object.traverse( function ( child ) {
-        if ( child instanceof THREE.Mesh ) {
-          totemGeo = child.geometry;       
-        }
-    });
-    loader.loadBarAdd();
-  });
-
-
-  loader.addToLoadBar();
-
-  loader.OBJLoader.load( 'lib/cabbibo_1824.obj' , function( object ){
-    object.traverse( function ( child ) {
-        if ( child instanceof THREE.Mesh ) {
-          var geo = new THREE.Geometry();
-          var mesh = new THREE.Mesh( child.geometry , new THREE.MeshNormalMaterial() );
-          mesh.scale.multiplyScalar( .8 );
-          geo.merge( mesh.geometry , mesh.matrix );
-          geo.computeVertexNormals();
-          logoGeo = geo;       
-        }
-    });
-    loader.loadBarAdd();
-  });
-
+  var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
   function onStart(){
 
@@ -229,9 +106,9 @@
       side: THREE.DoubleSide
     });
 
-    assignUVs( totemGeo );
-    totemGeo.computeFaceNormals();
-    totemGeo.computeVertexNormals();
+    assignUVs( GEOS.totemGeo );
+    GEOS.totemGeo.computeFaceNormals();
+    GEOS.totemGeo.computeVertexNormals();
 
     mat = new THREE.MeshLambertMaterial({
       side: THREE.DoubleSide,
@@ -240,10 +117,10 @@
       shading: THREE.FlatShading
     });
 
-    skyBox = new THREE.Mesh( totemGeo , mat );
+    skyBox = new THREE.Mesh( GEOS.totemGeo , mat );
     skyBox.scale.multiplyScalar( 100 );
 
-    skyBox1 = new THREE.Mesh( totemGeo , new THREE.MeshNormalMaterial() );
+    skyBox1 = new THREE.Mesh( GEOS.totemGeo , new THREE.MeshNormalMaterial() );
     scene.add( skyBox );
 
     createStones();
@@ -286,13 +163,11 @@
 
     for( var i = 0; i < dragonFish.spine.length; i++ ){
 
-
       var b = body.clone();
       b.rotation.x = -Math.PI / 2;
       b.position.z = .2;
-      
       dragonFish.spine[i].body.add( b );
-
+   
     }
 
     initHooks();
@@ -310,6 +185,8 @@
     initAudio();
     initMechanics();
     initDebug();
+    initGeos();
+    initShaders();
 
     // Object our dragon fish follows
     bait = new THREE.Object3D();

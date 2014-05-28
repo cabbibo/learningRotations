@@ -57,6 +57,9 @@
       this.params.m4
     );
 
+    // the vertabrae also needs to keep track of the type!
+    this.vertabrae.type = this.type;
+
   }
     document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
 
