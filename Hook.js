@@ -27,12 +27,17 @@
     
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
+    this.force    = new THREE.Vector3();
+    
     
     /*this.velocity.x = (Math.random()-.5 ) * .1;
     this.velocity.y = (Math.random()-.5 ) * .1;
     this.velocity.z = (Math.random()-.5 ) * .1;*/
-    
-    this.head = this.params.head;
+   
+    var geo = new THREE.IcosahedronGeometry( .5 ,1 );
+    var mat = new THREE.MeshNormalMaterial({wireframe:true});
+    var head = new THREE.Mesh( geo , mat );
+    this.head = head;
 
     this.maxSpeed = .5;
 
@@ -107,8 +112,7 @@
     var position = level.scene.position;
 
     //console.log( position.x );
-    this.force = new THREE.Vector3();
-    
+    this.force.set( 0 , 0,0 );    
     for( var i = 0; i < hooks.length; i++ ){
 
       var h1 = hooks[i];
@@ -118,7 +122,7 @@
         var dist = this.position.clone().sub( h1.position );
         var l = dist.length();
 
-        this.force.add( dist.normalize().multiplyScalar(l*.0000001) ); //dist.normalize().multiplyScalar( .1/ l ));
+        this.force.sub( dist.normalize().multiplyScalar(l*.00001) ); //dist.normalize().multiplyScalar( .1/ l ));
 
       }
     
@@ -126,7 +130,7 @@
 
     var d = this.position.clone().sub( position );
 
-    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .0001 ) );
+    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .001 ) );
 
 
 
@@ -157,7 +161,7 @@
 
     }
     
-    this.position.add( this.velocity.clone().multiplyScalar( .00000000000000000001 )); 
+    this.position.add( this.velocity.clone().multiplyScalar( 1 )); 
 
 
     this.head.lookAt( this.position.clone().add( this.velocity ) );
@@ -170,7 +174,7 @@
 
     var dif = this.position.clone().sub( this.dragonFish.leader.position );
 
-    if( dif.length() <= 30 ){
+    if( dif.length() <= size ){
 
       console.log( 'HOOKEDS');
       this.dragonFish.addPrecreatedVertabrae( this.vertabrae );

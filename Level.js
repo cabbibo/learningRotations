@@ -22,7 +22,7 @@ function Level( dragonFish, params ){
   this.scene.position.x = 6;
 
   // TODO: move to initCrystal
-  var g = new THREE.IcosahedronGeometry( .3 );
+  var g = new THREE.IcosahedronGeometry( 1 );
   var m = new THREE.MeshNormalMaterial();
   this.crystal = new THREE.Mesh( g , m );
   this.crystalSize = 1;
@@ -234,7 +234,7 @@ Level.prototype.startHooks = function(){
     var hook = this.hooks[i];
 
     hook.activate();
-    //this.dragonFish.addToScene( hook.vertabrae );
+    this.dragonFish.addToScene( hook.vertabrae );
 
   }
 
@@ -289,6 +289,9 @@ Level.prototype.updateHooks = function(){
     this.hooks[i].updatePosition();
     this.hooks[i].checkForCollision( 2 , i );
   }
+
+
+
 
   //console.log( this.hooks[0].position.x );
   

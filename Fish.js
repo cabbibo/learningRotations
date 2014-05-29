@@ -11,13 +11,13 @@
     //this.timeToChange = 1000;
     //this.springForce = .1;
 
-    this.sibRepelPow = 4;
+    this.sibRepelPow = 1;
     this.sibRepelDiv = 10;
     this.sibRepelDist = 1;
 
     this.subAttractPow = 1;
-    this.subAttractDiv = 2;
-    this.subAttractDist = .1;
+    this.subAttractDiv = 10;
+    this.subAttractDist = .01;
 
     this.connected = true;
 

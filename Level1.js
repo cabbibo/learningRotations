@@ -9,7 +9,7 @@ LEVEL_1_PARAMS.newTypes = [
     note: 'clean1',
     loop: 'clean_heavyBeat',
     geo:  'logoGeo',
-    numOf: 50,
+    numOf: 20,
     color: new THREE.Color( 0x00ff00 ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
@@ -46,12 +46,12 @@ LEVEL_1_PARAMS.newTypes = [
     }
   },
 
-  /*{
+  {
     type: 'test2',
     note: 'clean2',
     loop: 'clean_shuffleClick',
     geo:  'logoGeo',
-    numOf: 5,
+    numOf: 20,
     color: new THREE.Color( 0xff0000 ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
@@ -85,6 +85,6 @@ LEVEL_1_PARAMS.newTypes = [
   
       return hooks;
     }
-  },*/
+  },
 
 ]

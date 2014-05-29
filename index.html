@@ -103,7 +103,10 @@
   function onStart(){
 
     initExplosion( dragonFish );
-    
+
+     LEVEL_1.initialize();
+    animate();
+  
     /*var geo = new THREE.IcosahedronGeometry( 300 , 3 );
     var mat = new THREE.MeshLambertMaterial({ 
       map: audioController.texture,
@@ -197,11 +200,11 @@
     bait = new THREE.Object3D();
     dragonFish = new DragonFish( bait );
 
-    var g = new THREE.IcosahedronGeometry( .5 ,1 );
+    /*var g = new THREE.IcosahedronGeometry( .5 ,1 );
     var m = new THREE.MeshNormalMaterial({ wireframe:true });
     var baitMarker = new THREE.Mesh( g , m );
     bait.add( baitMarker );
-    scene.add( bait );
+    scene.add( bait );*/
 
     LEVEL_1 = new Level( dragonFish , LEVEL_1_PARAMS );
     LEVEL_1.beginLoading();
@@ -250,17 +253,9 @@
 
   $("#startInfo").click( function(){
 
-    for( var i = 0; i < audioController.loops.length; i++ ){
-
-      audioController.loops[i].play();
-      audioController.loops[i].gain.gain.value = 0;
-
-    }
 
     loader.liftCurtain();
 
-    LEVEL_1.initialize();
-    animate();
   
   });
 

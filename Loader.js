@@ -274,7 +274,7 @@ function Loader(  params ){
     liftCurtain: function(){
 
       var self = this;
-      $(this.curtain).fadeOut(2000,function(){
+      $(this.curtain).fadeOut(100,function(){
         self.onStart();
       });
 
