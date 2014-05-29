@@ -82,14 +82,14 @@ DragonFish.prototype.update = function(){
 
 DragonFish.prototype.initPlume = function(){
 
-  for( var j = 0; j < 4; j++ ){
+  for( var j = 0; j < 0; j++ ){
 
     var f = new Fish( this.leader , 1.9 , fishSkeleton.plume.spine );
 
     var column1 = [];
 
     f.timeToChange = 1;
-    f.subAttractDist = .4;
+   // f.subAttractDist = .4;
     f.subAttractDist = .1;
     for( var k = 0; k < 1; k++ ){
 
@@ -128,7 +128,7 @@ DragonFish.prototype.initPlume = function(){
 DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
   vertabrae.dom = this.spine[ this.spine.length - 1 ];
-    for( var propt in this.hooks ){
+   /* for( var propt in this.hooks ){
 
     var hooks = this.hooks[propt]
 
@@ -140,12 +140,37 @@ DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
     }
 
-  }
+  }*/
 
-vertabrae.dom.sub.push( vertabrae );
+  vertabrae.dom.sub.push( vertabrae );
   this.spine.push( vertabrae );
 
 }
+
+DragonFish.prototype.addBoss = function( vertabrae ){
+
+  vertabrae.dom = this.leader;
+ 
+  /*for( var propt in this.hooks ){
+
+    var hooks = this.hooks[propt]
+
+    for( var i =0; i < hooks.length; i++ ){
+
+      var hook = hooks[i];
+
+      this.dragonFish.addToScene( hook );
+
+    }
+
+  }*/
+
+  vertabrae.dom.sub.push( vertabrae );
+  //this.spine.push( vertabrae );
+
+}
+
+
 
 
 DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
@@ -183,6 +208,66 @@ DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
   return vertabrae;
 
 }
+
+
+DragonFish.prototype.createBoss = function( dom , m1 , m2 , m3 , m4 ){
+
+  console.log( dom );
+  var m1 = m1 || fishSkeleton.flagella.spine;
+  var m2 = m2 || fishSkeleton.flagella.child1;
+  var m3 = m3 || fishSkeleton.flagella.child2;
+  var m4 = m4 || fishSkeleton.flagella.child3;
+
+
+  /*var connect = new Fish( this.leader , 1 , dom );
+  connect.position.copy( this.leader.position );*/
+
+  var vertabrae = new Fish( dom , .8 , m1 );
+  vertabrae.position.copy( dom.position );
+
+  var sp = [];
+
+  for( var X = 0; X < 3; X++ ){
+    for( var i = 0; i < 5; i++ ){
+    
+      var child1;
+      if( i == 0 ){
+        child1 = new Fish( vertabrae , .6 , m2 );
+        child1.position.copy( vertabrae.position );
+        sp.push( child1 );
+
+        console.log('SP!');
+        console.log( sp );
+      }else{
+
+        console.log( 'SP' );
+        console.log( sp[i-1] );
+        child1 = new Fish( sp[i-1] , .6 , m2 );
+        sp.push( child1 );
+      }
+
+      for( var j = 0;  j < 2; j++ ){
+
+        var child2 = new Fish( child1 , .4 , m3 );
+        child2.position.copy( vertabrae.position );
+
+        for( var k = 0; k < 3; k++ ){
+
+          var child3 = new Fish( child2 , .2 , m4 );
+          child3.position.copy( vertabrae.position );
+
+        }
+
+      }
+
+    }
+  }
+
+
+  return vertabrae;
+
+}
+
 
 
 DragonFish.prototype.addVertabrae = function( m1 , m2 , m3 , m4 ){

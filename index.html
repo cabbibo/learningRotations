@@ -46,6 +46,7 @@
 <script src = "place.js"              ></script>
 <script src = "DragonFish.js"         ></script>
 <script src = "AudioController.js"    ></script>
+<script src = "Looper.js"    ></script>
 <script src = "AudioTexture.js"       ></script>
 <script src = "UserAudio.js"          ></script>
 <script src = "Stream.js"             ></script>
@@ -90,12 +91,14 @@
   var intersectPlane;
   var projector , raycaster;
   var paused = false;
-  var distanceToIntersectPlane = 10;
+  var distanceToIntersectPlane = 15;
+  var SCORE = 0;
   
   var loader = new Loader();
   //loader.addToLoadBar();
   
   var audioController = new AudioController();
+  var looper          = new Looper( audioController , time );
   var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
 

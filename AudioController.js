@@ -23,6 +23,7 @@ function AudioController(){
   this.mute.connect( this.ctx.destination );
 
 
+  this.updateArray = [];
   this.notes = [];
   this.loops = [];
 
@@ -41,17 +42,38 @@ AudioController.prototype.update = function(){
   this.analyzer.getByteFrequencyData( this.analyzer.array );
 
   this.texture.update();
-  for( var i = 0; i < this.notes.length; i++ ){
-    this.notes[i].update();
+
+
+
+  for( var i = 0; i < this.updateArray.length; i++ ){
+
+    this.updateArray[i]();
+
   }
 
-  for( var  i = 0; i < this.loops.length; i++ ){
-    this.loops[i].update();
+}
+
+
+AudioController.prototype.addToUpdateArray = function( callback ){
+
+  this.updateArray.push( callback );
+
+
+}
+
+AudioController.prototype.removeFromUpdateArray = function( callback ){
+
+  for( var i = 0; i< this.updateArray.length; i++ ){
+
+    if( this.updateArray[i] === callback ){
+
+      this.updateArray.splice( i , 1 );
+      console.log( 'SPLICED' );
+
+    }
+
   }
 
-  if( this.userAudio ){
-    this.userAudio.update();
-  }
 }
 
 

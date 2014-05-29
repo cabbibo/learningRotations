@@ -126,6 +126,27 @@ Level.prototype.onLoad = function(){
 
 }
 
+Level.prototype.startLoops = function(){
+
+  console.log( 'LOOPS STARTED' );
+
+  for( var i = 0; i < this.newTypes.length; i++ ){
+
+    var loop = LOOPS[ this.newTypes[i].loop ];
+
+    if( !loop.playing ){
+
+      loop.play();
+      loop.gain.gain.value = 0;
+
+    }
+
+
+  }
+
+}
+
+
 Level.prototype.instantiate = function(){
 
   for( var  i = 0; i < this.newTypes.length; i++ ){
@@ -145,6 +166,9 @@ Level.prototype.instantiate = function(){
     console.log( this.hooks );
   
   }
+
+
+  looper.onNextLoop( this.startLoops.bind( this ) );
 
   // TODO
   /*

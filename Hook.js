@@ -1,9 +1,6 @@
 
 
-  var hooksConnected = 0;
-
-  document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
-  
+   
   function Hook( dragonFish, level, type , params ){
    
 
@@ -13,8 +10,8 @@
     this.params = _.defaults( params || {} , {
     
       color: new THREE.Color( 0xffffff ),
-      note: 'clean1.wav',
-      loop: 'clean_heavyBeat.wav',
+     // note: 'clean1.wav',
+     // loop: 'clean_heavyBeat.wav',
       head: fishSkeleton.flagella.spine,
       m1:   fishSkeleton.flagella.child1,
       m2:   fishSkeleton.flagella.child2,
@@ -22,8 +19,11 @@
       m4:   fishSkeleton.flagella.child1,
       startScore: 0,
       repelDistance: 3,
+      boss: false
     
     });
+
+    this.boss = this.params.boss;
     
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
@@ -53,21 +53,39 @@
     
     this.reposition();
 
-    this.vertabrae = this.dragonFish.createVertabrae( 
-      this.head , 
-      this.params.m1 , 
-      this.params.m2, 
-      this.params.m3,
-      this.params.m4
-    );
+    if( !this.params.boss ){
+      
+      this.vertabrae = this.dragonFish.createVertabrae( 
+        this.head , 
+        this.params.m1 , 
+        this.params.m2, 
+        this.params.m3,
+        this.params.m4
+      );
+    
+    }else{
+
+      this.vertabrae = this.dragonFish.createBoss(
+        this.head , 
+        this.params.m1 , 
+        this.params.m2, 
+        this.params.m3,
+        this.params.m4
+      )
+
+    }
 
     // the vertabrae also needs to keep track of the type!
     this.vertabrae.type = this.type;
+    this.vertabrae.note = this.note;
+    this.vertabrae.loop = this.loop;
+
+    document.getElementById( 'hookCount' ).innerHTML = SCORE;
+    
 
   }
-    document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
 
-    Hook.prototype.createVertabrae = function( mesh ){
+  Hook.prototype.createVertabrae = function( mesh ){
 
     this.vertabrae = this.dragonFish.createVertabrae( this.head , mesh , materials );
 
@@ -85,9 +103,9 @@
   // Getting Hooked
   Hook.prototype.onHooked = function(){
 
-    hooksConnected ++;
+    SCORE ++;
 
-    document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
+    document.getElementById( 'hookCount' ).innerHTML = SCORE;
    // console.log( this );
 
     this.explode();
@@ -99,8 +117,17 @@
   Hook.prototype.explode = function(){
 
     this.note.play();
-    this.loop.gain.gain.value += .1;
     explosion.renderer.simulationUniforms.justHit.value = 1.;
+
+    if( this.boss ){
+
+      looper.tweenGain( this.loop.gain , 1 );
+
+    }else{
+
+      this.loop.gain.gain.value += .1;
+
+    }
 
     changeColor( this.color );
 
@@ -122,7 +149,7 @@
         var dist = this.position.clone().sub( h1.position );
         var l = dist.length();
 
-        this.force.sub( dist.normalize().multiplyScalar(l*.00001) ); //dist.normalize().multiplyScalar( .1/ l ));
+        this.force.sub( dist.normalize().multiplyScalar(l*.000001) ); //dist.normalize().multiplyScalar( .1/ l ));
 
       }
     
@@ -130,7 +157,7 @@
 
     var d = this.position.clone().sub( position );
 
-    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .001 ) );
+    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .0001 ) );
 
 
 
@@ -153,15 +180,18 @@
      var aveVol = this.loop.averageVolume / 128;
 
     this.velocity.add( this.force );//.clone().multiplyScalar( aveVol));
-    
-    if( this.velocity.length() >= this.maxSpeed ){
+   
+    var newVel = this.velocity.clone().multiplyScalar( aveVol );
+
+    var newVel = this.velocity;
+    if( newVel >= this.maxSpeed ){
 
       //console.log( 'maxHit' );
-      this.velocity.normalize().multiplyScalar( this.maxSpeed );
+      newVel.normalize().multiplyScalar( this.maxSpeed );
 
     }
     
-    this.position.add( this.velocity.clone().multiplyScalar( 1 )); 
+    this.position.add( newVel ); 
 
 
     this.head.lookAt( this.position.clone().add( this.velocity ) );
@@ -176,9 +206,15 @@
 
     if( dif.length() <= size ){
 
-      console.log( 'HOOKEDS');
-      this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
+      if( !this.boss ){
+        
+        this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
 
+      }else{
+
+        this.dragonFish.addBoss( this.vertabrae );
+
+      }
       this.onHooked();
      
       this.level.hooks.splice( index , 1 );
@@ -190,6 +226,7 @@
 
   Hook.prototype.destroy = function(){
 
+    this.loop.gain.gain.value -= .1;
     var i = { x: 1 };
     var t = { x:0 };
 

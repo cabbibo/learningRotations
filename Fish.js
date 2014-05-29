@@ -16,7 +16,7 @@
     this.sibRepelDist = 1;
 
     this.subAttractPow = 1;
-    this.subAttractDiv = 10;
+    this.subAttractDiv = 6;
     this.subAttractDist = .01;
 
     this.connected = true;
