@@ -76,7 +76,7 @@
 
     console.log( timeTilEnd );
 
-    var endValue = newValue * .6;
+    var endValue = newValue * .5;
     var  i = { gain: gainNode.gain.value }
     var  t = { gain: endValue }
   
@@ -89,14 +89,13 @@
     tween.onUpdate(function( ){
 
       tween.gainNode.gain.value = i.gain;
-      if( Math.abs( i.gain - endValue ) < .01 ){
-
-        console.log( 'END HIT' );
-        tween.gainNode.gain.value = newValue
-
-      }  
+    
     }.bind(tween));
 
+    tween.onComplete( function(){
+      console.log( this );
+      this.gain.value = newValue; 
+    }.bind( gainNode ));
 
     tween.start();
 
@@ -143,7 +142,6 @@
 
   Looper.prototype._onNewLoop = function(){
 
-    console.log( 'NEW LOOP' );
 
     this.oLoop = this.loop;
     this.loop += 1;
@@ -167,7 +165,6 @@
 
   Looper.prototype._onNewMeasure = function(){
 
-    console.log( 'NEW MEASURE' );
     this.oMeasure = this.measure;
     this.measure +=1;
     this.measureStartTime = this.measure * this.measureLength;

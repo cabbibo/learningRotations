@@ -138,7 +138,6 @@
     var hooks = level.hooks;
     var position = level.scene.position;
 
-    //console.log( position.x );
     this.force.set( 0 , 0,0 );    
     for( var i = 0; i < hooks.length; i++ ){
 
@@ -157,7 +156,7 @@
 
     var d = this.position.clone().sub( position );
 
-    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .0001 ) );
+    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .01 ) );
 
 
 
@@ -258,9 +257,9 @@
 
   Hook.prototype.reposition = function(){
 
-      this.position.x = (Math.random() -.5 )*100;
-      this.position.y = (Math.random() -.5 )*100;
-      this.position.z = (Math.random() -.5 )*100;
+      this.position.x = (Math.random() -.5 )*100 + this.level.scene.position.x ;
+      this.position.y = (Math.random() -.5 )*100+ this.level.scene.position.y;
+      this.position.z = (Math.random() -.5 )*100+ this.level.scene.position.z;
 
       this.head.rotation.x = Math.random() * Math.PI * 2;
       this.head.rotation.y = Math.random() * Math.PI * 2;

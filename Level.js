@@ -5,6 +5,7 @@
 //
 function Level( dragonFish, params ){
 
+  this.params = params;
 
   this.newTypes = params.newTypes || [];
   this.oldTypes = params.oldTypes || [];
@@ -19,7 +20,7 @@ function Level( dragonFish, params ){
   this.dragonFish = dragonFish;
   this.scene = new THREE.Object3D();
 
-  this.scene.position.x = 6;
+  this.scene.position = params.position;
 
   // TODO: move to initCrystal
   var g = new THREE.IcosahedronGeometry( 1 );
@@ -31,78 +32,96 @@ function Level( dragonFish, params ){
 
 }
 
+Level.prototype.loadNote = function( noteName ){
 
+    if( !NOTES[noteName] ){
+    
+    var newName = 'audio/notes/' + noteName + '.wav';
+
+    this.totalNeededToLoad ++;
+    var note = new LoadedAudio( audioController , newName ,{
+      looping: false
+    });
+
+    var nn2 = noteName;
+    note.onLoad = function(){
+      this.onLoad();
+    }.bind( this );
+
+    NOTES[ noteName ] = note;
+
+  }
+
+}
+
+Level.prototype.loadLoop = function( loopName ){
+    
+  if( !LOOPS[loopName] ){
+     
+    var newName = 'audio/loops/' + loopName + '.wav';
+
+    this.totalNeededToLoad ++;
+    var loop = new LoadedAudio( audioController , newName ,{
+      looping: true
+    });
+
+    loop.onLoad = function(){
+      this.onLoad();
+    }.bind( this );
+
+    LOOPS[ loopName ] = loop;
+
+  }
+
+}
+
+Level.prototype.loadGeo = function( geoName ){
+  if( geoName && !GEOS[geoName] ){
+
+    var newName = 'models/' + geoName + '.obj'; 
+    this.totalNeededToLoad ++;
+
+    loader.OBJLoader.load( newName , function( object ){
+      object.traverse( function ( child ) {
+          if ( child instanceof THREE.Mesh ) {
+            GEOS[geoName] = child.geometry;       
+          }
+      });
+
+      this.onLoad();
+
+    }.bind( this ));
+
+  }
+
+}
 
 // Does the heavy lifting of Loading all the audio
 Level.prototype.beginLoading = function(){
+
+
+  var noteName = this.params.path.note;
+  this.loadNote( noteName ); 
+
+  var noteName = this.params.note;
+  this.loadNote( noteName ); 
+
+
+
 
   for( var i = 0; i < this.newTypes.length; i++ ){
 
     // Loading Loops
     var loopName = this.newTypes[i].loop;
-    
-    if( !LOOPS[loopName] ){
-     
-      var newName = 'audio/loops/' + loopName + '.wav';
-
-      this.totalNeededToLoad ++;
-      var loop = new LoadedAudio( audioController , newName ,{
-        looping: true
-      });
-      var nn1 = loopName;
-
-      loop.onLoad = function(){
-        this.onLoad();
-      }.bind( this );
-
-      LOOPS[ loopName ] = loop;
-
-    }
-
-
+    this.loadLoop( loopName ); 
     // Loading Notes
     var noteName = this.newTypes[i].note;
-
-    if( !NOTES[noteName] ){
-      
-      var newName = 'audio/notes/' + noteName + '.wav';
-
-      this.totalNeededToLoad ++;
-      var note = new LoadedAudio( audioController , newName ,{
-        looping: false
-      });
-
-      var nn2 = noteName;
-      note.onLoad = function(){
-        this.onLoad();
-      }.bind( this );
-
-      NOTES[ noteName ] = note;
-
-    }
-
+    this.loadNote( noteName );
 
     // LoadingGeometry
     var geoName = this.newTypes[i].geo;
+    this.loadGeo( geoName );
 
-    
-    if( geoName && !GEOS[geoName] ){
-
-      var newName = 'models/' + geoName + '.obj'; 
-      this.totalNeededToLoad ++;
-
-      loader.OBJLoader.load( newName , function( object ){
-        object.traverse( function ( child ) {
-            if ( child instanceof THREE.Mesh ) {
-              GEOS[geoName] = child.geometry;       
-            }
-        });
-
-        this.onLoad();
-
-      }.bind( this ));
-
-    }
 
 
   }
@@ -149,6 +168,9 @@ Level.prototype.startLoops = function(){
 
 Level.prototype.instantiate = function(){
 
+  this.note = NOTES[ this.params.note ];
+
+
   for( var  i = 0; i < this.newTypes.length; i++ ){
 
     var loop = LOOPS[ this.newTypes[i].loop ];
@@ -175,8 +197,9 @@ Level.prototype.instantiate = function(){
     this.initSkybox();
     this.initStones();
     this.initCrystal();
-    this.initPath();
   */
+    
+  this.initPath();
 
   this.prepared = true;
 
@@ -184,6 +207,43 @@ Level.prototype.instantiate = function(){
 }
 
 Level.prototype.onPrepared = function(){}
+
+
+Level.prototype.initPath = function(){
+
+  var oPos;
+  if( this.oldLevel ){
+    oPos = this.oldLevel.scene.position;
+  }else{
+    oPos = new THREE.Vector3();
+  }
+
+  var pos = this.scene.position;
+
+  var pathGeo = this.params.path.createGeometry( oPos , pos );
+
+  var markers = [];
+
+  for( var i = 0; i < pathGeo.vertices.length; i++ ){
+
+    var g = this.params.path.markerGeo;
+    var m = this.params.path.markerMat;
+    var mesh = new THREE.Mesh( g , m );
+
+    mesh.position = pathGeo.vertices[i];
+    markers.push( mesh );
+
+  }
+
+
+  this.path = {};
+
+  this.path.note = NOTES[ this.params.path.note ];
+  this.path.update = this.params.path.update;
+  this.path.markers = markers;
+
+
+}
 
 Level.prototype.initialize = function(){
 
@@ -193,14 +253,20 @@ Level.prototype.initialize = function(){
 
     console.log( 'TOTALLY FUCKED' );
 
-  }
+  }else{
 
-  this.scene.add( this.crystal );
-  this.crystalAdded = true;
+    console.log( 'APATS' );
+  
+    this.addPath();
+
+    this.scene.add( this.crystal );
+    this.crystalAdded = true;
 
 
-  if( this.nextLevel ){
-    this.nextLevel.beginLoading();
+    if( this.nextLevel ){
+      this.nextLevel.beginLoading();
+    }
+
   }
 
 
@@ -219,9 +285,11 @@ Level.prototype.onStart = function(){
 
   dragonFish.leader.body.add( this.crystal );
 
-  //TODO:
-  //Play START NOISE
+  this.note.play();
 
+  this.removePath();
+
+  //TODO: Make sure this works
   // Remove any unneccesary hooks
   /*for( var i = 0; i < dragonFish.spine.length; i++ ){
 
@@ -282,7 +350,12 @@ Level.prototype.update = function(){
 
 
   if( this.crystalAdded === true && this.active === false ){
-    
+   
+
+    // this.path.update();
+
+
+
     var dif = this.scene.position.clone().sub( this.dragonFish.leader.position );
   
     if( dif.length() <= this.crystalSize ){
@@ -324,6 +397,89 @@ Level.prototype.updateHooks = function(){
   }
 
 }
+
+
+Level.prototype.addPath = function(){
+
+
+  for( var  i = 0; i < this.path.markers.length; i++ ){
+
+    var marker = this.path.markers[i];
+
+    scene.add( marker );
+
+  
+    marker.init = { scale: 0 };
+    marker.target = { scale: 1 };
+
+    var tween = new TWEEN.Tween( marker.init ).to( marker.target , (i+1) * 1000 );
+
+    tween.easing( TWEEN.Easing.Quartic.In )
+  
+    tween.marker = marker;
+    tween.note   = this.path.note;
+
+    tween.onUpdate( function(){
+
+      this.scale.x = this.init.scale;
+      this.scale.y = this.init.scale;
+      this.scale.z = this.init.scale;
+
+    }.bind( marker ));
+
+    tween.onComplete( function(){
+      console.log('FINISHED');
+      tween.note.play();
+    }.bind( tween ));
+
+    tween.start();
+
+
+
+  }
+
+}
+
+Level.prototype.removePath = function(){
+
+
+  for( var  i = 0; i < this.path.markers.length; i++ ){
+
+    var marker = this.path.markers[i];
+
+    scene.add( marker );
+
+  
+    marker.init = { scale: 1 };
+    marker.target = { scale: 0 };
+
+    var tween = new TWEEN.Tween( marker.init ).to( marker.target , (i+1) * 300 );
+
+    tween.easing( TWEEN.Easing.Quartic.In )
+  
+    tween.marker = marker;
+    tween.note   = this.path.note;
+
+    tween.onUpdate( function(){
+
+      this.scale.x = this.init.scale;
+      this.scale.y = this.init.scale;
+      this.scale.z = this.init.scale;
+
+    }.bind( marker ));
+
+    tween.onComplete( function(){
+      scene.remove( marker ); 
+    }.bind( marker ));
+
+    tween.start();
+
+
+
+  }
+
+}
+
 /*
     
     - New Hooks - instantiate

@@ -102,11 +102,11 @@
   var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
 
-  var LEVEL_1
+  var LEVEL_1;
+
   function onStart(){
 
     initExplosion( dragonFish );
-
      LEVEL_1.initialize();
     animate();
   
@@ -209,8 +209,15 @@
     bait.add( baitMarker );
     scene.add( bait );*/
 
+    loader.addToLoadBar();
     LEVEL_1 = new Level( dragonFish , LEVEL_1_PARAMS );
     LEVEL_1.beginLoading();
+    LEVEL_1.onPrepared = function(){
+
+      console.log( 'HLELSSS');
+      loader.loadBarAdd();
+
+    }
 
     // Hooks
     recreateLights( 0x777777 );

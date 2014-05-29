@@ -128,19 +128,6 @@ DragonFish.prototype.initPlume = function(){
 DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
   vertabrae.dom = this.spine[ this.spine.length - 1 ];
-   /* for( var propt in this.hooks ){
-
-    var hooks = this.hooks[propt]
-
-    for( var i =0; i < hooks.length; i++ ){
-
-      var hook = hooks[i];
-
-      this.dragonFish.addToScene( hook );
-
-    }
-
-  }*/
 
   vertabrae.dom.sub.push( vertabrae );
   this.spine.push( vertabrae );
@@ -151,22 +138,7 @@ DragonFish.prototype.addBoss = function( vertabrae ){
 
   vertabrae.dom = this.leader;
  
-  /*for( var propt in this.hooks ){
-
-    var hooks = this.hooks[propt]
-
-    for( var i =0; i < hooks.length; i++ ){
-
-      var hook = hooks[i];
-
-      this.dragonFish.addToScene( hook );
-
-    }
-
-  }*/
-
   vertabrae.dom.sub.push( vertabrae );
-  //this.spine.push( vertabrae );
 
 }
 
@@ -236,12 +208,8 @@ DragonFish.prototype.createBoss = function( dom , m1 , m2 , m3 , m4 ){
         child1.position.copy( vertabrae.position );
         sp.push( child1 );
 
-        console.log('SP!');
-        console.log( sp );
       }else{
 
-        console.log( 'SP' );
-        console.log( sp[i-1] );
         child1 = new Fish( sp[i-1] , .6 , m2 );
         sp.push( child1 );
       }

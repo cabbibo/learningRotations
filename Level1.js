@@ -2,24 +2,28 @@
 
 var LEVEL_1_PARAMS = {};
 
+LEVEL_1_PARAMS.position = new THREE.Vector3( 300 , 0 , 0 );
 
+LEVEL_1_PARAMS.note = 'clean6',
 LEVEL_1_PARAMS.path = {
 
-  marker: new THREE.Mesh(
-    new THREE.IcosahedronGeometry( .1 ),
-    new THREE.MeshNormalMaterial()
-  ),
+  note:'clean5',
+  pathDetail: 10,
+
+  markerMat: new THREE.MeshBasicMaterial(),
+  markerGeo: new THREE.IcosahedronGeometry( 1 ),
 
   createGeometry: function( oldPos , newPos ){
 
+    console.log( this );
     var geometry = new THREE.Geometry();
 
-    var dif = oldPos.clone().sub( newPos );
+    var dif = newPos.clone().sub( oldPos );
 
-    var chunk = dif.multiplyScalar( 1/3 );
+    var chunk = dif.multiplyScalar( 1/this.pathDetail );
 
     geometry.vertices.push( oldPos );
-    for( var i = 0; i < 3; ){
+    for( var i = 0; i < this.pathDetail; i++ ){
 
       var chunkPos = geometry.vertices[i].clone().add( chunk );
 
@@ -32,6 +36,15 @@ LEVEL_1_PARAMS.path = {
   },
 
   update: function(){
+
+
+  },
+
+  addPath: function( levelPath ){
+
+
+    //for( var i = 0; i < levelPath.markers
+
 
 
   }
@@ -190,9 +203,12 @@ LEVEL_1_PARAMS.newTypes = [
           m
       );
 
-      var g = new THREE.IcosahedronGeometry(.2);
-      var m = new THREE.MeshBasicMaterial({ color: this.color.getHex() });
+      var g = new THREE.IcosahedronGeometry(2);
+      var m = new THREE.MeshLambertMaterial({ color: this.color.getHex() });
       var m1 = new THREE.Mesh( g , m );
+
+      m1.scale.x = .1;
+      m1.scale.y = .1;
 
       var hooks = [];
 
