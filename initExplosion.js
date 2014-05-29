@@ -29,7 +29,7 @@ function initExplosion( dragonFish ){
 
     blending: THREE.AdditiveBlending,
     transparent: true,
-  depthWrite: false
+    depthWrite: false
   })
 
   var geo = ParticleUtils.createLookupGeometry( size );
@@ -46,8 +46,8 @@ function initExplosion( dragonFish ){
 
   var pTexture = ParticleUtils.createPositionsTexture( size , mesh );
   physicsRenderer.reset( pTexture );
-  physicsRenderer.addDebugScene( scene );
-  physicsRenderer.debugScene.scale.multiplyScalar( .1 );
+  //physicsRenderer.addDebugScene( scene );
+  //physicsRenderer.debugScene.scale.multiplyScalar( .1 );
 
   physicsRenderer.setUniform( 't_audio' , {
     type:"t" , value: audioController.texture

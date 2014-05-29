@@ -1,12 +1,13 @@
 
-  var hooks = [];
 
   var hooksConnected = 0;
 
   document.getElementById( 'hookCount' ).innerHTML = hooksConnected;
   
-  function Hook( dragonFish , type , params ){
-    
+  function Hook( dragonFish, level, type , params ){
+   
+
+    this.level = level;
 
     this.type = type;
     this.params = _.defaults( params || {} , {
@@ -45,8 +46,6 @@
     
     this.dragonFish = dragonFish;
     
-    hooks.push( this );
-
     this.reposition();
 
     this.vertabrae = this.dragonFish.createVertabrae( 
@@ -88,7 +87,8 @@
 
     this.explode();
     //debugger;
-
+    //
+  
   }
 
   Hook.prototype.explode = function(){
@@ -101,23 +101,30 @@
 
   }
 
-  Hook.prototype.updateForces = function(){
+  Hook.prototype.updateForces = function( level ){
 
+    var hooks = level.hooks;
+    var position = level.scene.position;
 
+    //console.log( position.x );
     this.force = new THREE.Vector3();
     
     for( var i = 0; i < hooks.length; i++ ){
 
       var h1 = hooks[i];
 
-      var dist = this.position.clone().sub( h1.position );
-      var l = dist.length();
+      if( h1 !== this ){
 
-      this.force.sub( dist.normalize().multiplyScalar(l*.0000001) ); //dist.normalize().multiplyScalar( .1/ l ));
+        var dist = this.position.clone().sub( h1.position );
+        var l = dist.length();
 
+        this.force.add( dist.normalize().multiplyScalar(l*.0000001) ); //dist.normalize().multiplyScalar( .1/ l ));
+
+      }
+    
     }
 
-    var d = this.position.clone();
+    var d = this.position.clone().sub( position );
 
     this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .0001 ) );
 
@@ -145,13 +152,12 @@
     
     if( this.velocity.length() >= this.maxSpeed ){
 
-      console.log( 'maxHit' );
+      //console.log( 'maxHit' );
       this.velocity.normalize().multiplyScalar( this.maxSpeed );
 
     }
     
-    this.position.add( this.velocity.clone().multiplyScalar( aveVol) );
-
+    this.position.add( this.velocity.clone().multiplyScalar( .00000000000000000001 )); 
 
 
     this.head.lookAt( this.position.clone().add( this.velocity ) );
@@ -164,13 +170,14 @@
 
     var dif = this.position.clone().sub( this.dragonFish.leader.position );
 
-    if( dif.length() <= size ){
+    if( dif.length() <= 30 ){
 
+      console.log( 'HOOKEDS');
       this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
 
       this.onHooked();
      
-      hooks.splice( index , 1 );
+      this.level.hooks.splice( index , 1 );
 
     }
 
@@ -193,7 +200,6 @@
      
 
       if( i.x < .1 ){
-
         
         console.log( this.vertabrae );
         scene.remove( this.hook.head );

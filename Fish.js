@@ -28,12 +28,8 @@
     this.body = mesh.clone();
     this.body.position = this.position;
 
-    scene.add( this.body );
-
     if( this.dom.sub ){
-    
       this.dom.sub.push( this );
-
     }
 
     this.counter = 0;

@@ -1,8 +1,6 @@
 function DragonFish( bait , head , plume , flagella  ){
 
   this.bait = bait;
-
-
   
   /*
 
@@ -16,6 +14,12 @@ function DragonFish( bait , head , plume , flagella  ){
 
   this.leader = new Fish(bait,1, fishSkeleton.head.spine );
 
+  var leaderMarker = new THREE.Mesh(
+    new THREE.CubeGeometry( .5 , .5 , .5 ),
+    new THREE.MeshBasicMaterial()
+  );
+  this.leader.body.add( leaderMarker );
+  //this.position = this.leader.position;
   this.spine = [];
   this.tail;
   
@@ -28,6 +32,23 @@ function DragonFish( bait , head , plume , flagella  ){
 
   this.initBody();
 
+  this.addToScene( this.leader );
+
+}
+
+DragonFish.prototype.addToScene = function( object ){
+
+  this.recursiveCall( object , function( body ){
+    scene.add( body );
+  });
+
+}
+
+DragonFish.prototype.removeFromScene = function( object ){
+
+  this.recursiveCall( object , function( body ){
+    scene.remove( body );
+  });
 
 }
 
@@ -52,36 +73,6 @@ DragonFish.prototype.update = function(){
     var vel = spine.velocity;
 
     var velLength = vel.length();
-
-    //spine.sibRepelDist = a*a;
-    
-  /*  for( var j=0; j < spine.sub.length; j++ ){
-
-      var sp = spine.sub[j];
-      //sp.sibRepelDist =1+ a*a;
-      //sp.sibRepelDiv =30- a*a*2;
-
-      for( var k = 0; k < sp.sub.length; k++ ){
-
-        var sp1 = sp.sub[k];
-       // sp1.sibRepelDist =1+ a*a;
-        //sp1.sibRepelDiv =30- a*a*2;
-
-        for( var l = 0; l < sp1.sub.length; l++ ){
-
-          sp2 = sp1.sub[l];
-
-          //sp2.sibRepelDist =1+ a*a*4;
-          //sp2.sibRepelDiv =30- a*a*4;
-
-
-        }
-
-      }
-
-    }*/
-
-
   }
 
   this.leader.update();
@@ -137,7 +128,21 @@ DragonFish.prototype.initPlume = function(){
 DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
   vertabrae.dom = this.spine[ this.spine.length - 1 ];
-  vertabrae.dom.sub.push( vertabrae );
+    for( var propt in this.hooks ){
+
+    var hooks = this.hooks[propt]
+
+    for( var i =0; i < hooks.length; i++ ){
+
+      var hook = hooks[i];
+
+      this.dragonFish.addToScene( hook );
+
+    }
+
+  }
+
+vertabrae.dom.sub.push( vertabrae );
   this.spine.push( vertabrae );
 
 }
@@ -249,10 +254,11 @@ DragonFish.prototype.removeVertabraeById = function( id ){
 
     if( i.x < .01 ){
 
-     
-      this.dragonFish.recursiveCall( this.spine , function( body ){
+    
+      this.dragonFish.removeFromScene( this.spine );
+      /*this.dragonFish.recursiveCall( this.spine , function( body ){
         scene.remove( body );
-      });
+      });*/
   
     }    //console.log( 'hello' );
 
@@ -270,9 +276,7 @@ DragonFish.prototype.recursiveCall = function( object , callback ){
 
   callback( object.body );
   for( var i = 0; i < object.sub.length; i++ ){
-
     this.recursiveCall( object.sub[i] , callback );
-
   }
 
 }

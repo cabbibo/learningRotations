@@ -17,10 +17,8 @@ function initShaders(){
   shaders.load( 'curlSim'   , 'curlSim' , 'simulation'  );
 
 
-  console.log( 'SHADERS LOADING' );
   loader.addToLoadBar();
   shaders.shaderSetLoaded = function(){
-    console.log( 'SHADERS LOADED' );
     loader.loadBarAdd();
   }
 

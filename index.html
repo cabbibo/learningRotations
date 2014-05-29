@@ -93,7 +93,7 @@
   var distanceToIntersectPlane = 10;
   
   var loader = new Loader();
-  loader.addToLoadBar();
+  //loader.addToLoadBar();
   
   var audioController = new AudioController();
   var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
@@ -197,8 +197,13 @@
     bait = new THREE.Object3D();
     dragonFish = new DragonFish( bait );
 
-    LEVEL_1 = new Level( dragonFish , LEVEL_1_PARAMS );
+    var g = new THREE.IcosahedronGeometry( .5 ,1 );
+    var m = new THREE.MeshNormalMaterial({ wireframe:true });
+    var baitMarker = new THREE.Mesh( g , m );
+    bait.add( baitMarker );
+    scene.add( bait );
 
+    LEVEL_1 = new Level( dragonFish , LEVEL_1_PARAMS );
     LEVEL_1.beginLoading();
 
     // Hooks
@@ -206,7 +211,6 @@
     
     addSocialMedia( SOCIAL_MEDIA );
     
-    loader.loadBarAdd();
 
   }
 
@@ -215,6 +219,9 @@
     TWEEN.update();
 
     counter += 1;
+
+
+    LEVEL_1.update();
 
     audioController.update();
      
@@ -252,8 +259,7 @@
 
     loader.liftCurtain();
 
-
-    tween.start();
+    LEVEL_1.initialize();
     animate();
   
   });
@@ -263,13 +269,14 @@
     if( e.type == 'mouseenter' ){
       titleEP.innerHTML = e.toElement.INFO_TEXT;
     }else{
-      titleEP.innerHTML = 'Rioux - System Preferences';
+      titleEP.innerHTML = 'DRAGONFISH';
     }
   });
 
   $("#information").click( function(){
     $("#informationSection").toggle();
   });
+/*
 
   var i = { x: 100 };
   var t = { x:0 };
@@ -278,11 +285,10 @@
 
   tween.onUpdate(function( ){
 
-    console.log( 'hello' );
+  }.bind(tween))
+  tween.start();
 
-  }.bind(tween));
-
-  //tween.start();
+*/
 
 
 </script>

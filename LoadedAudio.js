@@ -11,7 +11,6 @@
     });
 
     this.controller = controller;
-    this.womb = this.controller.womb;
 
     this.file       = file;
 
@@ -49,6 +48,7 @@
     
     this.loadProgress( e );
 
+  //tween.start();
   }
 
   LoadedAudio.prototype.loadProgress = function(){
@@ -59,7 +59,6 @@
 
   LoadedAudio.prototype.loadFile = function(){
   
-    loader.addToLoadBar();
 
     var request=new XMLHttpRequest();
 	request.open("GET",this.file,true);
@@ -102,8 +101,6 @@
     this.trackID= this.file.split('.')[this.file.split('.').length-2];
 
     this.createSource();
-
-    this.onLoad( this );
 
     //var self = this;
     //if( this.params.onLoad ) this.params.onLoad( self );
@@ -203,23 +200,9 @@
   LoadedAudio.prototype._onLoad = function(){
 
     this.onLoad();
-    loader.loadBarAdd();
     
   }
-  LoadedAudio.prototype.onLoad = function(){
-/*
-    if( this.looping == false ){
-
-      this.controller.notes.push( this );
-
-    }else{
-
-      this.controller.loops.push( this );
-
-
-    }*/
-
-  }
+  LoadedAudio.prototype.onLoad = function(){}
 
 
   LoadedAudio.prototype.update = function(){
@@ -231,7 +214,7 @@
     //console.log( this.averageVolume );
     if( this.texture )
       this.texture.update();
-
+  
   }
 
   LoadedAudio.prototype.getAverage = function( array ){

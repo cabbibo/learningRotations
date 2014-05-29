@@ -6,7 +6,7 @@ var failureImg = 'icons/albumCover.png';
 function Loader(  params ){
 
     this.params = _.defaults( params || {}, {
-      numberToLoad:   1,
+      numberToLoad:   0,
       loadGif:        "lib/loadGif.gif",
       videoWidth: 500,
       videoHeight: 281,
@@ -113,6 +113,8 @@ function Loader(  params ){
         this.onFinishedLoading();
       }
 
+      console.log( this.numberLoaded , this.numberToLoad );
+      console.log('yerp' );
 
     },
 
@@ -282,7 +284,6 @@ function Loader(  params ){
 
     onStart: function(){
 
-      console.log( this );
       if( !this.hasStarted ){
        onStart(); 
       }else{

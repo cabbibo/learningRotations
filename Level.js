@@ -11,7 +11,7 @@ function Level( dragonFish, params ){
   
   this.totalNeededToLoad = 0;
   this.totalLoaded = 0;
-  this.fullyLoaded = false;
+  this.fullyLoaded  = false;
   this.prepared     = false;
   this.crystalAdded = false;
   this.active = false;
@@ -19,13 +19,15 @@ function Level( dragonFish, params ){
   this.dragonFish = dragonFish;
   this.scene = new THREE.Object3D();
 
+  this.scene.position.x = 6;
+
   // TODO: move to initCrystal
-  var g = new THREE.IcosahedronGeometry( 1 );
+  var g = new THREE.IcosahedronGeometry( .3 );
   var m = new THREE.MeshNormalMaterial();
   this.crystal = new THREE.Mesh( g , m );
   this.crystalSize = 1;
 
-  this.hooks = {};
+  this.hooks = [];
 
 }
 
@@ -41,7 +43,6 @@ Level.prototype.beginLoading = function(){
     
     if( !LOOPS[loopName] ){
      
-      console.log( 'LOADING LOOP' );
       var newName = 'audio/loops/' + loopName + '.wav';
 
       this.totalNeededToLoad ++;
@@ -51,10 +52,7 @@ Level.prototype.beginLoading = function(){
       var nn1 = loopName;
 
       loop.onLoad = function(){
-        console.log( 'THIS' );
-        console.log( this );
         this.onLoad();
-        console.log( nn1 );
       }.bind( this );
 
       LOOPS[ loopName ] = loop;
@@ -77,7 +75,6 @@ Level.prototype.beginLoading = function(){
       var nn2 = noteName;
       note.onLoad = function(){
         this.onLoad();
-        console.log( nn2 );
       }.bind( this );
 
       NOTES[ noteName ] = note;
@@ -91,7 +88,6 @@ Level.prototype.beginLoading = function(){
     
     if( geoName && !GEOS[geoName] ){
 
-      console.log( 'sasssd');
       var newName = 'models/' + geoName + '.obj'; 
       this.totalNeededToLoad ++;
 
@@ -102,8 +98,6 @@ Level.prototype.beginLoading = function(){
             }
         });
 
-        console.log('LEVEL');
-        console.log( this );
         this.onLoad();
 
       }.bind( this ));
@@ -118,8 +112,6 @@ Level.prototype.beginLoading = function(){
 }
 
 Level.prototype.onLoad = function(){
-
-  console.log( 'ON AUDIO LOAD' );
   
   this.totalLoaded ++;
 
@@ -128,8 +120,8 @@ Level.prototype.onLoad = function(){
 
     console.log( this.totalLoaded , this.totalNeededToLoad );
     this.fullyLoaded = true;
-    //this.birth();
 
+    this.instantiate();
   }
 
 }
@@ -142,8 +134,16 @@ Level.prototype.instantiate = function(){
     var note = NOTES[ this.newTypes[i].note ];
     var geo  = GEOS[  this.newTypes[i].geo  ];
 
-    this.newTypes[i].instantiate( this , this.dragonFish, loop , note , geo );
+    var hooks = this.newTypes[i].instantiate( this , this.dragonFish, note ,loop , geo );
 
+    for( var j = 0; j < hooks.length; j++ ){
+
+      this.hooks.push( hooks[j] );
+
+    }
+
+    console.log( this.hooks );
+  
   }
 
   // TODO
@@ -155,7 +155,11 @@ Level.prototype.instantiate = function(){
   */
 
   this.prepared = true;
+
+  this.onPrepared();
 }
+
+Level.prototype.onPrepared = function(){}
 
 Level.prototype.initialize = function(){
 
@@ -172,37 +176,30 @@ Level.prototype.initialize = function(){
 
 
   if( this.nextLevel ){
-
     this.nextLevel.beginLoading();
-
   }
 
 
 }
-
-Level.prototype.addCrystal = function(){
-
-  scene.remove( this.crystal );
-
-}
-
 
 Level.prototype.onStart = function(){
 
+  console.log( 'LEVEL  STARTED' );
   // puts the crystal on the head of the dragonfish
   scene.remove( this.crystal );
 
+  // out with the old, in with the new
   if( this.oldLevel ){
-    dragonFish.leader.remove( this.oldLevel.crystal );
+    dragonFish.leader.body.remove( this.oldLevel.crystal );
   }
 
-  dragonFish.leader.add( this.crystal );
+  dragonFish.leader.body.add( this.crystal );
 
   //TODO:
   //Play START NOISE
 
   // Remove any unneccesary hooks
-  for( var i = 0; i < dragonFish.spine.length; i++ ){
+  /*for( var i = 0; i < dragonFish.spine.length; i++ ){
 
     var verta = dragonFish.spine[i];
     for( var j = 0; j < this.oldTypes; j++ ){
@@ -221,9 +218,26 @@ Level.prototype.onStart = function(){
 
     }
 
-  }
+  }*/
+
+  this.startHooks();
 
   this.active = true;
+
+}
+
+Level.prototype.startHooks = function(){
+
+
+  for( var i =0; i < this.hooks.length; i++ ){
+
+    var hook = this.hooks[i];
+
+    hook.activate();
+    //this.dragonFish.addToScene( hook.vertabrae );
+
+  }
+
 
 }
 
@@ -245,7 +259,7 @@ Level.prototype.update = function(){
 
   if( this.crystalAdded === true && this.active === false ){
     
-    var dif = this.scene.position.clone().sub( this.dragonFish.position );
+    var dif = this.scene.position.clone().sub( this.dragonFish.leader.position );
   
     if( dif.length() <= this.crystalSize ){
 
@@ -257,8 +271,7 @@ Level.prototype.update = function(){
 
   if( this.active ){
 
-
-    this.hooks.update();
+    this.updateHooks();
 
   }
 
@@ -268,13 +281,16 @@ Level.prototype.update = function(){
 Level.prototype.updateHooks = function(){
 
   for( var i = 0; i < this.hooks.length; i++ ){
-    this.hooks[i].updateForces();
+    this.hooks[i].updateForces( this );
   }
 
-  for( var i= 0; i < hooks.length; i++ ){
+  for( var i= 0; i < this.hooks.length; i++ ){
+
     this.hooks[i].updatePosition();
     this.hooks[i].checkForCollision( 2 , i );
   }
+
+  //console.log( this.hooks[0].position.x );
   
   if( !paused ){
     this.dragonFish.update();
