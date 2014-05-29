@@ -1,11 +1,11 @@
 
 
-var LEVEL_1_PARAMS = {};
+var LEVEL_2_PARAMS = {};
 
-LEVEL_1_PARAMS.position = new THREE.Vector3( 300 , 0 , 0 );
+LEVEL_2_PARAMS.position = new THREE.Vector3( 300 , 300 , 0 );
 
-LEVEL_1_PARAMS.note = 'clean6',
-LEVEL_1_PARAMS.path = {
+LEVEL_2_PARAMS.note = 'clean6',
+LEVEL_2_PARAMS.path = {
 
   note:'clean5',
   pathDetail: 10,
@@ -14,7 +14,8 @@ LEVEL_1_PARAMS.path = {
   markerGeo: new THREE.IcosahedronGeometry( 1 ),
 
   createGeometry: function( oldPos , newPos ){
-    
+
+    console.log( this );
     var geometry = new THREE.Geometry();
 
     var dif = newPos.clone().sub( oldPos );
@@ -53,14 +54,14 @@ LEVEL_1_PARAMS.path = {
 
 
 }
-LEVEL_1_PARAMS.newTypes = [
+LEVEL_2_PARAMS.newTypes = [
 
   {
     type: 'test1',
     note: 'clean1',
-    loop: 'clean_sniperSnare',
+    loop: 'clean_sniperDetail1',
     geo:  'logoGeo',
-    numOf: 1,
+    numOf: 4,
 
     startScore: 0,
     color: new THREE.Color( 0x00ff00 ),
@@ -93,6 +94,7 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
+        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -107,8 +109,8 @@ LEVEL_1_PARAMS.newTypes = [
     note: 'clean2',
     loop: 'clean_shuffleClick',
     geo:  'logoGeo',
-    numOf: 1,
-    startScore: 1,
+    numOf: 4,
+    startScore: 4,
     color: new THREE.Color( 0xff0000 ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
@@ -137,6 +139,7 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
+        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -152,8 +155,8 @@ LEVEL_1_PARAMS.newTypes = [
     note: 'clean3',
     loop: 'clean_sniperGlory1',
     geo:  'logoGeo',
-    numOf: 1,
-    startScore: 2,
+    numOf: 4,
+    startScore: 8,
     color: new THREE.Color( 0x0000ff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
@@ -182,6 +185,7 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
+        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -197,7 +201,7 @@ LEVEL_1_PARAMS.newTypes = [
     loop: 'clean_heavyBeat',
     geo:  'logoGeo',
     numOf: 1,
-    startScore: 3,
+    startScore: 12,
     color: new THREE.Color( 0xffffff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
@@ -232,6 +236,7 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
+        console.log( id );
         hook.id = id;
 
         hooks.push( hook );

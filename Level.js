@@ -3,8 +3,9 @@
 // LOOP LOADING 3 TIMES
 //
 //
-function Level( dragonFish, params ){
+function Level(name ,  dragonFish, params ){
 
+  this.name = name;
   this.params = params;
 
   this.newTypes = params.newTypes || [];
@@ -17,6 +18,14 @@ function Level( dragonFish, params ){
   this.crystalAdded = false;
   this.active = false;
 
+
+  this.startScore = 0;
+  this.currentScore = 0;
+  this.endScore = 0;
+  this.length = 0;
+
+
+
   this.dragonFish = dragonFish;
   this.scene = new THREE.Object3D();
 
@@ -27,6 +36,8 @@ function Level( dragonFish, params ){
   var m = new THREE.MeshNormalMaterial();
   this.crystal = new THREE.Mesh( g , m );
   this.crystalSize = 1;
+
+  this.hooksOnDeck = [];
 
   this.hooks = [];
 
@@ -107,8 +118,6 @@ Level.prototype.beginLoading = function(){
   this.loadNote( noteName ); 
 
 
-
-
   for( var i = 0; i < this.newTypes.length; i++ ){
 
     // Loading Loops
@@ -122,8 +131,6 @@ Level.prototype.beginLoading = function(){
     var geoName = this.newTypes[i].geo;
     this.loadGeo( geoName );
 
-
-
   }
 
 
@@ -134,13 +141,14 @@ Level.prototype.onLoad = function(){
   
   this.totalLoaded ++;
 
-  console.log( this.totalLoaded );
+  console.log( this.name , this.totalLoaded , this.totalNeededToLoad );
   if( this.totalLoaded == this.totalNeededToLoad ){
 
-    console.log( this.totalLoaded , this.totalNeededToLoad );
+    console.log( 'FULLY LOADED');
     this.fullyLoaded = true;
 
     this.instantiate();
+
   }
 
 }
@@ -168,6 +176,7 @@ Level.prototype.startLoops = function(){
 
 Level.prototype.instantiate = function(){
 
+
   this.note = NOTES[ this.params.note ];
 
 
@@ -181,12 +190,10 @@ Level.prototype.instantiate = function(){
 
     for( var j = 0; j < hooks.length; j++ ){
 
-      this.hooks.push( hooks[j] );
+      this.hooksOnDeck.push( hooks[j] );
 
     }
 
-    console.log( this.hooks );
-  
   }
 
 
@@ -255,6 +262,11 @@ Level.prototype.initialize = function(){
 
   }else{
 
+    this.startScore   = SCORE;
+    this.currentScore = 0;
+    this.length       = this.hooksOnDeck.length;
+
+
     console.log( 'APATS' );
   
     this.addPath();
@@ -264,6 +276,9 @@ Level.prototype.initialize = function(){
 
 
     if( this.nextLevel ){
+
+      console.log( 'I HAVENEXTLEVEL' );
+      console.log( this.nextLevel );
       this.nextLevel.beginLoading();
     }
 
@@ -288,6 +303,8 @@ Level.prototype.onStart = function(){
   this.note.play();
 
   this.removePath();
+
+  this.checkForNewHooks( this.currentScore );
 
   //TODO: Make sure this works
   // Remove any unneccesary hooks
@@ -333,11 +350,75 @@ Level.prototype.startHooks = function(){
 
 }
 
+// Check to see if we should put any more hooks into circulation
+Level.prototype.onHook = function( index , hook ){
+
+
+  SCORE ++;
+
+  this.currentScore = SCORE - this.startScore;
+
+  this.percentComplete = this.currentScore / this.length;
+
+  console.log( this.percentComplete );
+
+  this.checkForNewHooks( this.currentScore );
+
+  document.getElementById( 'hookCount' ).innerHTML = SCORE;
+
+  hook.explode();
+
+  this.hooks.splice( index , 1 );
+
+  if( this.percentComplete == 1 ){
+
+    this.onComplete();
+
+
+
+  }
+
+
+}
+
+
+Level.prototype.checkForNewHooks = function( score ){
+
+  for( var i = 0; i < this.hooksOnDeck.length; i++ ){
+
+    var hook = this.hooksOnDeck[i];
+
+    if( hook.startScore <= score ){
+
+      this.hooksOnDeck.splice( i , 1 );
+      this.hooks.push( hook );
+
+      hook.activate();
+      this.dragonFish.addToScene( hook.vertabrae );
+
+      i--;
+
+    }
+
+  }
+
+
+}
+
 Level.prototype.onComplete = function(){
 
+  console.log( 'MUTHAFUCKIN COMPLETE' );
   //TODO:
   //PLAY FINISH NOISE
-  
+
+  if( this.nextLevel ){
+    this.nextLevel.initialize();
+  }else{
+
+    console.log( 'TODO: FINISH GAME' );
+
+  }
+  CURRENT_LEVEL ++;
 
 }
 
@@ -387,9 +468,6 @@ Level.prototype.updateHooks = function(){
     this.hooks[i].checkForCollision( 2 , i );
   }
 
-
-
-
   //console.log( this.hooks[0].position.x );
   
   if( !paused ){
@@ -428,7 +506,6 @@ Level.prototype.addPath = function(){
     }.bind( marker ));
 
     tween.onComplete( function(){
-      console.log('FINISHED');
       tween.note.play();
     }.bind( tween ));
 

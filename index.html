@@ -71,6 +71,7 @@
 <script src = "utils.js"              ></script>
 <script src = "Level.js"              ></script>
 <script src = "Level1.js"              ></script>
+<script src = "Level2.js"              ></script>
 
 <script>  
 
@@ -93,7 +94,9 @@
   var paused = false;
   var distanceToIntersectPlane = 15;
   var SCORE = 0;
-  
+  var CURRENT_LEVEL = 0;
+  var LEVELS = [];
+
   var loader = new Loader();
   //loader.addToLoadBar();
   
@@ -102,13 +105,11 @@
   var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
 
-  var LEVEL_1;
+  var LEVEL_1,LEVEL_2;
 
   function onStart(){
 
-    initExplosion( dragonFish );
-     LEVEL_1.initialize();
-    animate();
+
   
     /*var geo = new THREE.IcosahedronGeometry( 300 , 3 );
     var mat = new THREE.MeshLambertMaterial({ 
@@ -149,6 +150,7 @@
       vertexShader:shaders.vertexShaders.sphere,
       fragmentShader:shaders.fragmentShaders.sphere,
       side:THREE.DoubleSide,
+      this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
       blending:THREE.AdditiveBlending,
       transparent:true,
       depthWrite:false,
@@ -210,11 +212,18 @@
     scene.add( bait );*/
 
     loader.addToLoadBar();
-    LEVEL_1 = new Level( dragonFish , LEVEL_1_PARAMS );
+    LEVEL_1 = new Level( 'first level', dragonFish , LEVEL_1_PARAMS );
+    LEVEL_2 = new Level( 'second level' ,dragonFish , LEVEL_2_PARAMS );
+
+    LEVEL_1.nextLevel = LEVEL_2;
+    LEVEL_2.oldLevel  = LEVEL_1;
+
+    LEVELS.push( LEVEL_1 );
+    LEVELS.push( LEVEL_2 );
+    
     LEVEL_1.beginLoading();
     LEVEL_1.onPrepared = function(){
 
-      console.log( 'HLELSSS');
       loader.loadBarAdd();
 
     }
@@ -234,7 +243,7 @@
     counter += 1;
 
 
-    LEVEL_1.update();
+    LEVELS[ CURRENT_LEVEL ].update();
 
     audioController.update();
      
@@ -263,9 +272,11 @@
 
   $("#startInfo").click( function(){
 
-
     loader.liftCurtain();
 
+    initExplosion( dragonFish );
+    LEVEL_1.initialize();
+    animate();
   
   });
 
@@ -281,20 +292,6 @@
   $("#information").click( function(){
     $("#informationSection").toggle();
   });
-/*
-
-  var i = { x: 100 };
-  var t = { x:0 };
-
-  var tween = new TWEEN.Tween( i ).to( t , 3 * 1000 );
-
-  tween.onUpdate(function( ){
-
-  }.bind(tween))
-  tween.start();
-
-*/
-
 
 </script>
 

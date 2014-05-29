@@ -23,6 +23,8 @@
     
     });
 
+    this.startScore = this.params.startScore;
+
     this.boss = this.params.boss;
     
     this.position = new THREE.Vector3();
@@ -117,17 +119,21 @@
   Hook.prototype.explode = function(){
 
     this.note.play();
-    explosion.renderer.simulationUniforms.justHit.value = 1.;
 
     if( this.boss ){
-
+     
+      this.dragonFish.addBoss( this.vertabrae );
       looper.tweenGain( this.loop.gain , 1 );
+      
 
     }else{
 
+      this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
       this.loop.gain.gain.value += .1;
-
+      
     }
+      
+    explosion.renderer.simulationUniforms.justHit.value = 1.;
 
     changeColor( this.color );
 
@@ -148,7 +154,7 @@
         var dist = this.position.clone().sub( h1.position );
         var l = dist.length();
 
-        this.force.sub( dist.normalize().multiplyScalar(l*.000001) ); //dist.normalize().multiplyScalar( .1/ l ));
+        this.force.sub( dist.normalize().multiplyScalar(l*.0000001) ); //dist.normalize().multiplyScalar( .1/ l ));
 
       }
     
@@ -156,7 +162,7 @@
 
     var d = this.position.clone().sub( position );
 
-    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .01 ) );
+    this.force.sub( d.normalize().multiplyScalar( d.length() * d.length() * .001 ) );
 
 
 
@@ -204,19 +210,8 @@
     var dif = this.position.clone().sub( this.dragonFish.leader.position );
 
     if( dif.length() <= size ){
-
-      if( !this.boss ){
-        
-        this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
-
-      }else{
-
-        this.dragonFish.addBoss( this.vertabrae );
-
-      }
-      this.onHooked();
      
-      this.level.hooks.splice( index , 1 );
+      this.level.onHook( index , this );
 
     }
 

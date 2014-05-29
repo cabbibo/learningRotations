@@ -76,19 +76,20 @@
 
     console.log( timeTilEnd );
 
-    var endValue = newValue * .5;
+    var endValue = newValue * 1;
     var  i = { gain: gainNode.gain.value }
     var  t = { gain: endValue }
   
     var tween = new TWEEN.Tween( i ).to( t , timeTilEnd * 1000 );
 
+    tween.easing( TWEEN.Easing.Quartic.In )
     tween.gainNode = gainNode;
     tween.newValue = newValue;
     tween.endValue = endValue
   
     tween.onUpdate(function( ){
 
-      tween.gainNode.gain.value = i.gain;
+      this.gainNode.gain.value = i.gain;
     
     }.bind(tween));
 

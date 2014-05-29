@@ -113,9 +113,6 @@ function Loader(  params ){
         this.onFinishedLoading();
       }
 
-      console.log( this.numberLoaded , this.numberToLoad );
-      console.log('yerp' );
-
     },
 
     beginLoading: function(){this.addToLoadBar();},

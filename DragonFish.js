@@ -184,7 +184,6 @@ DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
 
 DragonFish.prototype.createBoss = function( dom , m1 , m2 , m3 , m4 ){
 
-  console.log( dom );
   var m1 = m1 || fishSkeleton.flagella.spine;
   var m2 = m2 || fishSkeleton.flagella.child1;
   var m3 = m3 || fishSkeleton.flagella.child2;
