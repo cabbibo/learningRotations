@@ -837,9 +837,16 @@ Level.prototype.onComplete = function(){
     
   }else{
 
+    this.endGame();
     console.log( 'TODO: FINISH GAME' );
 
   }
+
+}
+
+Level.protoype.endGame = function(){
+    document.getElementById( 'hookCount' ).innerHTML = YOU WON;
+
 
 }
 
