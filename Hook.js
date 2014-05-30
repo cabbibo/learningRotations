@@ -12,7 +12,7 @@
       color: new THREE.Color( 0xffffff ),
      // note: 'clean1.wav',
      // loop: 'clean_heavyBeat.wav',
-      head: fishSkeleton.flagella.spine,
+      head: new THREE.Object3D(),
       m1:   fishSkeleton.flagella.child1,
       m2:   fishSkeleton.flagella.child2,
       m3:   fishSkeleton.flagella.child3,
@@ -36,10 +36,12 @@
     this.velocity.y = (Math.random()-.5 ) * .1;
     this.velocity.z = (Math.random()-.5 ) * .1;*/
    
-    var geo = new THREE.IcosahedronGeometry( .5 ,1 );
-    var mat = new THREE.MeshNormalMaterial({wireframe:true});
-    var head = new THREE.Mesh( geo , mat );
-    this.head = head;
+   // var geo = new THREE.IcosahedronGeometry( .5 ,1 );
+   // var mat = new THREE.MeshNormalMaterial({wireframe:true});
+   // var head = new THREE.Mesh( geo , mat );
+    //this.head = head;
+    //
+    this.head = this.params.head;
 
     this.maxSpeed = .5;
 
@@ -138,6 +140,7 @@
       
     explosion.renderer.simulationUniforms.justHit.value = 1.;
 
+    scene.remove( this.head );
     changeColor( this.color );
 
   }

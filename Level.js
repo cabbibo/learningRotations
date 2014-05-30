@@ -1,9 +1,36 @@
+/*
 
-// TODO
-// LOOP LOADING 3 TIMES
-//
-//
-function Level(name ,  dragonFish, params ){
+  The Level does the following:
+
+    - Begins Loading:
+      - Handles loading of all the neccesary assests, including audio
+      and models
+      - called when previous level is initialized
+
+    - Instansiate
+      - Handles creation of neccesary meshes, including the creation of
+      the path, creation of the crystal, creation of the skybox, creation
+      of the stones, and creation of hook
+      - called when finished loading
+
+    - Initialize
+      - Handles the adding of the objects to the scene that are neccesary
+      to guide the user to the level, AKA, the Path, the Stones and the skybox
+      -called when the previous level is completed
+
+    - onStart
+      - Handles adding hooks, and activating the level
+      - Called when user reaches the center of this level and activates its crystal
+
+    - Update
+      - After the level is initialized, but not started, the update checks for
+        removing the unused parts of the vertabrae, as well as looking for the
+        distance to the crystal to see if it starts, and updates the path
+      - Once the level is started, update takes care of updating all of the loops
+
+
+*/
+function Level( name , dragonFish , params ){
 
   this.name = name;
   this.params = params;
@@ -11,8 +38,6 @@ function Level(name ,  dragonFish, params ){
   this.newTypes = params.newTypes || [];
   this.oldTypes = params.oldTypes || [];
 
-  console.log( 'THIS.OLDTY{E' );
-  console.log( this.oldTypes );
   
   this.totalNeededToLoad = 0;
   this.totalLoaded = 0;
@@ -46,74 +71,19 @@ function Level(name ,  dragonFish, params ){
 
 }
 
-Level.prototype.loadNote = function( noteName ){
 
-    if( !NOTES[noteName] ){
-    
-    var newName = 'audio/notes/' + noteName + '.wav';
 
-    this.totalNeededToLoad ++;
-    var note = new LoadedAudio( audioController , newName ,{
-      looping: false
-    });
 
-    var nn2 = noteName;
-    note.onLoad = function(){
-      this.onLoad();
-    }.bind( this );
 
-    NOTES[ noteName ] = note;
+/*
+ 
+   LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING LOADING 
 
-  }
-
-}
-
-Level.prototype.loadLoop = function( loopName ){
-    
-  if( !LOOPS[loopName] ){
-     
-    var newName = 'audio/loops/' + loopName + '.wav';
-
-    this.totalNeededToLoad ++;
-    var loop = new LoadedAudio( audioController , newName ,{
-      looping: true
-    });
-
-    loop.onLoad = function(){
-      this.onLoad();
-    }.bind( this );
-
-    LOOPS[ loopName ] = loop;
-
-  }
-
-}
-
-Level.prototype.loadGeo = function( geoName ){
-  if( geoName && !GEOS[geoName] ){
-
-    var newName = 'models/' + geoName + '.obj'; 
-    this.totalNeededToLoad ++;
-
-    loader.OBJLoader.load( newName , function( object ){
-      object.traverse( function ( child ) {
-          if ( child instanceof THREE.Mesh ) {
-            GEOS[geoName] = child.geometry;       
-          }
-      });
-
-      this.onLoad();
-
-    }.bind( this ));
-
-  }
-
-}
+*/
 
 // Does the heavy lifting of Loading all the audio
 Level.prototype.beginLoading = function(){
 
-  console.log( this.params.skybox );
   this.loadNote(  this.params.path.note       ); 
   this.loadGeo(   this.params.path.markerGeo  );  
   this.loadNote(  this.params.note            ); 
@@ -139,14 +109,84 @@ Level.prototype.beginLoading = function(){
 
 }
 
+Level.prototype.loadNote = function( noteName ){
+
+  if( !NOTES[noteName] ){
+   
+    NOTES[noteName] == 'LOADING';
+
+    var newName = 'audio/notes/' + noteName + '.wav';
+
+    this.totalNeededToLoad ++;
+    var note = new LoadedAudio( audioController , newName ,{
+      looping: false
+    });
+
+    var nn2 = noteName;
+    note.onLoad = function(){
+      this.onLoad();
+    }.bind( this );
+
+    NOTES[ noteName ] = note;
+
+  }
+
+}
+
+Level.prototype.loadLoop = function( loopName ){
+    
+  if( !LOOPS[loopName] ){
+     
+    LOOPS[loopName] == 'LOADING';
+
+    var newName = 'audio/loops/' + loopName + '.wav';
+
+    this.totalNeededToLoad ++;
+    var loop = new LoadedAudio( audioController , newName ,{
+      looping: true
+    });
+
+    loop.onLoad = function(){
+      this.onLoad();
+    }.bind( this );
+
+    LOOPS[ loopName ] = loop;
+
+  }
+
+}
+
+Level.prototype.loadGeo = function( geoName ){
+  
+  if( geoName && !GEOS[geoName] ){
+    
+    GEOS[geoName] == 'LOADING';
+    var newName = 'models/' + geoName + '.obj'; 
+    this.totalNeededToLoad ++;
+
+    loader.OBJLoader.load( newName , function( object ){
+      object.traverse( function ( child ) {
+          if ( child instanceof THREE.Mesh ) {
+            GEOS[geoName] = child.geometry;       
+          }
+      });
+
+      this.onLoad();
+
+    }.bind( this ));
+
+  }
+
+}
+
+
+
 Level.prototype.onLoad = function(){
   
   this.totalLoaded ++;
 
-  console.log( this.name , this.totalLoaded , this.totalNeededToLoad );
   if( this.totalLoaded == this.totalNeededToLoad ){
 
-    console.log( 'FULLY LOADED');
     this.fullyLoaded = true;
 
     this.instantiate();
@@ -155,25 +195,13 @@ Level.prototype.onLoad = function(){
 
 }
 
-Level.prototype.startLoops = function(){
-
-  console.log( 'LOOPS STARTED' );
-
-  for( var i = 0; i < this.newTypes.length; i++ ){
-
-    var loop = LOOPS[ this.newTypes[i].loop ];
-
-    if( !loop.playing ){
-
-      loop.play();
-      loop.gain.gain.value = 0;
-
-    }
 
 
-  }
+/*
 
-}
+   INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE INSTANTIATE 
+
+*/
 
 
 Level.prototype.instantiate = function(){
@@ -203,13 +231,12 @@ Level.prototype.instantiate = function(){
 
   // TODO
   /*
-    this.initStones();
-    this.initCrystal();
+    this.createStones();
   */
   
-  this.initCrystal();
-  this.initSkybox();
-  this.initPath();
+  this.createCrystal();
+  this.createSkybox();
+  this.createPath();
 
   this.prepared = true;
 
@@ -218,7 +245,27 @@ Level.prototype.instantiate = function(){
 
 Level.prototype.onPrepared = function(){}
 
-Level.prototype.initSkybox = function(){
+Level.prototype.startLoops = function(){
+
+  for( var i = 0; i < this.newTypes.length; i++ ){
+
+    var loop = LOOPS[ this.newTypes[i].loop ];
+
+    if( !loop.playing ){
+
+      loop.play();
+      loop.gain.gain.value = 0;
+
+    }
+
+
+  }
+
+}
+
+
+
+Level.prototype.createSkybox = function(){
 
   var g = GEOS[this.params.skybox.geo];
   var m = this.params.skybox.mat;
@@ -229,7 +276,7 @@ Level.prototype.initSkybox = function(){
 
 }
 
-Level.prototype.initCrystal = function(){
+Level.prototype.createCrystal = function(){
 
   var g = GEOS[this.params.crystal.geo];
   var m = this.params.crystal.mat;
@@ -239,7 +286,7 @@ Level.prototype.initCrystal = function(){
 
 }
 
-Level.prototype.initPath = function(){
+Level.prototype.createPath = function(){
 
   var oPos;
   if( this.oldLevel ){
@@ -256,6 +303,7 @@ Level.prototype.initPath = function(){
 
   for( var i = 0; i < pathGeo.vertices.length; i++ ){
 
+  
     var g = GEOS[this.params.path.markerGeo];
     var m = this.params.path.markerMat;
     var mesh = new THREE.Mesh( g , m );
@@ -263,6 +311,12 @@ Level.prototype.initPath = function(){
     mesh.position = pathGeo.vertices[i];
 
     mesh.scale.multiplyScalar( this.params.path.markerScale );
+
+    if( i == pathGeo.vertices.length -1 ){
+
+      mesh.scale.multiplyScalar( .01 );
+
+    }
     markers.push( mesh );
 
   }
@@ -272,10 +326,28 @@ Level.prototype.initPath = function(){
 
   this.path.note = NOTES[ this.params.path.note ];
   this.path.update = this.params.path.update;
+  this.path.scene = this.scene;
+  this.path.dragonFish = this.dragonFish;
+  this.path.guides = this.params.path.createGuides();
   this.path.markers = markers;
 
 
 }
+
+
+
+
+
+
+
+/*
+ 
+
+   INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION INITIALIZATION   
+
+
+*/
+
 
 Level.prototype.initialize = function(){
 
@@ -301,7 +373,6 @@ Level.prototype.initialize = function(){
 
     if( this.nextLevel ){
 
-      console.log( this.nextLevel );
       this.nextLevel.beginLoading();
     }
 
@@ -310,35 +381,6 @@ Level.prototype.initialize = function(){
 
 }
 
-
-Level.prototype.checkVertabraeForDestruction = function(){
-
-
-  var from = this.dragonFish.leader.position.clone();
-  var dif = from.sub( this.scene.position );
-
-
-  
-  var length = 1 - dif.length() / this.distanceFromPreviousLevel;
-  var percentToLocation = length; 
-  for( var i = 4; i < this.dragonFish.spine.length; i++ ){
-
-   var verta = this.dragonFish.spine[i];
-
-   if( percentToLocation > verta.percentToDestruction ){
-
-     console.log( 'VERTA REMOVED' );
-     console.log( verta.percentToDestruction );
-     this.dragonFish.removeVertabraeById( i );
-     i--;
-
-
-   }
-
-
-  }
-
-}
 
 Level.prototype.prepareVertabraeForDestruction = function(){
 
@@ -380,203 +422,7 @@ Level.prototype.prepareVertabraeForDestruction = function(){
 
   }
 
-
-
-
 }
-
-Level.prototype.onStart = function(){
-
-  console.log( 'LEVEL  STARTED' );
-  // puts the crystal on the head of the dragonfish
-  scene.remove( this.crystal );
-
-  // out with the old, in with the new
-  if( this.oldLevel ){
-    dragonFish.leader.body.remove( this.oldLevel.crystal );
-    this.oldLevel.removeSkybox();
-  }
-
-  dragonFish.leader.body.add( this.crystal );
-
-  this.note.play();
-
-  this.removePath();
-
-  this.checkForNewHooks( this.currentScore );
-
-  //TODO: Make sure this works
-  // Remove any unneccesary hooks
-  /*for( var i = 0; i < dragonFish.spine.length; i++ ){
-
-    var verta = dragonFish.spine[i];
-    for( var j = 0; j < this.oldTypes; j++ ){
-
-      var saved = false;
-      if( verta.type == this.oldTypes[j] ){
-        saved = true;
-      }
-
-      if( !saved ){
-
-        this.dragonFish.removeVertabraeById( i );
-        i--;
-        
-      }
-
-    }
-
-  }*/
-
-  this.startHooks();
-
-  this.active = true;
-
-}
-
-Level.prototype.startHooks = function(){
-
-
-  for( var i =0; i < this.hooks.length; i++ ){
-
-    var hook = this.hooks[i];
-
-    hook.activate();
-    this.dragonFish.addToScene( hook.vertabrae );
-
-  }
-
-
-}
-
-// Check to see if we should put any more hooks into circulation
-Level.prototype.onHook = function( index , hook ){
-
-
-  SCORE ++;
-
-  this.currentScore = SCORE - this.startScore;
-
-  this.percentComplete = this.currentScore / this.length;
-
-  console.log( this.percentComplete );
-
-  this.checkForNewHooks( this.currentScore );
-
-  document.getElementById( 'hookCount' ).innerHTML = SCORE;
-
-  hook.explode();
-
-  this.hooks.splice( index , 1 );
-
-  if( this.percentComplete == 1 ){
-
-    this.onComplete();
-
-
-
-  }
-
-
-}
-
-
-Level.prototype.checkForNewHooks = function( score ){
-
-  for( var i = 0; i < this.hooksOnDeck.length; i++ ){
-
-    var hook = this.hooksOnDeck[i];
-
-    if( hook.startScore <= score ){
-
-      this.hooksOnDeck.splice( i , 1 );
-      this.hooks.push( hook );
-
-      hook.activate();
-      this.dragonFish.addToScene( hook.vertabrae );
-
-      i--;
-
-    }
-
-  }
-
-
-}
-
-Level.prototype.onComplete = function(){
-
-  console.log( 'MUTHAFUCKIN COMPLETE' );
-  //TODO:
-  //PLAY FINISH NOISE
-
-  if( this.nextLevel ){
-    this.nextLevel.initialize();
-    CURRENT_LEVEL ++;
-    
-  }else{
-
-    console.log( 'TODO: FINISH GAME' );
-
-  }
-
-}
-
-Level.prototype.onEnd = function(){
-
-
-}
-
-Level.prototype.update = function(){
-
-
-  if( this.crystalAdded === true && this.active === false ){
-   
-    // this.path.update();
-
-
-    this.checkVertabraeForDestruction();
-
-    var dif = this.scene.position.clone().sub( this.dragonFish.leader.position );
-  
-    if( dif.length() <= this.crystalSize ){
-
-      this.onStart();
-
-    }
-
-  }
-
-  if( this.active ){
-
-    this.updateHooks();
-
-  }
-
-}
-
-
-Level.prototype.updateHooks = function(){
-
-  for( var i = 0; i < this.hooks.length; i++ ){
-    this.hooks[i].updateForces( this );
-  }
-
-  for( var i= 0; i < this.hooks.length; i++ ){
-
-    this.hooks[i].updatePosition();
-    this.hooks[i].checkForCollision( 2 , i );
-  }
-
-  //console.log( this.hooks[0].position.x );
-  
-  if( !paused ){
-    this.dragonFish.update();
-  }
-
-}
-
-
 
 Level.prototype.addSkybox = function(){
 
@@ -615,6 +461,12 @@ Level.prototype.addSkybox = function(){
 Level.prototype.addPath = function(){
 
 
+  for( var i = 0; i < this.path.guides.length; i++ ){
+
+    scene.add( this.path.guides[i] );
+
+  }
+
   for( var  i = 0; i < this.path.markers.length; i++ ){
 
     var marker = this.path.markers[i];
@@ -641,7 +493,7 @@ Level.prototype.addPath = function(){
     }.bind( marker ));
 
     tween.onComplete( function(){
-      tween.note.play();
+      //tween.note.play();
     }.bind( tween ));
 
     tween.start();
@@ -652,9 +504,59 @@ Level.prototype.addPath = function(){
 
 }
 
+
+
+
+
+/*
+
+   START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START START 
+
+*/
+
+
+Level.prototype.onStart = function(){
+
+  console.log( 'LEVEL  STARTED' );
+  // puts the crystal on the head of the dragonfish
+  scene.remove( this.crystal );
+
+  // out with the old, in with the new
+  if( this.oldLevel ){
+    dragonFish.leader.body.remove( this.oldLevel.crystal );
+    this.oldLevel.removeSkybox();
+  }
+
+  dragonFish.leader.body.add( this.crystal );
+
+  this.note.play();
+
+  this.removePath();
+
+  this.checkForNewHooks( this.currentScore );
+
+  this.startHooks();
+
+  this.active = true;
+
+}
+
+Level.prototype.startHooks = function(){
+
+
+  for( var i =0; i < this.hooks.length; i++ ){
+
+    var hook = this.hooks[i];
+
+    hook.activate();
+    this.dragonFish.addToScene( hook.vertabrae );
+
+  }
+
+
+}
+
 Level.prototype.removeSkybox = function(){
-
-
 
     var marker = this.skybox;
 
@@ -696,13 +598,11 @@ Level.prototype.removeSkybox = function(){
 Level.prototype.removePath = function(){
 
 
+  console.log('HELLSOSSAS');
   for( var  i = 0; i < this.path.markers.length; i++ ){
 
     var marker = this.path.markers[i];
 
-    scene.add( marker );
-
-  
     marker.init = { scale: marker.scale.x };
     marker.target = { scale: 0 };
 
@@ -728,10 +628,212 @@ Level.prototype.removePath = function(){
     tween.start();
 
 
+  }
+
+  for( var  i = 0; i < this.path.guides.length; i++ ){
+
+    var marker = this.path.guides[i];
+
+    marker.init = { scale: marker.scale.x };
+    marker.target = { scale: 0 };
+
+    var rand = Math.random() * .1 + .9;
+
+    var tween = new TWEEN.Tween( marker.init ).to( marker.target , 1000 );
+
+    tween.easing( TWEEN.Easing.Quartic.In )
+  
+    tween.marker = marker;
+    tween.note   = this.path.note;
+
+    tween.onUpdate( function(){
+
+      this.scale.x = this.init.scale;
+      this.scale.y = this.init.scale;
+      this.scale.z = this.init.scale;
+
+    }.bind( marker ));
+
+    tween.onComplete( function(){
+      scene.remove( this ); 
+    }.bind( marker ));
+
+    tween.start();
 
   }
 
 }
+
+
+
+
+/*
+
+
+   UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE  
+*/
+
+
+Level.prototype.update = function(){
+
+
+  if( this.crystalAdded === true && this.active === false ){
+  
+    this.path.update.bind( this.path );//.bind( this );
+    this.path.update();
+    this.checkVertabraeForDestruction();
+
+    var dif = this.scene.position.clone().sub( this.dragonFish.leader.position );
+  
+    if( dif.length() <= this.crystalSize ){
+
+      this.onStart();
+
+    }
+
+  }
+
+  if( this.active ){
+
+    this.updateHooks();
+
+  }
+
+}
+
+Level.prototype.checkVertabraeForDestruction = function(){
+
+
+  var from = this.dragonFish.leader.position.clone();
+  var dif = from.sub( this.scene.position );
+
+
+  
+  var length = 1 - dif.length() / this.distanceFromPreviousLevel;
+  var percentToLocation = length; 
+  for( var i = 4; i < this.dragonFish.spine.length; i++ ){
+
+   var verta = this.dragonFish.spine[i];
+
+   if( percentToLocation > verta.percentToDestruction ){
+
+     console.log( 'VERTA REMOVED' );
+     console.log( verta.percentToDestruction );
+     this.dragonFish.removeVertabraeById( i );
+     i--;
+
+
+   }
+
+
+  }
+
+}
+
+Level.prototype.updateHooks = function(){
+
+  for( var i = 0; i < this.hooks.length; i++ ){
+    this.hooks[i].updateForces( this );
+  }
+
+  for( var i= 0; i < this.hooks.length; i++ ){
+
+    this.hooks[i].updatePosition();
+    this.hooks[i].checkForCollision( 2 , i );
+  }
+
+  //console.log( this.hooks[0].position.x );
+  
+  if( !paused ){
+    this.dragonFish.update();
+  }
+
+}
+
+/*
+ 
+   HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS HOOK EVENTS 
+
+*/
+
+// Check to see if we should put any more hooks into circulation
+Level.prototype.onHook = function( index , hook ){
+
+
+  SCORE ++;
+
+  this.currentScore = SCORE - this.startScore;
+
+  this.percentComplete = this.currentScore / this.length;
+
+  this.checkForNewHooks( this.currentScore );
+
+  document.getElementById( 'hookCount' ).innerHTML = SCORE;
+
+  hook.explode();
+
+  this.hooks.splice( index , 1 );
+
+  if( this.percentComplete == 1 ){
+
+    this.onComplete();
+
+  }
+
+
+}
+
+
+
+Level.prototype.checkForNewHooks = function( score ){
+
+  for( var i = 0; i < this.hooksOnDeck.length; i++ ){
+
+    var hook = this.hooksOnDeck[i];
+
+    if( hook.startScore <= score ){
+
+      this.hooksOnDeck.splice( i , 1 );
+      this.hooks.push( hook );
+
+      hook.activate();
+      this.dragonFish.addToScene( hook.vertabrae );
+
+      i--;
+
+    }
+
+  }
+
+
+}
+
+
+
+Level.prototype.onComplete = function(){
+
+  console.log( 'MUTHAFUCKIN COMPLETE' );
+  //TODO:
+  //PLAY FINISH NOISE
+
+  if( this.nextLevel ){
+    this.nextLevel.initialize();
+    CURRENT_LEVEL ++;
+    
+  }else{
+
+    console.log( 'TODO: FINISH GAME' );
+
+  }
+
+}
+
+Level.prototype.onEnd = function(){
+
+
+}
+
+
 
 /*
     

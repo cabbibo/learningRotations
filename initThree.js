@@ -38,6 +38,19 @@ function initThree(){
     // Making sure our renderer is always the right size
     window.addEventListener( 'resize', onWindowResize , false );
 
+    var stars = THREE.ImageUtils.loadTexture( 'img/starMap.png' );
+    var geo = new THREE.SphereGeometry(4000 , 50 , 50 )
+    var mat = new THREE.MeshBasicMaterial({
+
+      side: THREE.BackSide,
+      map: stars,
+      depthWrite: false
+
+    });
+    starMap = new THREE.Mesh( geo , mat );
+
+    scene.add( starMap );
+    starMap.position = camera.position;
 
 
 

@@ -8,52 +8,47 @@ LEVEL_2_PARAMS.note = 'clean6',
 
 LEVEL_2_PARAMS.oldTypes = [
 
-  //'heavyBeat',
-  'sniperGlory1',
-  'shuffleClick',
-  'sniperDetail2'
+  'sniperDetail1',
+  'sniperDetail2',
+  'darkFast'
 
 ]
 
 LEVEL_2_PARAMS.skybox = {
 
-  geo:'logoGeo',
-  mat:  new THREE.MeshBasicMaterial(),
-  scale: 100
+  geo:'jelly',
+  mat:  new THREE.MeshNormalMaterial({side:THREE.DoubleSide}),
+  scale: 300
 
 }
 
 LEVEL_2_PARAMS.crystal = {
 
-  geo:'logoGeo',
-  mat: new THREE.MeshBasicMaterial({color:0x0000ff}),
-  scale:.3,
-
+   geo:'jelly',
+  mat:  new THREE.MeshNormalMaterial({side:THREE.DoubleSide}),
+  scale: 3
 
 }
+/*
+
+   Path
+
+*/
 LEVEL_2_PARAMS.path = {
 
   note:'sr1',
   pathDetail: 30,
 
-
-  markerMat: new THREE.MeshBasicMaterial(),
-  markerGeo:'logoGeo',
-  markerScale: .1,
-
-  createPathFollowers: function(){
-
-    for( var i = 0; i < 10; i++ ){
-
-
-    }
+  markerMat: new THREE.MeshNormalMaterial({blending:THREE.AdditiveBlending,transparent:true, side:THREE.DoubleSide, depthWrite:false}),
+  markerGeo: 'logoGeo',
+  markerScale: .5,
+  initMarkers: function( geo ){
 
 
   },
 
   createGeometry: function( oldPos , newPos ){
-
-    console.log( this );
+    
     var geometry = new THREE.Geometry();
 
     var dif = newPos.clone().sub( oldPos );
@@ -73,7 +68,119 @@ LEVEL_2_PARAMS.path = {
 
   },
 
+  createGuides: function(){
+
+    var guides = [];
+
+    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
+    var mat = new THREE.MeshNormalMaterial();
+
+    for( var  i = 0; i < 300; i++ ){
+
+      var guide = new THREE.Mesh( geo , mat );
+      guide.lifeTime = 0;
+      guide.lifeSpeed = Math.random() * .5 + .5;
+      guide.velocity = new THREE.Vector3();
+      guides.push( guide );
+    
+    }
+
+
+    return guides;
+
+  },
+
   update: function(){
+
+
+    var oClosestMarker = this.closestMarker || this.markers[0];
+    this.closestMarker = this.markers[0];
+
+
+    var closestDistance = 10000000000;
+    for( var i = 0; i < this.markers.length; i++ ){
+
+
+      var dif = this.markers[i].position.clone().sub( this.dragonFish.leader.position );
+
+      var l = dif.length();
+
+      if( l < closestDistance ){
+
+        this.closestMarker = this.markers[i];
+        closestDistance = l;
+
+      }
+
+    }
+
+    if( this.closestMarker != oClosestMarker ){
+
+      console.log( 'NEW MARKER HIT' );
+      this.note.play();
+
+    }
+    //console.log( 'HELLO' );
+
+    //console.log( this.guides );
+    var guides = this.guides;
+
+    for( var i = 0; i < guides.length; i++ ){
+
+      var guide = guides[i];
+
+      var dif = guide.position.clone().sub( this.scene.position );
+      guide.velocity.sub( dif.normalize().multiplyScalar( .05) );
+
+      guide.position.add( guide.velocity );
+     // guide.velocity.multiplyScalar( .9 );
+
+      //guide.position.sub( dif.normalize().multiplyScalar( .1 ) );
+
+      guide.lookAt( guide.position.clone().add( guide.velocity ) );
+
+      if( guide.growing ){
+        guide.lifeTime += .1 * guide.lifeSpeed;
+      }else{
+        guide.lifeTime -= .05 * guide.lifeSpeed;
+      }
+
+      if( guide.lifeTime <= 0 ){
+
+
+        guide.position = this.closestMarker.position.clone();
+
+        guide.velocity = new THREE.Vector3();
+        guide.velocity.x = (Math.random() - .5 ) * 1;
+        guide.velocity.y = (Math.random() - .5 ) * 1;
+        guide.velocity.z = (Math.random() - .5 ) * 1;
+
+
+        /*var rand = new THREE.Vector3();
+
+        rand.x = (Math.random() - .5 ) * 5;
+        rand.y = (Math.random() - .5 ) * 5;
+        rand.z = (Math.random() - .5 ) * 5;
+
+        guide.position.add( rand );*/
+
+        guide.growing = true;
+
+
+      }else if( guide.lifeTime >= 1 ){
+
+        guide.growing = false;
+        guide.lifeTime = 1;
+       // guide.note.play();
+
+      }
+
+
+      guide.scale.x = guide.lifeTime;
+      guide.scale.y = guide.lifeTime;
+      guide.scale.z = guide.lifeTime;
+
+    }
 
 
   },
@@ -92,12 +199,15 @@ LEVEL_2_PARAMS.path = {
 
 
 }
+ 
+
+
 LEVEL_2_PARAMS.newTypes = [
 
   {
-    type: 'test1',
+    type: 'sniperGlory1',
     note: 'clean1',
-    loop: 'clean_sniperDetail1',
+    loop: 'clean_sniperGlory1',
     geo:  'logoGeo',
     numOf: 4,
 
@@ -105,14 +215,14 @@ LEVEL_2_PARAMS.newTypes = [
     color: new THREE.Color( 0x00ffff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
-      var m = new THREE.MeshBasicMaterial({color:0xff0000});
+      var m = new THREE.MeshPhongMaterial({color:this.color.getHex()});
       var head = new THREE.Mesh(
           new THREE.BoxGeometry( 1.6 , 1.6 ,1.6 ),
           m
       );
 
       var g = new THREE.IcosahedronGeometry(.2);
-      var m = new THREE.MeshBasicMaterial({ color: this.color.getHex() });
+      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
       var m1 = new THREE.Mesh( g , m );
 
       var hooks = [];
@@ -120,7 +230,7 @@ LEVEL_2_PARAMS.newTypes = [
       for( var i = 0; i < this.numOf; i++ ){
 
         var hook = new Hook( dragonFish, level , this.type , {
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -134,7 +244,6 @@ LEVEL_2_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -157,7 +266,7 @@ LEVEL_2_PARAMS.newTypes = [
       var head = new THREE.Object3D();
 
       var g = new THREE.IcosahedronGeometry(.3);
-      var m = new THREE.MeshBasicMaterial({ color: this.color.getHex() });
+      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
       var m1 = new THREE.Mesh( g , m );
 
       var hooks = [];
@@ -166,7 +275,7 @@ LEVEL_2_PARAMS.newTypes = [
 
         var hook = new Hook( dragonFish , level , this.type , {
           
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -181,7 +290,6 @@ LEVEL_2_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -205,7 +313,7 @@ LEVEL_2_PARAMS.newTypes = [
       var head = new THREE.Object3D();
 
       var g = new THREE.IcosahedronGeometry(.3);
-      var m = new THREE.MeshBasicMaterial({ color: this.color.getHex() });
+      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
       var m1 = new THREE.Mesh( g , m );
 
       var hooks = [];
@@ -214,7 +322,7 @@ LEVEL_2_PARAMS.newTypes = [
 
         var hook = new Hook( dragonFish , level , this.type , {
           
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -229,7 +337,6 @@ LEVEL_2_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -242,7 +349,7 @@ LEVEL_2_PARAMS.newTypes = [
   {
     type: 'test1',
     note: 'clean1',
-    loop: 'clean_darkFast',
+    loop: 'clean_heavyBeat',
     geo:  'logoGeo',
     numOf: 1,
     startScore: 12,
@@ -256,7 +363,7 @@ LEVEL_2_PARAMS.newTypes = [
       );
 
       var g = new THREE.IcosahedronGeometry(2);
-      var m = new THREE.MeshLambertMaterial({ color: this.color.getHex() });
+      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
       var m1 = new THREE.Mesh( g , m );
 
       m1.scale.x = .1;
@@ -267,7 +374,7 @@ LEVEL_2_PARAMS.newTypes = [
       for( var i = 0; i < this.numOf; i++ ){
 
         var hook = new Hook( dragonFish, level , this.type , {
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -281,7 +388,6 @@ LEVEL_2_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );

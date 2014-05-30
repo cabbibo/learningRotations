@@ -66,7 +66,119 @@ LEVEL_1_PARAMS.path = {
 
   },
 
+  createGuides: function(){
+
+    var guides = [];
+
+    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
+    var mat = new THREE.MeshNormalMaterial();
+
+    for( var  i = 0; i < 300; i++ ){
+
+      var guide = new THREE.Mesh( geo , mat );
+      guide.lifeTime = 0;
+      guide.lifeSpeed = Math.random() * .5 + .5;
+      guide.velocity = new THREE.Vector3();
+      guides.push( guide );
+    
+    }
+
+
+    return guides;
+
+  },
+
   update: function(){
+
+
+    var oClosestMarker = this.closestMarker || this.markers[0];
+    this.closestMarker = this.markers[0];
+
+
+    var closestDistance = 10000000000;
+    for( var i = 0; i < this.markers.length; i++ ){
+
+
+      var dif = this.markers[i].position.clone().sub( this.dragonFish.leader.position );
+
+      var l = dif.length();
+
+      if( l < closestDistance ){
+
+        this.closestMarker = this.markers[i];
+        closestDistance = l;
+
+      }
+
+    }
+
+    if( this.closestMarker != oClosestMarker ){
+
+      console.log( 'NEW MARKER HIT' );
+      this.note.play();
+
+    }
+    //console.log( 'HELLO' );
+
+    //console.log( this.guides );
+    var guides = this.guides;
+
+    for( var i = 0; i < guides.length; i++ ){
+
+      var guide = guides[i];
+
+      var dif = guide.position.clone().sub( this.scene.position );
+      guide.velocity.sub( dif.normalize().multiplyScalar( .05) );
+
+      guide.position.add( guide.velocity );
+     // guide.velocity.multiplyScalar( .9 );
+
+      //guide.position.sub( dif.normalize().multiplyScalar( .1 ) );
+
+      guide.lookAt( guide.position.clone().add( guide.velocity ) );
+
+      if( guide.growing ){
+        guide.lifeTime += .1 * guide.lifeSpeed;
+      }else{
+        guide.lifeTime -= .05 * guide.lifeSpeed;
+      }
+
+      if( guide.lifeTime <= 0 ){
+
+
+        guide.position = this.closestMarker.position.clone();
+
+        guide.velocity = new THREE.Vector3();
+        guide.velocity.x = (Math.random() - .5 ) * 1;
+        guide.velocity.y = (Math.random() - .5 ) * 1;
+        guide.velocity.z = (Math.random() - .5 ) * 1;
+
+
+        /*var rand = new THREE.Vector3();
+
+        rand.x = (Math.random() - .5 ) * 5;
+        rand.y = (Math.random() - .5 ) * 5;
+        rand.z = (Math.random() - .5 ) * 5;
+
+        guide.position.add( rand );*/
+
+        guide.growing = true;
+
+
+      }else if( guide.lifeTime >= 1 ){
+
+        guide.growing = false;
+        guide.lifeTime = 1;
+       // guide.note.play();
+
+      }
+
+
+      guide.scale.x = guide.lifeTime;
+      guide.scale.y = guide.lifeTime;
+      guide.scale.z = guide.lifeTime;
+
+    }
 
 
   },
@@ -88,9 +200,9 @@ LEVEL_1_PARAMS.path = {
 LEVEL_1_PARAMS.newTypes = [
 
   {
-    type: 'heavyBeat',
+    type: 'darkFast',
     note: 'clean1',
-    loop: 'clean_heavyBeat',
+    loop: 'clean_darkFast',
     geo:  'logoGeo',
     numOf: 1,
     startScore: 10,
@@ -115,7 +227,7 @@ LEVEL_1_PARAMS.newTypes = [
       for( var i = 0; i < this.numOf; i++ ){
 
         var hook = new Hook( dragonFish, level , this.type , {
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -165,7 +277,7 @@ LEVEL_1_PARAMS.newTypes = [
 
         var hook = new Hook( dragonFish, level , this.type , {
          
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -179,7 +291,6 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -216,7 +327,7 @@ LEVEL_1_PARAMS.newTypes = [
 
         var hook = new Hook( dragonFish, level , this.type , {
          
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -230,7 +341,6 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
@@ -241,14 +351,14 @@ LEVEL_1_PARAMS.newTypes = [
   },
 
    {
-    type: 'sniperGlory1',
+    type: 'sniperDetail1',
     note: 'clean1',
-    loop: 'clean_sniperGlory1',
+    loop: 'clean_sniperDetail1',
     geo:  'logoGeo',
     numOf: 4,
 
     startScore: 0,
-    color: new THREE.Color( 0x00ff00 ),
+    color: new THREE.Color( 0x0000ff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
       var m = new THREE.MeshBasicMaterial({color:0xff0000});
@@ -267,7 +377,7 @@ LEVEL_1_PARAMS.newTypes = [
 
         var hook = new Hook( dragonFish, level , this.type , {
          
-          head:head,
+          head:head.clone(),
           m1:m1,
           m2:m1,
           m3:m1,
@@ -281,7 +391,6 @@ LEVEL_1_PARAMS.newTypes = [
         });
 
         var id = Math.random();
-        console.log( id );
         hook.id = id;
 
         hooks.push( hook );
