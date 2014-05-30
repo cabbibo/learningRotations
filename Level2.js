@@ -17,6 +17,7 @@ LEVEL_2_PARAMS.oldTypes = [
 LEVEL_2_PARAMS.skybox = {
 
   geo:'jelly',
+  note: 'srBeast2',
   mat:  new THREE.MeshNormalMaterial({side:THREE.DoubleSide}),
   scale: 300
 
@@ -26,7 +27,7 @@ LEVEL_2_PARAMS.crystal = {
 
    geo:'jelly',
   mat:  new THREE.MeshNormalMaterial({side:THREE.DoubleSide}),
-  scale: 3
+  scale: 1.5
 
 }
 /*
@@ -36,12 +37,12 @@ LEVEL_2_PARAMS.crystal = {
 */
 LEVEL_2_PARAMS.path = {
 
-  note:'sr1',
+  notes:[ 'srNight1' ,  'srNight2' ,  'srNight3' ,  'srNight4'],
   pathDetail: 30,
 
-  markerMat: new THREE.MeshNormalMaterial({blending:THREE.AdditiveBlending,transparent:true, side:THREE.DoubleSide, depthWrite:false}),
-  markerGeo: 'logoGeo',
-  markerScale: .5,
+  markerMat: new THREE.MeshNormalMaterial(),
+  markerGeo: 'jelly',
+  markerScale: 1.5,
   initMarkers: function( geo ){
 
 
@@ -117,7 +118,8 @@ LEVEL_2_PARAMS.path = {
     if( this.closestMarker != oClosestMarker ){
 
       console.log( 'NEW MARKER HIT' );
-      this.note.play();
+      var rand = Math.floor( this.notes.length * Math.random() )
+      this.notes[rand].play();
 
     }
     //console.log( 'HELLO' );
@@ -263,7 +265,13 @@ LEVEL_2_PARAMS.newTypes = [
     color: new THREE.Color( 0xff0000 ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
-      var head = new THREE.Object3D();
+         var m = new THREE.MeshPhongMaterial({color:this.color.getHex()});
+      var head = new THREE.Mesh(
+          new THREE.BoxGeometry( 1.6 , 1.6 ,1.6 ),
+          m
+      );
+
+
 
       var g = new THREE.IcosahedronGeometry(.3);
       var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
@@ -310,7 +318,13 @@ LEVEL_2_PARAMS.newTypes = [
     color: new THREE.Color( 0x0000ff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
-      var head = new THREE.Object3D();
+         var m = new THREE.MeshPhongMaterial({color:this.color.getHex()});
+      var head = new THREE.Mesh(
+          new THREE.BoxGeometry( 1.6 , 1.6 ,1.6 ),
+          m
+      );
+
+
 
       var g = new THREE.IcosahedronGeometry(.3);
       var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });

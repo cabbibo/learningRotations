@@ -13,6 +13,7 @@ LEVEL_1_PARAMS.geo = 'totem'
 LEVEL_1_PARAMS.skybox = {
 
   geo:'totem',
+  note: 'srBeast1',
   mat: new THREE.MeshNormalMaterial({ side:THREE.DoubleSide }),
   scale: 100
 
@@ -34,10 +35,10 @@ LEVEL_1_PARAMS.crystal = {
 */
 LEVEL_1_PARAMS.path = {
 
-  note:'sr1',
+  notes:['srNight1','srNight2','srNight3','srNight4'],
   pathDetail: 30,
 
-  markerMat: new THREE.MeshNormalMaterial({blending:THREE.AdditiveBlending,transparent:true, side:THREE.DoubleSide, depthWrite:false}),
+  markerMat: new THREE.MeshNormalMaterial(),
   markerGeo: 'totem',
   markerScale: .1,
   initMarkers: function( geo ){
@@ -70,7 +71,7 @@ LEVEL_1_PARAMS.path = {
 
     var guides = [];
 
-    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
+    var geo = new THREE.BoxGeometry( .2 , .2 , .5 );
     var mat = new THREE.MeshNormalMaterial();
 
     for( var  i = 0; i < 300; i++ ){
@@ -115,7 +116,9 @@ LEVEL_1_PARAMS.path = {
     if( this.closestMarker != oClosestMarker ){
 
       console.log( 'NEW MARKER HIT' );
-      this.note.play();
+
+      var rand = Math.floor( this.notes.length * Math.random() )
+      this.notes[rand].play();
 
     }
     //console.log( 'HELLO' );
@@ -128,7 +131,7 @@ LEVEL_1_PARAMS.path = {
       var guide = guides[i];
 
       var dif = guide.position.clone().sub( this.scene.position );
-      guide.velocity.sub( dif.normalize().multiplyScalar( .05) );
+      guide.velocity.sub( dif.normalize().multiplyScalar( .01) );
 
       guide.position.add( guide.velocity );
      // guide.velocity.multiplyScalar( .9 );
@@ -138,9 +141,9 @@ LEVEL_1_PARAMS.path = {
       guide.lookAt( guide.position.clone().add( guide.velocity ) );
 
       if( guide.growing ){
-        guide.lifeTime += .1 * guide.lifeSpeed;
+        guide.lifeTime += .02 * guide.lifeSpeed;
       }else{
-        guide.lifeTime -= .05 * guide.lifeSpeed;
+        guide.lifeTime -= .008 * guide.lifeSpeed;
       }
 
       if( guide.lifeTime <= 0 ){
@@ -149,9 +152,9 @@ LEVEL_1_PARAMS.path = {
         guide.position = this.closestMarker.position.clone();
 
         guide.velocity = new THREE.Vector3();
-        guide.velocity.x = (Math.random() - .5 ) * 1;
-        guide.velocity.y = (Math.random() - .5 ) * 1;
-        guide.velocity.z = (Math.random() - .5 ) * 1;
+        guide.velocity.x = (Math.random() - .5 ) * .2;
+        guide.velocity.y = (Math.random() - .5 ) * .2;
+        guide.velocity.z = (Math.random() - .5 ) * .2;
 
 
         /*var rand = new THREE.Vector3();

@@ -84,9 +84,16 @@ function Level( name , dragonFish , params ){
 // Does the heavy lifting of Loading all the audio
 Level.prototype.beginLoading = function(){
 
-  this.loadNote(  this.params.path.note       ); 
+
+  for( var i = 0; i < this.params.path.notes.length; i++ ){
+
+    this.loadNote(  this.params.path.notes[i] );
+
+  }
+  
   this.loadGeo(   this.params.path.markerGeo  );  
   this.loadNote(  this.params.note            ); 
+  this.loadNote(  this.params.skybox.note     ); 
   this.loadGeo(   this.params.skybox.geo      );
   this.loadGeo(   this.params.crystal.geo     );
 
@@ -115,7 +122,7 @@ Level.prototype.loadNote = function( noteName ){
    
     NOTES[noteName] == 'LOADING';
 
-    var newName = 'audio/notes/' + noteName + '.wav';
+    var newName = 'audio/notes/' + noteName + '.mp3';
 
     this.totalNeededToLoad ++;
     var note = new LoadedAudio( audioController , newName ,{
@@ -139,7 +146,7 @@ Level.prototype.loadLoop = function( loopName ){
      
     LOOPS[loopName] == 'LOADING';
 
-    var newName = 'audio/loops/' + loopName + '.wav';
+    var newName = 'audio/loops/' + loopName + '.mp3';
 
     this.totalNeededToLoad ++;
     var loop = new LoadedAudio( audioController , newName ,{
@@ -271,7 +278,7 @@ Level.prototype.createSkybox = function(){
   var m = this.params.skybox.mat;
 
   this.skybox = new THREE.Mesh( g , m );
-
+  this.skybox.note = this.params.skybox.note;
   this.skybox.scale.multiplyScalar( this.params.skybox.scale );
 
 }
@@ -321,16 +328,24 @@ Level.prototype.createPath = function(){
 
   }
 
+  var notes = [];
+  for( var i = 0; i < this.params.path.notes.length; i++ ){
 
+    var note = NOTES[ this.params.path.notes[i] ];
+    notes.push( note );
+
+  }
   this.path = {};
 
-  this.path.note = NOTES[ this.params.path.note ];
+  this.path.notes = notes;
   this.path.update = this.params.path.update;
   this.path.scene = this.scene;
   this.path.dragonFish = this.dragonFish;
   this.path.guides = this.params.path.createGuides();
   this.path.markers = markers;
 
+  console.log( 'NOTESSs' );
+  console.log( this.path.notes );
 
 }
 
@@ -439,7 +454,7 @@ Level.prototype.addSkybox = function(){
     tween.easing( TWEEN.Easing.Quartic.In )
   
     tween.marker = marker;
-    tween.note   = this.path.note;
+    tween.note   = NOTES[ this.skybox.note ];
 
     tween.onUpdate( function(){
 
