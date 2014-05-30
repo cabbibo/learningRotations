@@ -11,7 +11,7 @@ LEVEL_2_PARAMS.path = {
   pathDetail: 10,
 
   markerMat: new THREE.MeshBasicMaterial(),
-  markerGeo: new THREE.IcosahedronGeometry( 1 ),
+  markerGeo:'logoGeo',
 
   createGeometry: function( oldPos , newPos ){
 

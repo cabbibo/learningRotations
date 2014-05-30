@@ -114,6 +114,9 @@ Level.prototype.beginLoading = function(){
   var noteName = this.params.path.note;
   this.loadNote( noteName ); 
 
+  var geoName = this.params.path.markerGeo;
+  this.loadGeo( geoName );
+  
   var noteName = this.params.note;
   this.loadNote( noteName ); 
 
@@ -233,7 +236,7 @@ Level.prototype.initPath = function(){
 
   for( var i = 0; i < pathGeo.vertices.length; i++ ){
 
-    var g = this.params.path.markerGeo;
+    var g = GEOS[this.params.path.markerGeo];
     var m = this.params.path.markerMat;
     var mesh = new THREE.Mesh( g , m );
 

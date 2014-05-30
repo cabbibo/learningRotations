@@ -2,16 +2,28 @@
 
 var LEVEL_1_PARAMS = {};
 
+
 LEVEL_1_PARAMS.position = new THREE.Vector3( 300 , 0 , 0 );
 
 LEVEL_1_PARAMS.note = 'clean6',
+
+
+/*
+
+   Path
+
+*/
 LEVEL_1_PARAMS.path = {
 
   note:'clean5',
   pathDetail: 10,
 
-  markerMat: new THREE.MeshBasicMaterial(),
-  markerGeo: new THREE.IcosahedronGeometry( 1 ),
+  markerMat: new THREE.MeshNormalMaterial({blending:THREE.AdditiveBlending,transparent:true, side:THREE.DoubleSide, depthWrite:false}),
+  markerGeo: 'totem',
+  initMarkers: function( geo ){
+
+
+  },
 
   createGeometry: function( oldPos , newPos ){
     
