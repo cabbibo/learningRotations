@@ -2,16 +2,54 @@
 
 var LEVEL_2_PARAMS = {};
 
-LEVEL_2_PARAMS.position = new THREE.Vector3( 300 , 300 , 0 );
+LEVEL_2_PARAMS.position = new THREE.Vector3( 1000 , 300 , 0 );
 
 LEVEL_2_PARAMS.note = 'clean6',
+
+LEVEL_2_PARAMS.oldTypes = [
+
+  //'heavyBeat',
+  'sniperGlory1',
+  'shuffleClick',
+  'sniperDetail2'
+
+]
+
+LEVEL_2_PARAMS.skybox = {
+
+  geo:'logoGeo',
+  mat:  new THREE.MeshBasicMaterial(),
+  scale: 100
+
+}
+
+LEVEL_2_PARAMS.crystal = {
+
+  geo:'logoGeo',
+  mat: new THREE.MeshBasicMaterial({color:0x0000ff}),
+  scale:.3,
+
+
+}
 LEVEL_2_PARAMS.path = {
 
-  note:'clean5',
-  pathDetail: 10,
+  note:'sr1',
+  pathDetail: 30,
+
 
   markerMat: new THREE.MeshBasicMaterial(),
   markerGeo:'logoGeo',
+  markerScale: .1,
+
+  createPathFollowers: function(){
+
+    for( var i = 0; i < 10; i++ ){
+
+
+    }
+
+
+  },
 
   createGeometry: function( oldPos , newPos ){
 
@@ -64,12 +102,12 @@ LEVEL_2_PARAMS.newTypes = [
     numOf: 4,
 
     startScore: 0,
-    color: new THREE.Color( 0x00ff00 ),
+    color: new THREE.Color( 0x00ffff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
       var m = new THREE.MeshBasicMaterial({color:0xff0000});
       var head = new THREE.Mesh(
-          new THREE.CubeGeometry( 1.6 , 1.6 ,1.6 ),
+          new THREE.BoxGeometry( 1.6 , 1.6 ,1.6 ),
           m
       );
 
@@ -90,7 +128,9 @@ LEVEL_2_PARAMS.newTypes = [
           note:note,
           loop:loop,
           startScore: this.startScore,
-          color: this.color
+          color: this.color,
+          power: 1/ this.numOf
+            
         });
 
         var id = Math.random();
@@ -107,7 +147,7 @@ LEVEL_2_PARAMS.newTypes = [
   {
     type: 'test2',
     note: 'clean2',
-    loop: 'clean_shuffleClick',
+    loop: 'clean_sniperSnare',
     geo:  'logoGeo',
     numOf: 4,
     startScore: 4,
@@ -134,7 +174,9 @@ LEVEL_2_PARAMS.newTypes = [
           note:note,
           loop:loop,
           startScore: this.startScore,            
-          color: this.color
+          color: this.color,
+          power: 1/ this.numOf
+            
 
         });
 
@@ -153,7 +195,7 @@ LEVEL_2_PARAMS.newTypes = [
   {
     type: 'test3',
     note: 'clean3',
-    loop: 'clean_sniperGlory1',
+    loop: 'clean_sniperShivers',
     geo:  'logoGeo',
     numOf: 4,
     startScore: 8,
@@ -180,7 +222,9 @@ LEVEL_2_PARAMS.newTypes = [
           note:note,
           loop:loop,
           startScore: this.startScore,            
-          color: this.color
+          color: this.color,
+          power: 1/ this.numOf
+            
 
         });
 
@@ -198,7 +242,7 @@ LEVEL_2_PARAMS.newTypes = [
   {
     type: 'test1',
     note: 'clean1',
-    loop: 'clean_heavyBeat',
+    loop: 'clean_darkFast',
     geo:  'logoGeo',
     numOf: 1,
     startScore: 12,
@@ -232,6 +276,7 @@ LEVEL_2_PARAMS.newTypes = [
           startScore: this.startScore,
           loop:loop,
           color: this.color,
+          power: 1/ this.numOf,            
           boss: true
         });
 

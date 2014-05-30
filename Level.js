@@ -10,6 +10,9 @@ function Level(name ,  dragonFish, params ){
 
   this.newTypes = params.newTypes || [];
   this.oldTypes = params.oldTypes || [];
+
+  console.log( 'THIS.OLDTY{E' );
+  console.log( this.oldTypes );
   
   this.totalNeededToLoad = 0;
   this.totalLoaded = 0;
@@ -110,16 +113,12 @@ Level.prototype.loadGeo = function( geoName ){
 // Does the heavy lifting of Loading all the audio
 Level.prototype.beginLoading = function(){
 
-
-  var noteName = this.params.path.note;
-  this.loadNote( noteName ); 
-
-  var geoName = this.params.path.markerGeo;
-  this.loadGeo( geoName );
-  
-  var noteName = this.params.note;
-  this.loadNote( noteName ); 
-
+  console.log( this.params.skybox );
+  this.loadNote(  this.params.path.note       ); 
+  this.loadGeo(   this.params.path.markerGeo  );  
+  this.loadNote(  this.params.note            ); 
+  this.loadGeo(   this.params.skybox.geo      );
+  this.loadGeo(   this.params.crystal.geo     );
 
   for( var i = 0; i < this.newTypes.length; i++ ){
 
@@ -204,11 +203,12 @@ Level.prototype.instantiate = function(){
 
   // TODO
   /*
-    this.initSkybox();
     this.initStones();
     this.initCrystal();
   */
-    
+  
+  this.initCrystal();
+  this.initSkybox();
   this.initPath();
 
   this.prepared = true;
@@ -218,6 +218,26 @@ Level.prototype.instantiate = function(){
 
 Level.prototype.onPrepared = function(){}
 
+Level.prototype.initSkybox = function(){
+
+  var g = GEOS[this.params.skybox.geo];
+  var m = this.params.skybox.mat;
+
+  this.skybox = new THREE.Mesh( g , m );
+
+  this.skybox.scale.multiplyScalar( this.params.skybox.scale );
+
+}
+
+Level.prototype.initCrystal = function(){
+
+  var g = GEOS[this.params.crystal.geo];
+  var m = this.params.crystal.mat;
+
+  this.crystal = new THREE.Mesh( g , m );
+  this.crystal.scale.multiplyScalar( this.params.crystal.scale );
+
+}
 
 Level.prototype.initPath = function(){
 
@@ -241,6 +261,8 @@ Level.prototype.initPath = function(){
     var mesh = new THREE.Mesh( g , m );
 
     mesh.position = pathGeo.vertices[i];
+
+    mesh.scale.multiplyScalar( this.params.path.markerScale );
     markers.push( mesh );
 
   }
@@ -269,10 +291,9 @@ Level.prototype.initialize = function(){
     this.currentScore = 0;
     this.length       = this.hooksOnDeck.length;
 
-
-    console.log( 'APATS' );
-  
     this.addPath();
+    this.addSkybox();
+    this.prepareVertabraeForDestruction();
 
     this.scene.add( this.crystal );
     this.crystalAdded = true;
@@ -280,12 +301,86 @@ Level.prototype.initialize = function(){
 
     if( this.nextLevel ){
 
-      console.log( 'I HAVENEXTLEVEL' );
       console.log( this.nextLevel );
       this.nextLevel.beginLoading();
     }
 
   }
+
+
+}
+
+
+Level.prototype.checkVertabraeForDestruction = function(){
+
+
+  var from = this.dragonFish.leader.position.clone();
+  var dif = from.sub( this.scene.position );
+
+
+  
+  var length = 1 - dif.length() / this.distanceFromPreviousLevel;
+  var percentToLocation = length; 
+  for( var i = 4; i < this.dragonFish.spine.length; i++ ){
+
+   var verta = this.dragonFish.spine[i];
+
+   if( percentToLocation > verta.percentToDestruction ){
+
+     console.log( 'VERTA REMOVED' );
+     console.log( verta.percentToDestruction );
+     this.dragonFish.removeVertabraeById( i );
+     i--;
+
+
+   }
+
+
+  }
+
+}
+
+Level.prototype.prepareVertabraeForDestruction = function(){
+
+  var from;
+
+  if( this.oldLevel ){
+   from = this.oldLevel.scene.position.clone();
+  }else{
+    from = new THREE.Vector3();
+  }
+  this.distanceFromPreviousLevel = from.sub( this.scene.position ).length();
+    //TODO: Make sure this works
+  // Remove any unnecchesary hooks
+  for( var i = 4; i < this.dragonFish.spine.length; i++ ){
+
+    var verta = this.dragonFish.spine[i];
+    var saved = false;
+
+    for( var j = 0; j < this.oldTypes.length; j++ ){
+
+      console.log('VERTA TYPE' );
+      console.log( verta.type );
+      if( verta.type == this.oldTypes[j] ){
+        saved = true;      
+      }
+    }
+
+    if( !saved ){
+
+      console.log( 'NOT SAVED' );
+        verta.percentToDestruction = Math.random();
+        //this.dragonFish.removeVertabraeById( i );
+        
+    }else{
+
+      console.log( 'SAVED' );
+
+    }
+
+  }
+
+
 
 
 }
@@ -299,6 +394,7 @@ Level.prototype.onStart = function(){
   // out with the old, in with the new
   if( this.oldLevel ){
     dragonFish.leader.body.remove( this.oldLevel.crystal );
+    this.oldLevel.removeSkybox();
   }
 
   dragonFish.leader.body.add( this.crystal );
@@ -416,12 +512,13 @@ Level.prototype.onComplete = function(){
 
   if( this.nextLevel ){
     this.nextLevel.initialize();
+    CURRENT_LEVEL ++;
+    
   }else{
 
     console.log( 'TODO: FINISH GAME' );
 
   }
-  CURRENT_LEVEL ++;
 
 }
 
@@ -435,10 +532,10 @@ Level.prototype.update = function(){
 
   if( this.crystalAdded === true && this.active === false ){
    
-
     // this.path.update();
 
 
+    this.checkVertabraeForDestruction();
 
     var dif = this.scene.position.clone().sub( this.dragonFish.leader.position );
   
@@ -480,6 +577,41 @@ Level.prototype.updateHooks = function(){
 }
 
 
+
+Level.prototype.addSkybox = function(){
+
+  var marker = this.skybox;
+
+  this.scene.add( marker );
+
+  
+    marker.init = { scale: 0 };
+    marker.target = { scale: marker.scale.x };
+
+    var tween = new TWEEN.Tween( marker.init ).to( marker.target , 5000 );
+
+    tween.easing( TWEEN.Easing.Quartic.In )
+  
+    tween.marker = marker;
+    tween.note   = this.path.note;
+
+    tween.onUpdate( function(){
+
+      this.scale.x = this.init.scale;
+      this.scale.y = this.init.scale;
+      this.scale.z = this.init.scale;
+
+    }.bind( marker ));
+
+    tween.onComplete( function(){
+      tween.note.play();
+    }.bind( tween ));
+
+    tween.start();
+
+}
+
+
 Level.prototype.addPath = function(){
 
 
@@ -491,7 +623,7 @@ Level.prototype.addPath = function(){
 
   
     marker.init = { scale: 0 };
-    marker.target = { scale: 1 };
+    marker.target = { scale: marker.scale.x };
 
     var tween = new TWEEN.Tween( marker.init ).to( marker.target , (i+1) * 1000 );
 
@@ -520,6 +652,47 @@ Level.prototype.addPath = function(){
 
 }
 
+Level.prototype.removeSkybox = function(){
+
+
+
+    var marker = this.skybox;
+
+    scene.add( marker );
+
+  
+    marker.init = { scale: marker.scale.x };
+    marker.target = { scale: 0 };
+
+    var tween = new TWEEN.Tween( marker.init ).to( marker.target , 1000 );
+
+    tween.easing( TWEEN.Easing.Quartic.In )
+  
+    tween.marker = marker;
+    tween.note   = this.path.note;
+
+    tween.onUpdate( function(){
+
+      this.scale.x = this.init.scale;
+      this.scale.y = this.init.scale;
+      this.scale.z = this.init.scale;
+
+    }.bind( marker ));
+
+    tween.onComplete( function(){
+      scene.remove( this ); 
+    }.bind( marker ));
+
+    tween.start();
+
+
+
+
+}
+
+
+//TODO:
+//Not ACtually removing?
 Level.prototype.removePath = function(){
 
 
@@ -530,7 +703,7 @@ Level.prototype.removePath = function(){
     scene.add( marker );
 
   
-    marker.init = { scale: 1 };
+    marker.init = { scale: marker.scale.x };
     marker.target = { scale: 0 };
 
     var tween = new TWEEN.Tween( marker.init ).to( marker.target , (i+1) * 300 );
@@ -549,7 +722,7 @@ Level.prototype.removePath = function(){
     }.bind( marker ));
 
     tween.onComplete( function(){
-      scene.remove( marker ); 
+      scene.remove( this ); 
     }.bind( marker ));
 
     tween.start();

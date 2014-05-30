@@ -124,6 +124,20 @@ DragonFish.prototype.initPlume = function(){
 
 }
 
+DragonFish.prototype.initBody = function(){
+
+  
+    this.spine.push( this.leader );
+
+    for( var i = 0; i < 3; i++ ){
+
+      this.addVertabrae();
+    
+    }
+        
+   this.tail = this.spine[ this.spine.length - 1 ];
+
+}
 
 DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
@@ -136,7 +150,9 @@ DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
 DragonFish.prototype.addBoss = function( vertabrae ){
 
-  vertabrae.dom = this.leader;
+  vertabrae.dom = this.spine[ 3 ];
+
+  this.spine.splice( 4 , 0 , vertabrae );
  
   vertabrae.dom.sub.push( vertabrae );
 
@@ -254,6 +270,17 @@ DragonFish.prototype.addVertabrae = function( m1 , m2 , m3 , m4 ){
 }
 DragonFish.prototype.removeVertabraeById = function( id ){
 
+  if( this.spine[id].loop ){
+
+    var v = this.spine[id];
+    v.loop.gain.gain.value -= v.power;
+
+  }else{
+
+    console.log( 'This Spine is out of the Loop' );
+
+  }
+
   this.spine[id].dom = undefined;
   if( this.spine[id+1] ){
 
@@ -350,29 +377,7 @@ DragonFish.prototype.removeVertabrae = function( vertabrae ){
 }
 
 
-DragonFish.prototype.initBody = function(){
 
-  
-    var column = [];
-
-    var dir = [
-      [1 , 0],
-      [-1 , 0],
-      [0,1],
-      [0,-1]
-    ];
-
-    this.spine.push( this.leader );
-
-    for( var i = 0; i < 3; i++ ){
-
-      this.addVertabrae();
-    
-    }
-        
-   this.tail = this.spine[ this.spine.length - 1 ];
-
-}
 /*
  
 

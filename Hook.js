@@ -48,6 +48,8 @@
     this.note  = this.params.note;
     this.loop = this.params.loop;
 
+    this.power=this.params.power;
+
     this.head.position = this.position;
    
     
@@ -78,9 +80,10 @@
     }
 
     // the vertabrae also needs to keep track of the type!
-    this.vertabrae.type = this.type;
-    this.vertabrae.note = this.note;
-    this.vertabrae.loop = this.loop;
+    this.vertabrae.type   = this.type;
+    this.vertabrae.note   = this.note;
+    this.vertabrae.loop   = this.loop;
+    this.vertabrae.power  = this.power;
 
     document.getElementById( 'hookCount' ).innerHTML = SCORE;
     
@@ -129,7 +132,7 @@
     }else{
 
       this.dragonFish.addPrecreatedVertabrae( this.vertabrae );
-      this.loop.gain.gain.value += .1;
+      this.loop.gain.gain.value += this.power;
       
     }
       
