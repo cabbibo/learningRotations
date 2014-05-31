@@ -49,6 +49,14 @@
        If attached to bait
 
     */
+
+    if( !this.dom ){
+
+      console.log( 'WTF' );
+      console.log( this );
+
+    }
+    
     if( !this.dom.sub ){
 
       this.velocity.set( 0 , 0 , 0 );

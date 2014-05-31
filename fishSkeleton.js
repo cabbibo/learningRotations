@@ -154,9 +154,9 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
     beak.position.z = 1.3;
 
 
-    //obj.add( beak );
+    obj.add( beak );
 
-    obj.add( mesh );
+    //obj.add( mesh );
 
 
     fishSkeleton.head.spine = obj;

@@ -101,6 +101,7 @@
 
   Hook.prototype.activate = function(){
 
+    console.log( 'activated' )
     scene.add( this.head );
     this.active = true;
 

@@ -14,11 +14,11 @@ function DragonFish( bait , head , plume , flagella  ){
 
   this.leader = new Fish(bait,1, fishSkeleton.head.spine );
 
-  var leaderMarker = new THREE.Mesh(
+  /*var leaderMarker = new THREE.Mesh(
     new THREE.CubeGeometry( .5 , .5 , .5 ),
     new THREE.MeshBasicMaterial()
   );
-  this.leader.body.add( leaderMarker );
+  this.leader.body.add( leaderMarker );*/
   //this.position = this.leader.position;
   this.spine = [];
   this.tail;
@@ -82,7 +82,7 @@ DragonFish.prototype.update = function(){
 
 DragonFish.prototype.initPlume = function(){
 
-  for( var j = 0; j < 0; j++ ){
+  for( var j = 0; j < 3; j++ ){
 
     var f = new Fish( this.leader , 1.9 , fishSkeleton.plume.spine );
 
@@ -121,6 +121,9 @@ DragonFish.prototype.initPlume = function(){
     }
 
   }
+
+  this.addToScene( this.leader );
+
 
 }
 

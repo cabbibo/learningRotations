@@ -15,7 +15,7 @@ var placingMatrix = [];
 placingMatrix.push([[0,0,0],[0,0,0],[0,0,0]]);
 
 
-function place(oX,oY,oZ,oDir){
+function place(matrix , oX,oY,oZ,oDir){
 	bCount++
 	bLength=maxLength/((bCount/3)+1);
 	bWidth=maxWidth/((bCount/3)+1);
@@ -44,10 +44,11 @@ function place(oX,oY,oZ,oDir){
     //var sX = 1;
     //var sY = 1;
     //var sZ = 1;
-	placingMatrix.push([[x,y,z],[sX,sY,sZ],[rX,rY,rZ]])
+    //
+	matrix.push([[x,y,z],[sX,sY,sZ],[rX,rY,rZ]])
 
 	if(bCount<=bMax){
-		place(x,y,z,rDir)	
+		place(matrix,x,y,z,rDir)	
 	}else{
 		bCount=0;	
 		bLength=300;

@@ -2,15 +2,13 @@
 
 var LEVEL_2_PARAMS = {};
 
-LEVEL_2_PARAMS.position = new THREE.Vector3( 1000 , 300 , 0 );
+LEVEL_2_PARAMS.position = new THREE.Vector3( 00 , 300 , 0 );
 
 LEVEL_2_PARAMS.note = 'clean6',
 
 LEVEL_2_PARAMS.oldTypes = [
 
-  'sniperDetail1',
-  'sniperDetail2',
-  'darkFast'
+  'shuffleClick'
 
 ]
 
@@ -30,6 +28,90 @@ LEVEL_2_PARAMS.crystal = {
   scale: 1.5
 
 }
+
+LEVEL_2_PARAMS.stones = {
+
+
+  geo:'logoGeo',
+
+  init:function( geo  ){
+
+    
+    var geo = new THREE.IcosahedronGeometry(10 ,0 );
+    var mat = mat || new THREE.MeshNormalMaterial();
+    
+    var mat = new THREE.MeshLambertMaterial({
+      shading: THREE.FlatShading,
+      color:0xffffff,
+      map:audioController.texture,
+      //wireframe:true,
+      depthWrite:false,
+      transparent:true,
+      //opacity: .1,
+      side: THREE.DoubleSide,
+      blending:THREE.AdditiveBlending
+    });
+
+    var geometry = new THREE.Geometry();
+
+    var placingMatrix = [];
+    placingMatrix.push([[0,0,0],[0,0,0],[0,0,0]]);
+
+  
+    place(placingMatrix, 0,0,0,0);
+    place(placingMatrix, 0,0,0,1);
+    place(placingMatrix, 0,0,0,2);
+    place(placingMatrix, 0,0,0,3);
+    place(placingMatrix, 0,0,0,4);
+    place(placingMatrix, 0,0,0,5);
+    place(placingMatrix, 10,0,0,0);
+    place(placingMatrix, -10,0,0,1);
+    place(placingMatrix, 0,10,0,2);
+    place(placingMatrix, 0,-10,0,3);
+    place(placingMatrix, 0,0,10,4);
+    place(placingMatrix, 0,0,-10,5);
+    place(placingMatrix, 10,10,0,0);
+    place(placingMatrix, -10,10,0,1);
+    place(placingMatrix, -10,10,0,2);
+    place(placingMatrix, -10,-10,0,3);
+    place(placingMatrix, 10,0,10,4);
+    place(placingMatrix, 10,0,-10,5);
+
+    for( var i=0; i < placingMatrix.length; i++ ){
+
+      var mesh = new THREE.Mesh( geo , mat );
+
+      var p = placingMatrix[i][0];
+      var s = placingMatrix[i][1];
+      var r = placingMatrix[i][2];
+
+      mesh.position.set( p[0] , p[1] , p[2] );
+      mesh.scale.set( s[0] , s[1] , s[2] );
+      mesh.rotation.x = r[0]//,r[1],r[2] );
+      mesh.rotation.y = r[1]//,r[1],r[2] );
+      mesh.rotation.z = r[2]//,r[1],r[2] );
+
+      mesh.updateMatrix();
+      geometry.merge( geo , mesh.matrix );
+
+    }
+
+    geometry.computeFaceNormals();
+    geometry.computeVertexNormals();
+
+    //assignUVs( geometry );
+    stones = new THREE.Mesh( geometry , mat );
+
+    return stones 
+
+
+  }
+
+
+
+
+}
+
 /*
 
    Path
@@ -207,114 +289,12 @@ LEVEL_2_PARAMS.path = {
 LEVEL_2_PARAMS.newTypes = [
 
   {
-    type: 'sniperGlory1',
-    note: 'clean1',
-    loop: 'clean_sniperGlory1',
-    geo:  'logoGeo',
-    numOf: 4,
-
-    startScore: 0,
-    color: new THREE.Color( 0x00ffff ),
-    instantiate: function( level , dragonFish , note , loop , geo ){
-
-      var m = new THREE.MeshPhongMaterial({color:this.color.getHex()});
-      var head = new THREE.Mesh(
-          new THREE.BoxGeometry( 1.6 , 1.6 ,1.6 ),
-          m
-      );
-
-      var g = new THREE.IcosahedronGeometry(.2);
-      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
-      var m1 = new THREE.Mesh( g , m );
-
-      var hooks = [];
-
-      for( var i = 0; i < this.numOf; i++ ){
-
-        var hook = new Hook( dragonFish, level , this.type , {
-          head:head.clone(),
-          m1:m1,
-          m2:m1,
-          m3:m1,
-          m4:m1,
-          note:note,
-          loop:loop,
-          startScore: this.startScore,
-          color: this.color,
-          power: 1/ this.numOf
-            
-        });
-
-        var id = Math.random();
-        hook.id = id;
-
-        hooks.push( hook );
-      }
-  
-      return hooks;
-    }
-  },
-
-  {
-    type: 'test2',
-    note: 'clean2',
-    loop: 'clean_sniperSnare',
-    geo:  'logoGeo',
-    numOf: 4,
-    startScore: 4,
-    color: new THREE.Color( 0xff0000 ),
-    instantiate: function( level , dragonFish , note , loop , geo ){
-
-         var m = new THREE.MeshPhongMaterial({color:this.color.getHex()});
-      var head = new THREE.Mesh(
-          new THREE.BoxGeometry( 1.6 , 1.6 ,1.6 ),
-          m
-      );
-
-
-
-      var g = new THREE.IcosahedronGeometry(.3);
-      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
-      var m1 = new THREE.Mesh( g , m );
-
-      var hooks = [];
-
-      for( var i = 0; i < this.numOf; i++ ){
-
-        var hook = new Hook( dragonFish , level , this.type , {
-          
-          head:head.clone(),
-          m1:m1,
-          m2:m1,
-          m3:m1,
-          m4:m1,
-          note:note,
-          loop:loop,
-          startScore: this.startScore,            
-          color: this.color,
-          power: 1/ this.numOf
-            
-
-        });
-
-        var id = Math.random();
-        hook.id = id;
-
-        hooks.push( hook );
-
-      }
-  
-      return hooks;
-    }
-  },
-
-  {
     type: 'test3',
     note: 'clean3',
     loop: 'clean_sniperShivers',
     geo:  'logoGeo',
     numOf: 4,
-    startScore: 8,
+    startScore: 0,
     color: new THREE.Color( 0x0000ff ),
     instantiate: function( level , dragonFish , note , loop , geo ){
 
@@ -360,57 +340,6 @@ LEVEL_2_PARAMS.newTypes = [
       return hooks;
     }
   },
-  {
-    type: 'test1',
-    note: 'clean1',
-    loop: 'clean_heavyBeat',
-    geo:  'logoGeo',
-    numOf: 1,
-    startScore: 12,
-    color: new THREE.Color( 0xffffff ),
-    instantiate: function( level , dragonFish , note , loop , geo ){
-
-      var m = new THREE.MeshBasicMaterial({color:0xff0000});
-      var head = new THREE.Mesh(
-          new THREE.CubeGeometry( .6 , .6 ,.6 ),
-          m
-      );
-
-      var g = new THREE.IcosahedronGeometry(2);
-      var m = new THREE.MeshPhongMaterial({ color: this.color.getHex() });
-      var m1 = new THREE.Mesh( g , m );
-
-      m1.scale.x = .1;
-      m1.scale.y = .1;
-
-      var hooks = [];
-
-      for( var i = 0; i < this.numOf; i++ ){
-
-        var hook = new Hook( dragonFish, level , this.type , {
-          head:head.clone(),
-          m1:m1,
-          m2:m1,
-          m3:m1,
-          m4:m1,
-          note:note,
-          startScore: this.startScore,
-          loop:loop,
-          color: this.color,
-          power: 1/ this.numOf,            
-          boss: true
-        });
-
-        var id = Math.random();
-        hook.id = id;
-
-        hooks.push( hook );
-      }
-  
-      return hooks;
-    }
-  },
-
 ]
 
 

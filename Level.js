@@ -96,6 +96,7 @@ Level.prototype.beginLoading = function(){
   this.loadNote(  this.params.skybox.note     ); 
   this.loadGeo(   this.params.skybox.geo      );
   this.loadGeo(   this.params.crystal.geo     );
+  this.loadGeo(   this.params.stones.geo     );
 
   for( var i = 0; i < this.newTypes.length; i++ ){
 
@@ -164,7 +165,13 @@ Level.prototype.loadLoop = function( loopName ){
 }
 
 Level.prototype.loadGeo = function( geoName ){
-  
+ 
+  if( typeof geoName !== 'string' ){
+
+    console.log( 'not a name' );
+    return;
+
+  }
   if( geoName && !GEOS[geoName] ){
     
     GEOS[geoName] == 'LOADING';
@@ -240,7 +247,8 @@ Level.prototype.instantiate = function(){
   /*
     this.createStones();
   */
-  
+ 
+  this.createStones();
   this.createCrystal();
   this.createSkybox();
   this.createPath();
@@ -271,7 +279,12 @@ Level.prototype.startLoops = function(){
 }
 
 
+Level.prototype.createStones = function(){
 
+  this.stones = this.params.stones.init( GEOS[ this.params.stones.geo ] )
+
+
+}
 Level.prototype.createSkybox = function(){
 
   var g = GEOS[this.params.skybox.geo];
@@ -285,12 +298,29 @@ Level.prototype.createSkybox = function(){
 
 Level.prototype.createCrystal = function(){
 
-  var g = GEOS[this.params.crystal.geo];
+  var g = this.params.crystal.geo;
+
+  // Overwrite if its a loaded geo 
+  if( typeof this.params.crystal.geo === 'string' ){
+    g = GEOS[this.params.crystal.geo];
+  }
   var m = this.params.crystal.mat;
 
   this.crystal = new THREE.Mesh( g , m );
   this.crystal.scale.multiplyScalar( this.params.crystal.scale );
 
+  if( this.params.crystal.rotation ){
+    console.log('sasda' );
+    console.log( this.crystal.rotation );
+    console.log( this.params.crystal.rotation );
+    this.crystal.rotation.copy( this.params.crystal.rotation );
+    /*console.log( this.crystal.rotation );
+    var object = new THREE.Object3D();
+    object.add( this.crystal );
+    this.crystal = object ;*/
+
+
+  }
 }
 
 Level.prototype.createPath = function(){
@@ -383,6 +413,7 @@ Level.prototype.initialize = function(){
     this.prepareVertabraeForDestruction();
 
     this.scene.add( this.crystal );
+    this.scene.add( this.stones );
     this.crystalAdded = true;
 
 
@@ -414,6 +445,9 @@ Level.prototype.prepareVertabraeForDestruction = function(){
     var verta = this.dragonFish.spine[i];
     var saved = false;
 
+    if( verta.type === 'alwaysSafe' ){
+      saved = true;
+    }
     for( var j = 0; j < this.oldTypes.length; j++ ){
 
       console.log('VERTA TYPE' );
@@ -449,7 +483,7 @@ Level.prototype.addSkybox = function(){
     marker.init = { scale: 0 };
     marker.target = { scale: marker.scale.x };
 
-    var tween = new TWEEN.Tween( marker.init ).to( marker.target , 5000 );
+    var tween = new TWEEN.Tween( marker.init ).to( marker.target , 500 );
 
     tween.easing( TWEEN.Easing.Quartic.In )
   
@@ -540,6 +574,7 @@ Level.prototype.onStart = function(){
   if( this.oldLevel ){
     dragonFish.leader.body.remove( this.oldLevel.crystal );
     this.oldLevel.removeSkybox();
+    this.oldLevel.removeStones();
   }
 
   dragonFish.leader.body.add( this.crystal );
@@ -561,6 +596,7 @@ Level.prototype.startHooks = function(){
 
   for( var i =0; i < this.hooks.length; i++ ){
 
+    console.log( 'hellloss' );
     var hook = this.hooks[i];
 
     hook.activate();
@@ -607,6 +643,11 @@ Level.prototype.removeSkybox = function(){
 
 }
 
+Level.prototype.removeStones = function(){
+
+  this.scene.remove( this.stones );
+
+}
 
 //TODO:
 //Not ACtually removing?
@@ -816,11 +857,11 @@ Level.prototype.checkForNewHooks = function( score ){
 
       i--;
 
+    
     }
 
+
   }
-
-
 }
 
 
@@ -844,10 +885,8 @@ Level.prototype.onComplete = function(){
 
 }
 
-Level.protoype.endGame = function(){
-    document.getElementById( 'hookCount' ).innerHTML = YOU WON;
-
-
+Level.prototype.endGame = function(){
+    document.getElementById( 'hookCount' ).innerHTML = 'YOU WON';
 }
 
 Level.prototype.onEnd = function(){
