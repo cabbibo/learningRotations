@@ -180,8 +180,22 @@ LEVEL_1_PARAMS.path = {
 
     var guides = [];
 
-    var geo = new THREE.BoxGeometry( .2 , .2 , .5 );
-    var mat = new THREE.MeshNormalMaterial();
+        var geo = new THREE.BoxGeometry( .5 , .5 , 3.5 );
+    var mat = new THREE.MeshPhongMaterial();
+
+
+
+   
+    var cone = new THREE.CylinderGeometry( 1 , 0 , 3);
+    var coneMesh = new THREE.Mesh( cone);
+    coneMesh.rotation.set(  -Math.PI / 2 , 0 ,0);
+    coneMesh.position.z = 2;
+    coneMesh.updateMatrix();
+
+
+    geo.merge(  cone , coneMesh.matrix );
+
+
 
     for( var  i = 0; i < 300; i++ ){
 
@@ -242,10 +256,18 @@ LEVEL_1_PARAMS.path = {
       var dif = guide.position.clone().sub( this.scene.position );
       guide.velocity.sub( dif.normalize().multiplyScalar( .01) );
 
-      guide.position.add( guide.velocity );
-     // guide.velocity.multiplyScalar( .9 );
+      var dif = guide.position.clone().sub( this.dragonFish.leader.position );
+      dif.normalize();
 
-      //guide.position.sub( dif.normalize().multiplyScalar( .1 ) );
+      var dif2 = this.scene.position.clone().sub( this.dragonFish.leader.position );
+
+      var para = dif.clone().projectOnVector( dif2 );
+      dif.sub( para );
+
+      guide.velocity.add( dif.normalize().multiplyScalar( -.004 ) ); 
+      
+      guide.position.add( guide.velocity );
+      guide.velocity.multiplyScalar( .97 );
 
       guide.lookAt( guide.position.clone().add( guide.velocity ) );
 
@@ -257,8 +279,7 @@ LEVEL_1_PARAMS.path = {
 
       if( guide.lifeTime <= 0 ){
 
-
-        guide.position = this.closestMarker.position.clone();
+        guide.position.copy( this.dragonFish.leader.position );
 
         guide.velocity = new THREE.Vector3();
         guide.velocity.x = (Math.random() - .5 ) * .2;
@@ -266,13 +287,13 @@ LEVEL_1_PARAMS.path = {
         guide.velocity.z = (Math.random() - .5 ) * .2;
 
 
-        /*var rand = new THREE.Vector3();
+        var rand = new THREE.Vector3();
 
-        rand.x = (Math.random() - .5 ) * 5;
-        rand.y = (Math.random() - .5 ) * 5;
-        rand.z = (Math.random() - .5 ) * 5;
+        rand.x = (Math.random() - .5 ) * 200;
+        rand.y = (Math.random() - .5 ) * 200;
+        rand.z = (Math.random() - .5 ) * 200;
 
-        guide.position.add( rand );*/
+        guide.position.add( rand );
 
         guide.growing = true;
 
@@ -316,7 +337,7 @@ LEVEL_1_PARAMS.newTypes = [
     note: 'clean1',
     loop: 'clean_shuffleClick',
     geo:  'logoGeo',
-    numOf: 3,
+    numOf: 10,
     boss: true,
     startScore: 0,
     color: new THREE.Color( 0xaa66cc),

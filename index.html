@@ -103,7 +103,13 @@
   //loader.addToLoadBar();
   
   var audioController = new AudioController();
-  var looper          = new Looper( audioController , time );
+  var looper          = new Looper( audioController , time , {
+
+    beatsPerMinute: 176,
+    beatsPerMeasure: 4,
+    measuresPerLoop: 16
+    
+  });
   var particleTexture = THREE.ImageUtils.loadTexture( 'lib/flare.png');
 
 
@@ -289,6 +295,8 @@
 
     initExplosion( dragonFish );
     LEVEL_1.initialize();
+
+    looper.start();
     animate();
   
   });

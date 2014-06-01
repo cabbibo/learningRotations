@@ -135,20 +135,12 @@ LEVEL_3_PARAMS.stones = {
 */
 LEVEL_3_PARAMS.path = {
 
-  notes:[ 'srNight1' ,  'srNight2' ,  'srNight3' ,  'srNight4'],
-  pathDetail: 30,
+  notes:['srNight1','srNight2','srNight3','srNight4'],
+  pathDetail: 0,
 
-  markerMat: new THREE.MeshPhongMaterial({
-   
-    color: 0xaaaaaa,
-    specular: 0xaa33ff,
-    blending: THREE.AdditiveBlending,
-    transparent: true
-
-    
-  }),
-  markerGeo: 'jelly',
-  markerScale: 1.5,
+  markerMat: new THREE.MeshNormalMaterial(),
+  markerGeo: 'totem',
+  markerScale: .1,
   initMarkers: function( geo ){
 
 
@@ -179,12 +171,22 @@ LEVEL_3_PARAMS.path = {
 
     var guides = [];
 
-    var geo = new THREE.BoxGeometry( .3 , .3 , 1.5 );
-    var mat = new THREE.MeshNormalMaterial({
-      blending: THREE.AdditiveBlending,
-      transparent: true
-      
-    });
+        var geo = new THREE.BoxGeometry( .5 , .5 , 3.5 );
+    var mat = new THREE.MeshPhongMaterial();
+
+
+
+   
+    var cone = new THREE.CylinderGeometry( 1 , 0 , 3);
+    var coneMesh = new THREE.Mesh( cone);
+    coneMesh.rotation.set(  -Math.PI / 2 , 0 ,0);
+    coneMesh.position.z = 2;
+    coneMesh.updateMatrix();
+
+
+    geo.merge(  cone , coneMesh.matrix );
+
+
 
     for( var  i = 0; i < 300; i++ ){
 
@@ -228,6 +230,7 @@ LEVEL_3_PARAMS.path = {
     if( this.closestMarker != oClosestMarker ){
 
       console.log( 'NEW MARKER HIT' );
+
       var rand = Math.floor( this.notes.length * Math.random() )
       this.notes[rand].play();
 
@@ -242,39 +245,46 @@ LEVEL_3_PARAMS.path = {
       var guide = guides[i];
 
       var dif = guide.position.clone().sub( this.scene.position );
-      guide.velocity.sub( dif.normalize().multiplyScalar( .05) );
+      guide.velocity.sub( dif.normalize().multiplyScalar( .01) );
 
+      var dif = guide.position.clone().sub( this.dragonFish.leader.position );
+      dif.normalize();
+
+      var dif2 = this.scene.position.clone().sub( this.dragonFish.leader.position );
+
+      var para = dif.clone().projectOnVector( dif2 );
+      dif.sub( para );
+
+      guide.velocity.add( dif.normalize().multiplyScalar( -.004 ) ); 
+      
       guide.position.add( guide.velocity );
-     // guide.velocity.multiplyScalar( .9 );
-
-      //guide.position.sub( dif.normalize().multiplyScalar( .1 ) );
+      guide.velocity.multiplyScalar( .97 );
 
       guide.lookAt( guide.position.clone().add( guide.velocity ) );
 
       if( guide.growing ){
-        guide.lifeTime += .1 * guide.lifeSpeed;
+        guide.lifeTime += .02 * guide.lifeSpeed;
       }else{
-        guide.lifeTime -= .05 * guide.lifeSpeed;
+        guide.lifeTime -= .008 * guide.lifeSpeed;
       }
 
       if( guide.lifeTime <= 0 ){
 
-
-        guide.position = this.closestMarker.position.clone();
+        guide.position.copy( this.dragonFish.leader.position );
 
         guide.velocity = new THREE.Vector3();
-        guide.velocity.x = (Math.random() - .5 ) * 1;
-        guide.velocity.y = (Math.random() - .5 ) * 1;
-        guide.velocity.z = (Math.random() - .5 ) * 1;
+        guide.velocity.x = (Math.random() - .5 ) * .2;
+        guide.velocity.y = (Math.random() - .5 ) * .2;
+        guide.velocity.z = (Math.random() - .5 ) * .2;
 
 
-        /*var rand = new THREE.Vector3();
+        var rand = new THREE.Vector3();
 
-        rand.x = (Math.random() - .5 ) * 5;
-        rand.y = (Math.random() - .5 ) * 5;
-        rand.z = (Math.random() - .5 ) * 5;
+        rand.x = (Math.random() - .5 ) * 200;
+        rand.y = (Math.random() - .5 ) * 200;
+        rand.z = (Math.random() - .5 ) * 200;
 
-        guide.position.add( rand );*/
+        guide.position.add( rand );
 
         guide.growing = true;
 

@@ -44,13 +44,14 @@
     this.percentOfLoop      = 0;
     this.oPercentOfLoop     = 0;
 
-    this.loop = 0;
-    this.oLoop = 0;
+    this.loop = -1;
+    this.oLoop = -1;
 
     this.hits = [];
 
     this.onNextLoopArray    = [];
     this.onNextMeasureArray = [];
+    this.everyLoopArray     = [];
 
     this.controller.addToUpdateArray( this._update.bind( this ) );
 
@@ -66,7 +67,18 @@
   
   }
 
-  Looper.prototype.update = function(){};
+  Looper.prototype.start =function(){
+
+    this._onNewLoop();
+    this._onNewMeasure();
+
+  }
+
+  Looper.prototype.update = function(){
+  
+    console.log( this.percentOfLoop );
+
+  };
 
 
   Looper.prototype.tweenGain = function( gainNode , newValue ){
@@ -114,6 +126,12 @@
 
   }
 
+  Looper.prototype.everyLoop = function( callback ){
+
+    this.everyLoopArray.push( callback );
+
+  }
+
 
 
   Looper.prototype.updateTime = function(){
@@ -143,6 +161,7 @@
 
   Looper.prototype._onNewLoop = function(){
 
+    console.log( 'newLoop' );
 
     this.oLoop = this.loop;
     this.loop += 1;
@@ -156,6 +175,11 @@
 
     }
 
+    for( var i = 0; i < this.everyLoopArray.length; i++ ){
+
+      this.everyLoopArray[i]();
+
+    }
     this.onNextLoopArray = [];
     this.onNewLoop();
 

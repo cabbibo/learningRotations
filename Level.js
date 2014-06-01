@@ -559,7 +559,6 @@ Level.prototype.addPath = function(){
 
 Level.prototype.onStart = function(){
 
-  console.log( 'LEVEL  STARTED' );
   // puts the crystal on the head of the dragonfish
   scene.remove( this.crystal );
 
@@ -589,7 +588,6 @@ Level.prototype.startHooks = function(){
 
   for( var i =0; i < this.hooks.length; i++ ){
 
-    console.log( 'hellloss' );
     var hook = this.hooks[i];
 
     hook.activate();
@@ -647,7 +645,6 @@ Level.prototype.removeStones = function(){
 Level.prototype.removePath = function(){
 
 
-  console.log('HELLSOSSAS');
   for( var  i = 0; i < this.path.markers.length; i++ ){
 
     var marker = this.path.markers[i];

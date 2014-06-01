@@ -114,17 +114,22 @@
 
     this.source         = this.controller.ctx.createBufferSource();
     this.source.buffer  = this.buffer;
-    this.source.loop    = this.looping;
+    this.source.loop    = false;//this.looping;
            
     this.source.connect( this.gain  );
 
-    this.gain.gain.value = 1;
+    if( !this.looping ){
+      
+      this.gain.gain.value = 1;
+
+    }
 
     if( this.looping ){
       this.analyser.connect( this.controller.loopInput );
     }else{
       this.analyser.connect( this.controller.noteInput );
     }
+
 
   };
 
@@ -191,14 +196,28 @@
    
     // Creates a new source for the audio right away
     // so we can play the next one with no delay
-    if(this.source.loop == false){
+   // if(this.source.loop == false){
       this.createSource();	
-    }
+   // }
 
   };
 
   LoadedAudio.prototype._onLoad = function(){
 
+    if( this.looping ){
+     
+      
+      looper.everyLoop( function(){
+
+        if( this.playing ){
+          this.play()
+        }
+      
+      }.bind( this ));
+
+      this.gain.gain.value = 0;
+
+    }
     this.onLoad();
     
   }
