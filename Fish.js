@@ -15,7 +15,7 @@
     this.sibRepelDiv = 10;
     this.sibRepelDist = 1;
 
-    this.subAttractPow = 1;
+    this.subAttractPow = 2;
     this.subAttractDiv = 20;
     this.subAttractDist = .01;
 

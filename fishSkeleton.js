@@ -168,8 +168,8 @@ var shinyRed2 = new THREE.MeshPhongMaterial({
     */
 
     // spine
-    var geo = new THREE.BoxGeometry( .1 , .1 , .8 );
-    var mesh = new THREE.Mesh( tetraCluster , shinyRed );
+    var geo = new THREE.BoxGeometry( .3 , .3 , 1.8 );
+    var mesh = new THREE.Mesh( geo , shinyRed );
 
     fishSkeleton.plume.spine = mesh;
 

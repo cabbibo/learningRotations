@@ -186,17 +186,17 @@ DragonFish.prototype.createVertabrae = function( dom , m1 , m2 , m3 , m4 ){
 
   for( var i = 0; i < 3; i++ ){
     
-    var child1 = new Fish( vertabrae , .6 , m2 );
+    var child1 = new Fish( vertabrae , .7 , m2 );
     child1.position.copy( vertabrae.position );
 
     for( var j = 0;  j < 2; j++ ){
 
-      var child2 = new Fish( child1 , .4 , m3 );
+      var child2 = new Fish( child1 , .6 , m3 );
       child2.position.copy( vertabrae.position );
 
       for( var k = 0; k < 3; k++ ){
 
-        var child3 = new Fish( child2 , .2 , m4 );
+        var child3 = new Fish( child2 , .5 , m4 );
         child3.position.copy( vertabrae.position );
 
       }

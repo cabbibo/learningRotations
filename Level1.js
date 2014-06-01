@@ -346,9 +346,11 @@ LEVEL_1_PARAMS.newTypes = [
       console.log('hello');
       var m = new THREE.MeshPhongMaterial({color: this.color.getHex() });
       var head = new THREE.Mesh(
-          new THREE.CubeGeometry( .6 , .6 ,.6 ),
+          geo,
           m
       );
+
+      head.scale.multiplyScalar( .1 );
 
       var g = new THREE.IcosahedronGeometry(2);
       var m = new THREE.MeshLambertMaterial({ color: this.color.getHex() });
@@ -374,10 +376,13 @@ LEVEL_1_PARAMS.newTypes = [
         console.log( 'EHSAS' );
         var hook = new Hook( dragonFish, level , this.type , {
           head:head.clone(),
-          m1: m1,
-          m2: m2,
-          m3: m3,
-          m4: m4,
+          m1: fishSkeleton.plume.spine,
+          m2: fishSkeleton.plume.spine,
+          m3: fishSkeleton.plume.spine,
+          m4: fishSkeleton.plume.spine,
+          //m2: m2,
+          //m3: m3,
+          //m4: m4,
           note:note,
           startScore: this.startScore,
           loop:loop,
