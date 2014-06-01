@@ -76,7 +76,6 @@
 
   Looper.prototype.update = function(){
   
-    console.log( this.percentOfLoop );
 
   };
 

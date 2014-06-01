@@ -38,7 +38,7 @@ function updateMechanics( delta ){
     intersectPlane.position.copy( camera.position );
 
     var dT = distanceToIntersectPlane;
-    var m =  ( controls.speed / controls.maxSpeed ) 
+    var m =  ( controls.speed / controls.maxSpeed ); 
     var d = dT + m * m * dT * 5;
     var vector = new THREE.Vector3( 0, 0, -d );
     vector.applyQuaternion( camera.quaternion );
@@ -56,6 +56,11 @@ function updateMechanics( delta ){
      bait.position.copy( intersects[0].point );
     }
 
+    var dif = angerBait.position.clone().sub( bait.position );
+    angerBait.position.add( dif.normalize().multiplyScalar( -.4 ) );
+
+
+    //camera.lookAt( dragonFish.leader.position );
       
   }
 

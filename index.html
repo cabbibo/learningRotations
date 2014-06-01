@@ -214,6 +214,9 @@
     dragonFish = new DragonFish( bait );
     dragonFish.leader.position.copy( camera.position );
 
+    angerBait = new THREE.Object3D();
+    angerDragon = new DragonFish( angerBait );
+
     /*var g = new THREE.IcosahedronGeometry( .5 ,1 );
     var m = new THREE.MeshNormalMaterial({ wireframe:true });
     var baitMarker = new THREE.Mesh( g , m );
@@ -277,6 +280,7 @@
     
     if( !paused ){
       dragonFish.update();
+      angerDragon.update();
     }
 
     // Updates our explosion particles
