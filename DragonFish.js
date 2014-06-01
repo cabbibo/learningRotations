@@ -294,19 +294,25 @@ DragonFish.prototype.removeVertabraeById = function( id ){
 
   }
 
+  var newDom = this.spine[id-1];
+  if( id === 0 ){
+    newDom = this.leader;
+  }
+
+
   this.spine[id].dom = undefined;
   if( this.spine[id+1] ){
 
-    this.spine[id+1].dom = this.spine[id-1];
-    this.spine[id-1].sub.push( this.spine[id+1] );
+    this.spine[id+1].dom = newDom;
+    newDom.sub.push( this.spine[id+1] );
 
   }
 
-  for( var i =0; i < this.spine[id-1].sub.length; i++ ){
+  for( var i =0; i <  newDom.sub.length; i++ ){
 
-    if( this.spine[id-1].sub[i] == this.spine[id] ){
+    if(  newDom.sub[i] == this.spine[id] ){
 
-      this.spine[id-1].sub.splice( i , 1 );
+       newDom.sub.splice( i , 1 );
 
       console.log( 'SPLACES' );
     }
