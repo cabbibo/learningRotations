@@ -10,7 +10,7 @@ function initThree(){
     );
 
   // placing our camera position so it can see everything
-  camera.position.z = sceneSize;
+  camera.position.z = 20;
 
   clock = new THREE.Clock();
       // Getting the container in the right location

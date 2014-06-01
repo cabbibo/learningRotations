@@ -28,9 +28,9 @@ function DragonFish( bait , head , plume , flagella  ){
      PLUME
 
   */
-  this.initPlume();
+  //this.initPlume();
 
-  this.initBody();
+  //this.initBody();
 
   this.addToScene( this.leader );
 
@@ -144,18 +144,28 @@ DragonFish.prototype.initBody = function(){
 
 DragonFish.prototype.addPrecreatedVertabrae = function( vertabrae ){
 
-  vertabrae.dom = this.spine[ this.spine.length - 1 ];
+  if( this.spine.length === 0 ){
 
-  vertabrae.dom.sub.push( vertabrae );
+    vertabrae.dom = this.leader;
+    vertabrae.dom.sub.push( vertabrae );
+
+  }else{
+  
+    vertabrae.dom = this.spine[ this.spine.length - 1 ];
+    vertabrae.dom.sub.push( vertabrae );
+  
+  }
+  
   this.spine.push( vertabrae );
+
 
 }
 
 DragonFish.prototype.addBoss = function( vertabrae ){
 
-  vertabrae.dom = this.spine[ 3 ];
+  vertabrae.dom = this.leader;
 
-  this.spine.splice( 4 , 0 , vertabrae );
+  this.spine.splice( 0 , 0 , vertabrae );
  
   vertabrae.dom.sub.push( vertabrae );
 

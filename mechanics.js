@@ -38,7 +38,8 @@ function updateMechanics( delta ){
     intersectPlane.position.copy( camera.position );
 
     var dT = distanceToIntersectPlane;
-    var d = dT + ( controls.speed / controls.maxSpeed ) * dT
+    var m =  ( controls.speed / controls.maxSpeed ) 
+    var d = dT + m * m * dT * dT
     var vector = new THREE.Vector3( 0, 0, -d );
     vector.applyQuaternion( camera.quaternion );
     intersectPlane.position.add( vector );

@@ -65,8 +65,8 @@
 <script src = "initAudio.js"          ></script>
 <script src = "initThree.js"          ></script>
 <script src = "initDebug.js"          ></script>
-<script src = "initShaders.js"          ></script>
 <script src = "initGeos.js"          ></script>
+<script src = "initShaders.js"          ></script>
 <script src = "mechanics.js"          ></script>
 <script src = "utils.js"              ></script>
 <script src = "Level.js"              ></script>
@@ -198,12 +198,13 @@
     initAudio();
     initMechanics();
     initDebug();
-    initGeos();
     initShaders();
+    initGeos();
 
     // Object our dragon fish follows
     bait = new THREE.Object3D();
     dragonFish = new DragonFish( bait );
+    dragonFish.leader.position.copy( camera.position );
 
     /*var g = new THREE.IcosahedronGeometry( .5 ,1 );
     var m = new THREE.MeshNormalMaterial({ wireframe:true });

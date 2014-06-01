@@ -59,11 +59,6 @@ function Level( name , dragonFish , params ){
 
   this.scene.position = params.position;
 
-  // TODO: move to initCrystal
-  var g = new THREE.IcosahedronGeometry( 1 );
-  var m = new THREE.MeshNormalMaterial();
-  this.crystal = new THREE.Mesh( g , m );
-  this.crystalSize = 1;
 
   this.hooksOnDeck = [];
 
@@ -283,16 +278,13 @@ Level.prototype.createStones = function(){
 
   this.stones = this.params.stones.init( GEOS[ this.params.stones.geo ] )
 
-
 }
+
 Level.prototype.createSkybox = function(){
 
   var g = GEOS[this.params.skybox.geo];
-  var m = this.params.skybox.mat;
-
-  this.skybox = new THREE.Mesh( g , m );
-  this.skybox.note = this.params.skybox.note;
-  this.skybox.scale.multiplyScalar( this.params.skybox.scale );
+  
+  this.skybox = this.params.skybox.init( g );
 
 }
 
@@ -309,6 +301,7 @@ Level.prototype.createCrystal = function(){
   this.crystal = new THREE.Mesh( g , m );
   this.crystal.scale.multiplyScalar( this.params.crystal.scale );
 
+  this.crystal.size = this.params.crystal.size || 3;
   if( this.params.crystal.rotation ){
     console.log('sasda' );
     console.log( this.crystal.rotation );
@@ -440,7 +433,7 @@ Level.prototype.prepareVertabraeForDestruction = function(){
   this.distanceFromPreviousLevel = from.sub( this.scene.position ).length();
     //TODO: Make sure this works
   // Remove any unnecchesary hooks
-  for( var i = 4; i < this.dragonFish.spine.length; i++ ){
+  for( var i = 0; i < this.dragonFish.spine.length; i++ ){
 
     var verta = this.dragonFish.spine[i];
     var saved = false;
@@ -741,7 +734,7 @@ Level.prototype.update = function(){
 
     var dif = this.scene.position.clone().sub( this.dragonFish.leader.position );
   
-    if( dif.length() <= this.crystalSize ){
+    if( dif.length() <= this.crystal.size ){
 
       this.onStart();
 
@@ -767,7 +760,7 @@ Level.prototype.checkVertabraeForDestruction = function(){
   
   var length = 1 - dif.length() / this.distanceFromPreviousLevel;
   var percentToLocation = length; 
-  for( var i = 4; i < this.dragonFish.spine.length; i++ ){
+  for( var i = 0; i < this.dragonFish.spine.length; i++ ){
 
    var verta = this.dragonFish.spine[i];
 

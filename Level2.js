@@ -2,7 +2,7 @@
 
 var LEVEL_2_PARAMS = {};
 
-LEVEL_2_PARAMS.position = new THREE.Vector3( 00 , 300 , 0 );
+LEVEL_2_PARAMS.position = new THREE.Vector3( 0 , 3000 , 0 );
 
 LEVEL_2_PARAMS.note = 'clean6',
 
@@ -16,16 +16,31 @@ LEVEL_2_PARAMS.skybox = {
 
   geo:'jelly',
   note: 'srBeast2',
-  mat:  new THREE.MeshNormalMaterial({side:THREE.DoubleSide}),
-  scale: 300
+  mat:  new THREE.MeshLambertMaterial({side:THREE.DoubleSide}),
+  scale: 300,
+  init: function(geo){
+
+   // this.mat.map = audioController.texture;
+    var skybox = new THREE.Mesh( geo , this.mat );
+
+    skybox.note = this.note;
+    skybox.scale.multiplyScalar( this.scale );
+
+    return skybox;
+    
+
+
+  }
 
 }
 
 LEVEL_2_PARAMS.crystal = {
+    geo:'jelly',
+  mat: new THREE.MeshPhongMaterial({ side:THREE.DoubleSide }),
 
-   geo:'jelly',
-  mat:  new THREE.MeshNormalMaterial({side:THREE.DoubleSide}),
-  scale: 1.5
+  scale: 1,
+  rotation: new THREE.Euler( Math.PI/2 , 0 , 0 )
+
 
 }
 
@@ -122,7 +137,15 @@ LEVEL_2_PARAMS.path = {
   notes:[ 'srNight1' ,  'srNight2' ,  'srNight3' ,  'srNight4'],
   pathDetail: 30,
 
-  markerMat: new THREE.MeshNormalMaterial(),
+  markerMat: new THREE.MeshPhongMaterial({
+   
+    color: 0xaaaaaa,
+    specular: 0xaa33ff,
+    blending: THREE.AdditiveBlending,
+    transparent: true
+
+    
+  }),
   markerGeo: 'jelly',
   markerScale: 1.5,
   initMarkers: function( geo ){
@@ -155,8 +178,12 @@ LEVEL_2_PARAMS.path = {
 
     var guides = [];
 
-    var geo = new THREE.BoxGeometry( .1 , .1 , .5 );
-    var mat = new THREE.MeshNormalMaterial();
+    var geo = new THREE.BoxGeometry( .3 , .3 , 1.5 );
+    var mat = new THREE.MeshNormalMaterial({
+      blending: THREE.AdditiveBlending,
+      transparent: true
+      
+    });
 
     for( var  i = 0; i < 300; i++ ){
 
