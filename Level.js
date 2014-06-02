@@ -1,5 +1,10 @@
 /*
 
+   TODO:
+  
+      Make a new MAT object that can easily create and keep track of all materials
+
+
   The Level does the following:
 
     - Begins Loading:
@@ -38,6 +43,9 @@ function Level( name , dragonFish , params ){
   this.newTypes = params.newTypes || [];
   this.oldTypes = params.oldTypes || [];
 
+
+  this.dead = false;
+
   
   this.totalNeededToLoad = 0;
   this.totalLoaded = 0;
@@ -46,7 +54,7 @@ function Level( name , dragonFish , params ){
   this.crystalAdded = false;
   this.active = false;
 
-
+http://cabbibo.github.io/learningRotations/
   this.startScore = 0;
   this.currentScore = 0;
   this.endScore = 0;
@@ -85,7 +93,9 @@ Level.prototype.beginLoading = function(){
     this.loadNote(  this.params.path.notes[i] );
 
   }
-  
+ 
+  this.loadNote(  this.params.death.note );
+  this.loadGeo(  this.params.death.geo );
   this.loadGeo(   this.params.path.markerGeo  );  
   this.loadNote(  this.params.note            ); 
   this.loadNote(  this.params.skybox.note     ); 
@@ -217,7 +227,7 @@ Level.prototype.instantiate = function(){
 
 
   this.note = NOTES[ this.params.note ];
-
+  
 
   for( var  i = 0; i < this.newTypes.length; i++ ){
 
@@ -243,6 +253,7 @@ Level.prototype.instantiate = function(){
     this.createStones();
   */
  
+  this.createDeath();
   this.createStones();
   this.createCrystal();
   this.createSkybox();
@@ -252,6 +263,8 @@ Level.prototype.instantiate = function(){
 
   this.onPrepared();
 }
+
+
 
 Level.prototype.onPrepared = function(){}
 
@@ -280,6 +293,21 @@ Level.prototype.createStones = function(){
 
 }
 
+Level.prototype.createDeath = function(){
+
+  this.death = {};
+  this.death.note = NOTES[ this.params.death.note ];
+  this.death.geo = GEOS[ this.params.death.geo ];
+  this.death.mat = MATS[ this.params.death.mat ].clone();
+  this.death.mat.color= new THREE.Color( this.params.death.color );
+
+  this.death.mesh = new THREE.Mesh( this.death.geo , this.death.mat );
+  this.death.mesh.scale.multiplyScalar( this.params.death.scale );
+
+  this.death.mesh.position = this.params.death.position;
+
+
+}
 Level.prototype.createSkybox = function(){
 
   var g = GEOS[this.params.skybox.geo];
@@ -578,11 +606,28 @@ Level.prototype.onStart = function(){
   this.checkForNewHooks( this.currentScore );
 
   this.startHooks();
+  this.startDeath();
 
   this.active = true;
 
 }
 
+
+Level.prototype.startDeath = function(){
+
+  console.log( 'hello' );
+  for( var i= 0; i < deathDragon.leader.body.children.length; i++){
+
+    console.log( 'EHSA');
+    var c = deathDragon.leader.body.children[i];
+    deathDragon.leader.body.remove( c );
+
+  }
+  deathDragon.leader.body.add( this.death.mesh );
+
+
+
+}
 Level.prototype.startHooks = function(){
 
 
@@ -854,6 +899,27 @@ Level.prototype.checkForNewHooks = function( score ){
   }
 }
 
+
+Level.prototype.onDeath = function(){
+
+  if( !this.dead ){
+    
+    this.dead = true;
+    this.death.note.play();
+
+    if( this.dragonFish.spine[0] ){
+     this.dragonFish.removeVertabraeById( 0 );
+    }
+
+    setTimeout( function(){
+
+      this.dead = false;
+
+    }.bind( this ) , 1000 );
+
+  }
+
+}
 
 
 Level.prototype.onComplete = function(){

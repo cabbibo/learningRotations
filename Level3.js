@@ -5,6 +5,18 @@ var LEVEL_3_PARAMS = {};
 LEVEL_3_PARAMS.position = new THREE.Vector3( 0 , 2000 , 0 );
 
 LEVEL_3_PARAMS.note = 'clean6',
+LEVEL_3_PARAMS.death = {
+
+  note:'glassSmash',
+  geo:'skull',
+  mat:'phong',
+  color:0xee6622,
+  scale: 30,
+  position: new THREE.Vector3( 0 , -3 , 0 )
+
+}
+
+
 
 LEVEL_3_PARAMS.oldTypes = [
 

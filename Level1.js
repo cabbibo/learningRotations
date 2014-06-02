@@ -7,7 +7,20 @@ LEVEL_1_PARAMS.position = new THREE.Vector3( 0 , 0 , 0 );
 
 LEVEL_1_PARAMS.note = 'clean6',
 
-LEVEL_1_PARAMS.geo = 'totem'
+LEVEL_1_PARAMS.death = {
+
+  note:'glassSmash',
+  geo:'skull',
+  mat:'phong',
+  color:0xee6622,
+  scale: 30,
+  position: new THREE.Vector3( 0 , -3 , 0 )
+
+}
+
+
+LEVEL_1_PARAMS.geo = 'totem';
+
 
 
 

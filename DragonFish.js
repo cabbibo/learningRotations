@@ -1,4 +1,7 @@
-function DragonFish( bait , head , plume , flagella  ){
+function DragonFish( bait , params ){
+
+  this.params = _.defaults(params || {} , {
+  });
 
   this.bait = bait;
   
@@ -33,6 +36,11 @@ function DragonFish( bait , head , plume , flagella  ){
   //this.initBody();
 
   this.addToScene( this.leader );
+
+}
+
+DragonFish.replaceMesh = function( mesh ){
+
 
 }
 
@@ -80,11 +88,15 @@ DragonFish.prototype.update = function(){
 
 }
 
-DragonFish.prototype.initPlume = function(){
+DragonFish.prototype.initPlume = function( m1 , m2 , m3 ){
+
+  var m1 = m1 || fishSkeleton.plume.spine;
+  var m2 = m2 || fishSkeleton.plume.child1;
+  var m3 = m3 || fishSkeleton.plume.child2;
 
   for( var j = 0; j < 3; j++ ){
 
-    var f = new Fish( this.leader , 1.9 , fishSkeleton.plume.spine );
+    var f = new Fish( this.leader , .9 , fishSkeleton.plume.spine );
 
     var column1 = [];
 
@@ -331,7 +343,7 @@ DragonFish.prototype.removeVertabraeById = function( id ){
   }
 
    
-  var i = { x: 1 };
+  var i = { x:1 };
   var t = { x:0 };
 
   var tween = new TWEEN.Tween( i ).to( t , 1 * 1000 );
@@ -343,10 +355,8 @@ DragonFish.prototype.removeVertabraeById = function( id ){
 
     this.dragonFish.recursiveCall( this.spine , function( body ){
 
-      body.scale.x = i.x;
-      body.scale.y = i.x;
-      body.scale.z = i.x;
-
+      body.scale.multiplyScalar(  i.x );
+      
     });
    
 

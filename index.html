@@ -46,7 +46,7 @@
 <script src = "place.js"              ></script>
 <script src = "DragonFish.js"         ></script>
 <script src = "AudioController.js"    ></script>
-<script src = "Looper.js"    ></script>
+<script src = "Looper.js"             ></script>
 <script src = "AudioTexture.js"       ></script>
 <script src = "UserAudio.js"          ></script>
 <script src = "Stream.js"             ></script>
@@ -65,15 +65,16 @@
 <script src = "initAudio.js"          ></script>
 <script src = "initThree.js"          ></script>
 <script src = "initDebug.js"          ></script>
-<script src = "initGeos.js"          ></script>
-<script src = "initShaders.js"          ></script>
+<script src = "initGeos.js"           ></script>
+<script src = "initMaterials.js"      ></script>
+<script src = "initShaders.js"        ></script>
 <script src = "mechanics.js"          ></script>
 <script src = "utils.js"              ></script>
 <script src = "Level.js"              ></script>
-<script src = "Level1.js"              ></script>
-<script src = "Level2.js"              ></script>
-<script src = "Level3.js"              ></script>
-<script src = "Level4.js"              ></script>
+<script src = "Level1.js"             ></script>
+<script src = "Level2.js"             ></script>
+<script src = "Level3.js"             ></script>
+<script src = "Level4.js"             ></script>
 
 <script>  
 
@@ -205,6 +206,7 @@
     initThree();
     initAudio();
     initMechanics();
+    initMaterials();
     initDebug();
     initShaders();
     initGeos();
@@ -214,8 +216,14 @@
     dragonFish = new DragonFish( bait );
     dragonFish.leader.position.copy( camera.position );
 
-    angerBait = new THREE.Object3D();
-    angerDragon = new DragonFish( angerBait );
+    deathBait = new THREE.Object3D();
+    deathBait.oldPositions = [];
+    deathBait.velocity = new THREE.Vector3();
+    deathDragon = new DragonFish( deathBait );
+    deathDragon.createVertabrae( deathDragon.leader );
+    deathDragon.initPlume();
+
+    //deathDragon.leader.position.copy( new THREE.Vector3( 10000000000, 0 , 0 ) );
 
     /*var g = new THREE.IcosahedronGeometry( .5 ,1 );
     var m = new THREE.MeshNormalMaterial({ wireframe:true });
@@ -280,7 +288,18 @@
     
     if( !paused ){
       dragonFish.update();
-      angerDragon.update();
+      deathDragon.update();
+
+      var dif = dragonFish.leader.position.clone();
+      dif.sub( deathDragon.leader.position );
+
+      if( dif.length() <= 3 ){
+
+        LEVELS[ CURRENT_LEVEL ].onDeath();//deathNote.play();
+
+      }
+
+
     }
 
     // Updates our explosion particles

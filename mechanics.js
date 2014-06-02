@@ -56,8 +56,29 @@ function updateMechanics( delta ){
      bait.position.copy( intersects[0].point );
     }
 
-    var dif = angerBait.position.clone().sub( bait.position );
-    angerBait.position.add( dif.normalize().multiplyScalar( -.4 ) );
+    deathBait.oldPositions.unshift( bait.position );
+
+    if( deathBait.oldPositions.length > 50 ){
+
+      deathBait.oldPositions.pop();
+
+    }
+
+    var avePosition = new THREE.Vector3();
+    for(var i = 0; i< deathBait.oldPositions.length; i++ ){
+
+      avePosition.add( deathBait.oldPositions[i] );
+
+    }
+
+    avePosition.multiplyScalar( 1/ deathBait.oldPositions.length );
+
+    var dif = deathBait.position.clone().sub( bait.position );
+    deathBait.velocity.add( dif.normalize().multiplyScalar( -.003 ) );
+
+    deathBait.position.add( deathBait.velocity );
+
+    deathBait.velocity.multiplyScalar( .99 );
 
 
     //camera.lookAt( dragonFish.leader.position );
