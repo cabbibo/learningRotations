@@ -11,8 +11,8 @@ LEVEL_2_PARAMS.death = {
   geo:'skull',
   mat:'phong',
   color:0xee6622,
-  scale: 30,
-  position: new THREE.Vector3( 0 , -3 , 0 )
+  scale: 100,
+  position: new THREE.Vector3( 0 , -10 , 0 )
 
 }
 
